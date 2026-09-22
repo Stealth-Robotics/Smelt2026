@@ -1,0 +1,25 @@
+apply plugin: 'com.android.library'
+
+android {
+
+    defaultConfig {
+        minSdkVersion 24
+        //noinspection ExpiredTargetSdkVersion
+        targetSdkVersion 28
+    }
+
+    compileSdkVersion 30
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    namespace = 'org.stealthrobotics.library'
+}
+
+apply from: '../build.dependencies.gradle'
+
+dependencies {
+    implementation 'org.ftclib.ftclib:core:2.1.1'
+}

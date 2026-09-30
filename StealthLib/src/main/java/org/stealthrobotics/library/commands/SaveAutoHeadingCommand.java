@@ -16,6 +16,6 @@ public class SaveAutoHeadingCommand extends InstantCommand {
      * @param finalHeadingSupplier a snippet of code to get the bot's heading. Ex: "() -> drive.getHeading()"
      */
     public SaveAutoHeadingCommand(DoubleSupplier finalHeadingSupplier) {
-        super(() -> AutoToTeleStorage.finalAutoHeading = finalHeadingSupplier.getAsDouble());
+        super(() -> AutoToTeleStorage.setHeading(finalHeadingSupplier.getAsDouble()));
     }
 }

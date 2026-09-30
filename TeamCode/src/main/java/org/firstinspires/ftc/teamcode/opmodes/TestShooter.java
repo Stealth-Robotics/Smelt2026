@@ -9,11 +9,14 @@ import org.firstinspires.ftc.teamcode.commands.ShooterSmallDefaultCommand;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterSmallSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-@TeleOp(name = "Teleop")
-public class Teleop extends StealthOpMode {
-    private final GamepadEx driver = new GamepadEx(gamepad1);
+@TeleOp(name = "TestShooter")
+public class TestShooter extends StealthOpMode {
+
+    public GamepadEx driver;
+
     @Override
     public void initialize() {
+        driver = new GamepadEx(gamepad1);
 
         ShooterSmallSubsystem shooterSmall = new ShooterSmallSubsystem(hardwareMap);
         ShooterSmallDefaultCommand shooterSmallCmd = new ShooterSmallDefaultCommand(
@@ -22,4 +25,5 @@ public class Teleop extends StealthOpMode {
                 () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
         shooterSmall.setDefaultCommand(shooterSmallCmd);
     }
+
 }

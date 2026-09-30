@@ -1,18 +1,18 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.stealthrobotics.library.StealthSubsystem;
+import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 public class ShooterSmallSubsystem extends StealthSubsystem {
     private static final String MOTOR_NAME_1 = "shooterSmall";
+    private final Telemetry telemetry = StealthOpMode.telemetry;
 
     private static final double MOTOR_TICKS_REV = 28;
 
-    private final TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
     private final DcMotorEx shooterSmallMotor;
 
@@ -30,6 +30,6 @@ public class ShooterSmallSubsystem extends StealthSubsystem {
 
     @Override
     public void periodic() {
-        telemetryM.addData("Small Shooter RPM", getRpm());
+        telemetry.addData("Small Shooter RPM", getRpm());
     }
 }

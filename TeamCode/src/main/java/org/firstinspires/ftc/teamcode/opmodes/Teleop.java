@@ -20,13 +20,9 @@ public class Teleop extends StealthOpMode {
             hardwareMap,
             () -> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)
          );
-//
-//        ShooterSmallSubsystem shooterSmall = new ShooterSmallSubsystem(hardwareMap);
-//        ShooterSmallDefaultCommand shooterSmallCmd = new ShooterSmallDefaultCommand(
-//                shooterSmall,
-//                () -> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER),
-//                () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
-//        shooterSmall.setDefaultCommand(shooterSmallCmd);
+
+         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(robotSystem.getShooterSmall().setPowerCmd(0));
+         driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(robotSystem.getShooterSmall().setPowerCmd(1));
 
     }
 }

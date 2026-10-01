@@ -11,13 +11,17 @@ import java.util.function.DoubleSupplier;
 public class RobotSystem extends StealthSubsystem {
 
     private final IntakeSubsystem intakeSubsystem;
-    //private final ShooterSmallSubsystem shooterSmallSubsystem;
+    private final ShooterSmallSubsystem shooterSmallSubsystem;
 
     public RobotSystem(HardwareMap hardwareMap, DoubleSupplier intakeSupplier) {
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
-        //shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
+        shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
 
         intakeSubsystem.setDefaultCommand(intakeDefaultCommand(intakeSupplier));
+    }
+
+    public ShooterSmallSubsystem getShooterSmall() {
+        return shooterSmallSubsystem;
     }
 
     private Command intakeDefaultCommand(DoubleSupplier intakePower) {

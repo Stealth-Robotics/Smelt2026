@@ -11,5 +11,4 @@ public class Tuning {
     public static Procedure pinpointTuner() {
         return new PinpointTuner();
     }
-    }
 }

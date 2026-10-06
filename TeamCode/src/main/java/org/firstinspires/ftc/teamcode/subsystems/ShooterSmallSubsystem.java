@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -22,6 +24,10 @@ public class ShooterSmallSubsystem extends StealthSubsystem {
 
     public void setPower(double power) {
         shooterSmallMotor.setPower(power);
+    }
+
+    public Command setPowerCmd(double power) {
+        return new InstantCommand(() -> shooterSmallMotor.setPower(power));
     }
 
     public double getRpm() {

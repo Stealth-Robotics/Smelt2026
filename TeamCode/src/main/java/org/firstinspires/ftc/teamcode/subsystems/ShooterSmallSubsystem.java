@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -9,10 +11,10 @@ import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 public class ShooterSmallSubsystem extends StealthSubsystem {
     private static final String MOTOR_NAME_1 = "shooterSmall";
-    private final Telemetry telemetry = StealthOpMode.telemetry;
 
     private static final double MOTOR_TICKS_REV = 28;
 
+    private final Telemetry telemetry = StealthOpMode.telemetry;
 
     private final DcMotorEx shooterSmallMotor;
 
@@ -22,6 +24,10 @@ public class ShooterSmallSubsystem extends StealthSubsystem {
 
     public void setPower(double power) {
         shooterSmallMotor.setPower(power);
+    }
+
+    public Command setPowerCmd(double power) {
+        return new InstantCommand(() -> shooterSmallMotor.setPower(power));
     }
 
     public double getRpm() {

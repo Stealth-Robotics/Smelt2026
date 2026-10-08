@@ -1,5 +1,9 @@
 package org.stealthrobotics.library;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+
 /**
  * A way to pass data from our auto op-mode to the tele-op that runs afterwards.
  * <p>
@@ -14,12 +18,45 @@ package org.stealthrobotics.library;
  * Chat with Sidd and see what he thinks.
  */
 public class AutoToTeleStorage {
-    public static double finalAutoHeading = 0.0;
+    private static double finalAutoHeading = 0.0;
+    private static boolean headingValid = false;
+
+    private static Pose2D finalPose = new Pose2D(DistanceUnit.METER, 0.0, 0.0, AngleUnit.DEGREES, 0.0);
+
+    private static boolean poseValid = false;
 
     /**
      * Clear all storage when starting a new autonomous opmode.
      */
     public static void clear() {
+        poseValid = false;
+        headingValid = false;
         finalAutoHeading = 0.0;
+    }
+
+    public static void setHeading(double heading) {
+        finalAutoHeading = heading;
+        headingValid = true;
+    }
+    public double getHeading() {
+        return finalAutoHeading;
+    }
+
+    public static boolean isHeadingValid()
+    {
+        return headingValid;
+    }
+
+    public static void setPose(Pose2D pose) {
+        finalPose = pose;
+        poseValid = true;
+    }
+
+    public static Pose2D getPose() {
+        return finalPose;
+    }
+    public static boolean isPoseValid()
+    {
+        return poseValid;
     }
 }

@@ -13,8 +13,13 @@ public class DriveSubsystem extends StealthSubsystem
 {
     private final Follower follower;
     private final Telemetry telemetry = StealthOpMode.telemetry;
+
+    private static final Pose zeroPose = new Pose(0, 0, 0);
     public DriveSubsystem(HardwareMap map){
+
         follower = Constants.getFollower(map);
+        follower.setPose(zeroPose);
+        follower.localizer.reset();
     }
     @Override
     public void periodic(){
@@ -26,5 +31,10 @@ public class DriveSubsystem extends StealthSubsystem
     }
     public Follower getFollower(){
         return follower;
+    }
+
+    public void resetOdometry(){
+        follower.localizer.reset();
+        follower.setPose(zeroPose);
     }
 }

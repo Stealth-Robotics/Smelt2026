@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
+@TeleOp(name = "StealthTele")
 public class StealthOp extends StealthOpMode {
     private GamepadEx driver;
     private GamepadEx operator;

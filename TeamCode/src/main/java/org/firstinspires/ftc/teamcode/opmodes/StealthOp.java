@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-@TeleOp(name = "StealthTele")
+
 public class StealthOp extends StealthOpMode {
     private GamepadEx driver;
     private GamepadEx operator;
@@ -17,4 +17,11 @@ public class StealthOp extends StealthOpMode {
         RobotSystem robot = new RobotSystem(hardwareMap, driver, operator);
 
     }
+
+    @TeleOp(name = "Blue TeleOp", group = "blue")
+    public static class BlueOp extends StealthOp {}
+
+    @TeleOp(name = "Red TeleOp", group = "red")
+    public static class RedOp extends StealthOp {}
+
 }

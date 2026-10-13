@@ -7,22 +7,20 @@ import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.stealthrobotics.library.Alliance;
 
 import java.util.function.DoubleSupplier;
 
 public class DriveCommand extends CommandBase {
-    private DriveSubsystem driveSubsystem;
-    private DoubleSupplier forward;
-    private DoubleSupplier strafe;
-    private DoubleSupplier rotate;
-    private double power = 1.0;
+    private final DriveSubsystem driveSubsystem;
+    private final DoubleSupplier forward;
+    private final DoubleSupplier strafe;
+    private final DoubleSupplier rotate;
     private boolean robotCentric = false;
+    private static final double slowPower = 0.3;
+    private static final double maxPower = 1.0;
 
-    private static double slowpower = 0.3;
-    private static double maxpower = 1.0;
-
-
-    private boolean slomo = false;
+    private boolean slowMo = false;
     public DriveCommand(DriveSubsystem driveSubsystem, DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate){
         this.driveSubsystem = driveSubsystem;
         this.forward = forward;
@@ -33,9 +31,11 @@ public class DriveCommand extends CommandBase {
     @Override
     public void execute(){
         Follower follower = driveSubsystem.getFollower();
-        double forwardPow = forward.getAsDouble()*power;
-        double strafePow = strafe.getAsDouble()*power;
-        double rotatePow = rotate.getAsDouble()*power;
+        double invert = Alliance.isBlue() && !robotCentric ? -1 : 1;
+        double currentPower = isSlowMo() ? slowPower : maxPower;
+        double forwardPow = forward.getAsDouble() * currentPower * invert;
+        double strafePow = strafe.getAsDouble() * currentPower * invert;
+        double rotatePow = rotate.getAsDouble() * currentPower;
         DrivePowers powers = robotCentric?
                 new DrivePowers(forwardPow, strafePow, rotatePow):
                 ManualDrive.fieldCentric(forwardPow, strafePow, rotatePow, follower.pose().heading());
@@ -43,14 +43,24 @@ public class DriveCommand extends CommandBase {
 
     }
 
-    public void toggleSlomo(){
-        slomo = !slomo;
-        power = slomo? slowpower : maxpower;
-
-    }
-
     public void toggleRobotCentric(){
         robotCentric = !robotCentric;
+    }
+
+    public boolean isRobotCentric() {
+        return robotCentric;
+    }
+
+    public boolean isSlowMo() {
+        return slowMo;
+    }
+    
+    public void toggleSlowMo() {
+        slowMo = ! slowMo;
+    }
+
+    public void setSlowMo(boolean pressed) {
+        slowMo = pressed;
     }
 
 }

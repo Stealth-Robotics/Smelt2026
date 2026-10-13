@@ -67,19 +67,11 @@ public class Constants {
                 c.naturalStrafeDeceleration.set(70.38975401126757);
             }
     );
-    private static Follower create(HardwareMap h) {
+    public static Follower create(HardwareMap h) {
         return new Follower(
                 new PinpointLocalizer(h, localizerConfig),
                 new Mecanum(h, drivetrainConfig),
                 new Foresight(foresightConfig)
         );
-    }
-
-    public static Follower getFollower(HardwareMap h) {
-        if (follower == null) {
-            follower = create(h);
-        }
-
-        return follower;
     }
 }

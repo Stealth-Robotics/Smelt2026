@@ -15,36 +15,37 @@ public class DriveSubsystem extends StealthSubsystem
     private final Follower follower;
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
-    private static final Pose bluePose = new Pose(0, 0, 180);
-    private static final Pose redPose = new Pose(0, 0, 180);
+    private static final Pose bluePose = new Pose(0, 0, Math.toRadians(180));
+    private static final Pose redPose = new Pose(0, 0, Math.toRadians(0));
 
     public DriveSubsystem(HardwareMap map){
 
-        follower = Constants.getFollower(map);
-        follower.setPose(Alliance.isBlue()?bluePose:redPose);
-        follower.localizer.reset();
+        follower = Constants.create(map);
+        follower.setPose(Alliance.isBlue() ? bluePose:redPose);
+        //follower.localizer.reset();
     }
     @Override
     public void periodic(){
         follower.update();
+
         Pose pose = follower.pose();
         telemetry.addData("X",pose.x());
         telemetry.addData("Y",pose.y());
         telemetry.addData("Heading",Math.toDegrees(pose.heading()));
-        telemetry.addData("Aliance: ", Alliance.get());
+        telemetry.addData("Alliance: ", Alliance.get());
     }
     public Follower getFollower(){
         return follower;
     }
 
     public void resetOdometry(){
-        follower.localizer.reset();
+        //follower.localizer.reset();
 
         Pose pose = follower.pose();
         if (Alliance.isBlue()) {
-            pose = new Pose(pose.x(), pose.y(), 180);
+            pose = new Pose(pose.x(), pose.y(), Math.toRadians(180));
         } else {
-            pose = new Pose(pose.x(), pose.y(), 0);
+            pose = new Pose(pose.x(), pose.y(), Math.toRadians(0));
         }
         follower.setPose(pose);
     }

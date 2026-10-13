@@ -7,6 +7,7 @@ import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.stealthrobotics.library.Alliance;
 
 import java.util.function.DoubleSupplier;
 
@@ -33,9 +34,11 @@ public class DriveCommand extends CommandBase {
     @Override
     public void execute(){
         Follower follower = driveSubsystem.getFollower();
-        double forwardPow = forward.getAsDouble()*power;
-        double strafePow = strafe.getAsDouble()*power;
-        double rotatePow = rotate.getAsDouble()*power;
+        double allianceMod = Alliance.isBlue() ? -1.0 : 1.0;
+        double forwardPow = forward.getAsDouble()*power*allianceMod;
+        double strafePow = strafe.getAsDouble()*power*allianceMod;
+        double rotatePow = rotate.getAsDouble()*power*allianceMod;
+
         DrivePowers powers = robotCentric?
                 new DrivePowers(forwardPow, strafePow, rotatePow):
                 ManualDrive.fieldCentric(forwardPow, strafePow, rotatePow, follower.pose().heading());

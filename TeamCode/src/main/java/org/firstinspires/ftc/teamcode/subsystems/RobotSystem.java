@@ -46,6 +46,7 @@ public class RobotSystem extends StealthSubsystem {
 
         driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive::resetOdometry);
         driver.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(driveCmd::toggleSlomo);
+        driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(driveCmd::toggleRobotCentric);
 
 
     }

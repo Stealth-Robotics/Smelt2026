@@ -55,6 +55,8 @@ public abstract class StealthOpMode extends LinearOpMode {
         return 0.0;
     }
 
+    public void opModeEnded() {}
+
     /**
      * Schedules {@link com.arcrobotics.ftclib.command.Command} objects to the scheduler
      */
@@ -137,5 +139,7 @@ public abstract class StealthOpMode extends LinearOpMode {
         if (!AutoToTeleStorage.isHeadingValid()) {
             AutoToTeleStorage.setHeading(getFinalHeading());
         }
+
+        opModeEnded();
     }
 }

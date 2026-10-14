@@ -25,6 +25,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        telemetry.addData("Power:", intake.getPower());
+        telemetry.addData("Intake Power:", intake.getPower());
     }
 }

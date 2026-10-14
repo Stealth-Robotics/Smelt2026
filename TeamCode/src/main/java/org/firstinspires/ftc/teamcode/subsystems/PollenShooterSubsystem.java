@@ -1,7 +1,42 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class PollenShooterSubsystem extends SubsystemBase {
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.stealthrobotics.library.StealthSubsystem;
+import org.stealthrobotics.library.opmodes.StealthOpMode;
 
+public class PollenShooterSubsystem extends StealthSubsystem {
+    // TODO:rename in hardware map
+    private static final String MOTOR_NAME_1 = "shooterSmall";
+
+    private static final double MOTOR_TICKS_REV = 28;
+
+    private final Telemetry telemetry = StealthOpMode.telemetry;
+
+    private final DcMotorEx shooterSmallMotor;
+
+    public PollenShooterSubsystem(HardwareMap hardwareMap) {
+        shooterSmallMotor = hardwareMap.get(DcMotorEx.class, MOTOR_NAME_1);
+    }
+
+    public void setPower(double power) {
+        shooterSmallMotor.setPower(power);
+    }
+
+    public Command setPowerCmd(double power) {
+        return new InstantCommand(() -> shooterSmallMotor.setPower(power));
+    }
+
+    public double getRpm() {
+        return shooterSmallMotor.getVelocity() / MOTOR_TICKS_REV * 60;
+    }
+
+    @Override
+    public void periodic() {
+        telemetry.addData("Pollen Shooter RPM", getRpm());
+    }
 }

@@ -15,13 +15,11 @@ public class StealthOp extends StealthOpMode {
         driver = new GamepadEx(gamepad1);
         operator = new GamepadEx(gamepad2);
         RobotSystem robot = new RobotSystem(hardwareMap, driver, operator);
-
     }
 
-    @TeleOp(name = "Blue TeleOp", group = "blue")
+    @TeleOp(name = "TeleOp Blue Alliance", group = "A")
     public static class BlueOp extends StealthOp {}
 
-    @TeleOp(name = "Red TeleOp", group = "red")
+    @TeleOp(name = "TeleOp Red Alliance", group = "A")
     public static class RedOp extends StealthOp {}
-
 }

@@ -21,7 +21,7 @@ public class RobotSystem extends StealthSubsystem {
     private GamepadEx driver;
     private GamepadEx operator;
     private final IntakeSubsystem intakeSubsystem;
-    private final ShooterSmallSubsystem shooterSmallSubsystem;
+    private final PollenShooterSubsystem pollenShooterSubsystem;
     private final DriveSubsystem drive;
 
     private final Telemetry telemetry = StealthOpMode.telemetry;
@@ -31,7 +31,7 @@ public class RobotSystem extends StealthSubsystem {
 
     public RobotSystem(HardwareMap hardwareMap) {
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
-        shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
+        pollenShooterSubsystem = new PollenShooterSubsystem(hardwareMap);
         drive = new DriveSubsystem(hardwareMap);
 
     }
@@ -47,24 +47,25 @@ public class RobotSystem extends StealthSubsystem {
                 ()-> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)));
 
         driveCmd = new DriveCommand(drive,
-                () -> -driver.getLeftY(),
-                () -> driver.getLeftX(),
+                () -> driver.getLeftY(),
+                () -> -driver.getLeftX(),
                 () -> -driver.getRightX());
 
         drive.register();
         driveCmd.addRequirements(drive);
         drive.setDefaultCommand(driveCmd);
 
-        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive::resetOdometry);
+        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()-> drive.resetOdometry(false));
         driver.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(driveCmd::toggleSlowMo);
         driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(driveCmd::toggleRobotCentric);
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(()-> Objects.requireNonNull(driveCmd).setSlowMo(true))
                 .whenReleased(()-> Objects.requireNonNull(driveCmd).setSlowMo(false));
+        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(driveCmd::toggleHoldMode);
     }
 
-    public ShooterSmallSubsystem getShooterSmall() {
-        return shooterSmallSubsystem;
+    public PollenShooterSubsystem getShooterSmall() {
+        return pollenShooterSubsystem;
     }
 
     private Command intakeDefaultCommand(DoubleSupplier intakePower) {
@@ -77,6 +78,7 @@ public class RobotSystem extends StealthSubsystem {
             telemetry.addData("Alliance: ", Alliance.get());
             telemetry.addData("Slow Motion", driveCmd.isSlowMo());
             telemetry.addData("Robot Centric", driveCmd.isRobotCentric());
+            telemetry.addData("Hold Mode", driveCmd.isHoldMode());
         }
     }
 }

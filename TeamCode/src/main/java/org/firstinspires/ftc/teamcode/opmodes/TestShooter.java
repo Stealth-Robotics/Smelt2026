@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-@TeleOp(name = "TestShooter")
+//@TeleOp(name = "TestShooter")
 public class TestShooter extends StealthOpMode {
     private GamepadEx driver;
     private GamepadEx operator;

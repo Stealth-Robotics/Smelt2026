@@ -16,8 +16,8 @@ public class DriveSubsystem extends StealthSubsystem
     private final Follower follower;
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
-    private static final Pose bluePose = new Pose(FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X, FieldConstants.ROBOT_CENTER_Y, Math.toRadians(180));
-    private static final Pose redPose = new Pose(FieldConstants.ROBOT_CENTER_X, FieldConstants.ROBOT_CENTER_Y, Math.toRadians(0));
+    private static final Pose bluePose = new Pose(FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X, FieldConstants.ROBOT_CENTER_Y, FieldConstants.ROBOT_BLUE_HEADING);
+    private static final Pose redPose = new Pose(FieldConstants.ROBOT_CENTER_X, FieldConstants.ROBOT_CENTER_Y, FieldConstants.ROBOT_RED_HEADING);
 
     public DriveSubsystem(HardwareMap map){
         follower = Constants.create(map);
@@ -38,16 +38,10 @@ public class DriveSubsystem extends StealthSubsystem
         return follower;
     }
 
-    public void resetOdometry(){
-        follower.localizer.reset();
+    public void resetOdometry(boolean resetPose) {
+        Pose basePose = resetPose ? (Alliance.isBlue() ? bluePose : redPose) : follower.pose();
 
-        Pose pose = follower.pose();
-        if (Alliance.isBlue()) {
-            pose = new Pose(pose.x(), pose.y(),  Math.toRadians(180));
-        } else {
-            pose = new Pose(pose.x(), pose.y(), Math.toRadians(0));
-        }
-
-        follower.setPose(pose);
+        double heading = Alliance.isBlue() ? FieldConstants.ROBOT_BLUE_HEADING : FieldConstants.ROBOT_RED_HEADING;
+        follower.setPose(new Pose(basePose.x(), basePose.y(), heading));
     }
 }

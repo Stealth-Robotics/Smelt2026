@@ -17,6 +17,7 @@ public class DriveCommand extends CommandBase {
     private final DoubleSupplier strafe;
     private final DoubleSupplier rotate;
     private boolean robotCentric = false;
+    private boolean hold = false;
     private static final double slowPower = 0.3;
     private static final double maxPower = 1.0;
 
@@ -39,8 +40,12 @@ public class DriveCommand extends CommandBase {
         DrivePowers powers = robotCentric?
                 new DrivePowers(forwardPow, strafePow, rotatePow):
                 ManualDrive.fieldCentric(forwardPow, strafePow, rotatePow, follower.pose().heading());
-        follower.manual(powers);
 
+        if (hold) {
+            ManualDrive.driveOrHold(follower, powers);
+        } else {
+            follower.manual(powers);
+        }
     }
 
     public void toggleRobotCentric(){
@@ -57,6 +62,14 @@ public class DriveCommand extends CommandBase {
     
     public void toggleSlowMo() {
         slowMo = ! slowMo;
+    }
+
+    public void toggleHoldMode() {
+        hold = ! hold;
+    }
+
+    public boolean isHoldMode() {
+        return hold;
     }
 
     public void setSlowMo(boolean pressed) {

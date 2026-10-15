@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.utils.FieldConstants;
+import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
@@ -29,9 +29,9 @@ public class DriveSubsystem extends StealthSubsystem
     public void periodic(){
         follower.update();
         Pose pose = follower.pose();
-        telemetry.addData("X",pose.x());
-        telemetry.addData("Y",pose.y());
-        telemetry.addData("Heading",Math.toDegrees(pose.heading()));
+//        telemetry.addData("X",pose.x());
+//        telemetry.addData("Y",pose.y());
+//        telemetry.addData("Heading",Math.toDegrees(pose.heading()));
     }
 
     public Follower getFollower(){

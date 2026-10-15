@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
-import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -21,7 +20,8 @@ public class RobotSystem extends StealthSubsystem {
     private GamepadEx driver;
     private GamepadEx operator;
     private final IntakeSubsystem intakeSubsystem;
-    private final ShooterSmallSubsystem shooterSmallSubsystem;
+    //private final ShooterSmallSubsystem shooterSmallSubsystem;
+    private final SingleShooterSubsystem shooterSmallSubsystem;
     private final DriveSubsystem drive;
 
     private final Telemetry telemetry = StealthOpMode.telemetry;
@@ -31,7 +31,8 @@ public class RobotSystem extends StealthSubsystem {
 
     public RobotSystem(HardwareMap hardwareMap) {
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
-        shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
+        //shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
+        shooterSmallSubsystem = new SingleShooterSubsystem(hardwareMap);
         drive = new DriveSubsystem(hardwareMap);
 
     }
@@ -64,7 +65,7 @@ public class RobotSystem extends StealthSubsystem {
         driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(driveCmd::toggleHoldMode);
     }
 
-    public ShooterSmallSubsystem getShooterSmall() {
+    public SingleShooterSubsystem getShooterSmall() {
         return shooterSmallSubsystem;
     }
 
@@ -75,10 +76,10 @@ public class RobotSystem extends StealthSubsystem {
     @Override
     public void periodic(){
         if (driveCmd != null){
-            telemetry.addData("Alliance: ", Alliance.get());
-            telemetry.addData("Slow Motion", driveCmd.isSlowMo());
-            telemetry.addData("Robot Centric", driveCmd.isRobotCentric());
-            telemetry.addData("Hold Mode", driveCmd.isHoldMode());
+//            telemetry.addData("Alliance: ", Alliance.get());
+//            telemetry.addData("Slow Motion", driveCmd.isSlowMo());
+//            telemetry.addData("Robot Centric", driveCmd.isRobotCentric());
+//            telemetry.addData("Hold Mode", driveCmd.isHoldMode());
         }
     }
 }

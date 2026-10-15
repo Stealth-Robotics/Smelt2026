@@ -21,7 +21,7 @@ public class RobotSystem extends StealthSubsystem {
     private GamepadEx driver;
     private GamepadEx operator;
     private final IntakeSubsystem intakeSubsystem;
-    private final PollenShooterSubsystem pollenShooterSubsystem;
+    private final ShooterSmallSubsystem shooterSmallSubsystem;
     private final DriveSubsystem drive;
 
     private final Telemetry telemetry = StealthOpMode.telemetry;
@@ -31,7 +31,7 @@ public class RobotSystem extends StealthSubsystem {
 
     public RobotSystem(HardwareMap hardwareMap) {
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
-        pollenShooterSubsystem = new PollenShooterSubsystem(hardwareMap);
+        shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
         drive = new DriveSubsystem(hardwareMap);
 
     }
@@ -64,8 +64,8 @@ public class RobotSystem extends StealthSubsystem {
         driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(driveCmd::toggleHoldMode);
     }
 
-    public PollenShooterSubsystem getShooterSmall() {
-        return pollenShooterSubsystem;
+    public ShooterSmallSubsystem getShooterSmall() {
+        return shooterSmallSubsystem;
     }
 
     private Command intakeDefaultCommand(DoubleSupplier intakePower) {

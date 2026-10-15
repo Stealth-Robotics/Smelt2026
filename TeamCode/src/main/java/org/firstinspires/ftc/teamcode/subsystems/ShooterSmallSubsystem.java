@@ -76,6 +76,7 @@ public class ShooterSmallSubsystem extends StealthSubsystem {
         resetVelocityReaders();
     }
 
+
     public double getCurrentRpm() {
         return ((((Math.abs(shooterMotor1.getVelocity()) + Math.abs(shooterMotor2.getVelocity())) / 2.0) / MOTOR_TICKS_REV) * 60);
     }
@@ -108,8 +109,7 @@ public class ShooterSmallSubsystem extends StealthSubsystem {
         dashboardTelemetry.addData("calculatedPower", calculatedPower);
         calculatedPower = MathUtils.clamp(calculatedPower, -1, 1);
         dashboardTelemetry.addData("setRpms", setRpms);
-        dashboardTelemetry.addData(
-                "CurrentRPM", getCurrentRpm());
+        dashboardTelemetry.addData("CurrentRPM", getCurrentRpm());
         dashboardTelemetry.update();
         dashboardTelemetry.addData("setRpms", setRpms);
         dashboardTelemetry.addData("CurrentRPM", getCurrentRpm());

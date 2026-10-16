@@ -38,6 +38,10 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         shooterMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
+    public boolean isActive(){
+        return targetRpm != 0;
+    }
+
     @Override
     public void periodic() {
 

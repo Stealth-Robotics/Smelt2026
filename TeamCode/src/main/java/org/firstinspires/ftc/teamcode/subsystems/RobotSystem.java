@@ -26,6 +26,9 @@ public class RobotSystem extends StealthSubsystem {
 
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
+    double rpm = 3600;
+
+
     @Nullable
     private DriveCommand driveCmd;
 
@@ -44,6 +47,7 @@ public class RobotSystem extends StealthSubsystem {
     }
 
     private void configureBindings(){
+        SingleShooterSubsystem shooter = this.shooterSmallSubsystem;
         intakeSubsystem.setDefaultCommand(intakeDefaultCommand(
                 ()-> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)));
 
@@ -63,6 +67,27 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(()-> Objects.requireNonNull(driveCmd).setSlowMo(true))
                 .whenReleased(()-> Objects.requireNonNull(driveCmd).setSlowMo(false));
         driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(driveCmd::toggleHoldMode);
+
+        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()-> {
+            shooter.setRpm(rpm);
+        }).whenReleased(()-> {
+            shooter.setRpm(0);
+        });
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()->{
+            rpm += 50;
+            if (shooter.isActive()){
+                shooter.setRpm(rpm);
+            }
+        });
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->{
+            rpm -= 50;
+            if (shooter.isActive()){
+                shooter.setRpm(rpm);
+           }
+        });
+
     }
 
     public SingleShooterSubsystem getShooterSmall() {

@@ -38,6 +38,25 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         shooterMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
+    @Override
+    public void periodic() {
+
+        if (targetRpm != 0) {
+            double calculatedPower= shooterController.calculate(getVelocity());
+            setPower(calculatedPower);
+            telemetry.addData("Calc Power   ", calculatedPower);
+        } else {
+            setPower(floatPower);
+        }
+
+        //TODO: remove unneeded prints statements
+        telemetry.addData("Target RPM      ", getTargetRpm());
+        telemetry.addData("Current RPM     ", getCurrentRpm());
+        telemetry.addData("Current Power   ", getPower());
+        telemetry.addData("Is shooter Ready", isShootReady());
+        telemetry.addData("PIDF","P: %.5f, F:%.5f", shooterController.getP(), shooterController.getF());
+    }
+
     public boolean isShootReady() {
         if (targetRpm == 0) return false;
         double difference = Math.abs(currentRpm - targetRpm);
@@ -74,24 +93,6 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         shootTimer.reset();
         shooterController.reset();
         shooterController.setSetPoint(rpmToTps(targetRpm));
-    }
-
-    @Override
-    public void periodic() {
-
-        if (targetRpm != 0) {
-            double calculatedPower= shooterController.calculate(getVelocity());
-            setPower(calculatedPower);
-            telemetry.addData("Calc Power   ", calculatedPower);
-        } else {
-            setPower(floatPower);
-        }
-
-        telemetry.addData("Target RPM      ", getTargetRpm());
-        telemetry.addData("Current RPM     ", getCurrentRpm());
-        telemetry.addData("Current Power   ", getPower());
-        telemetry.addData("Is shooter Ready", isShootReady());
-        telemetry.addData("PIDF","P: %.5f, F:%.5f", shooterController.getP(), shooterController.getF());
     }
 
     public void setFloatPower(double power) {

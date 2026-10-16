@@ -29,7 +29,7 @@ public class ShooterSmallSubsystem extends StealthSubsystem {
 
     private double floatPower = 0;
 
-    private static final PIDFController shooterController = new PIDFController(0.009, 0, 0, 0.00052);
+    private static final PIDFController shooterController = new PIDFController(0.005, 0, 0, .00041);
 
     public ShooterSmallSubsystem(HardwareMap map) {
         shooterMotor1 = map.get(DcMotorEx.class, "shooterMotor1");

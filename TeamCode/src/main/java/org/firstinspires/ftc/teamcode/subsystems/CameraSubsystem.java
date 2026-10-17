@@ -6,8 +6,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class CameraSubsystem {
     Limelight3A limelight;
     public CameraSubsystem (HardwareMap hardwareMap){
-hardwareMap.get( )
-
-        //setting up limelight. wip ignore the mess
+limelight = hardwareMap.get(Limelight3A.class, "limelight");
+limelight.setPollRateHz(250);
+limelight.pipelineSwitch(0);
+limelight.start();
+        //setting up limelight. wip ignore the mess ^.^
     }
 }

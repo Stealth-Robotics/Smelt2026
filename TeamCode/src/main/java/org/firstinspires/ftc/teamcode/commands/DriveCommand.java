@@ -1,13 +1,18 @@
 package org.firstinspires.ftc.teamcode.commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
+import com.qualcomm.hardware.limelightvision.LLResult;
 
+import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.stealthrobotics.library.Alliance;
+import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 import java.util.function.DoubleSupplier;
 
@@ -20,10 +25,29 @@ public class DriveCommand extends CommandBase {
     private boolean hold = false;
     private static final double slowPower = 0.3;
     private static final double maxPower = 1.0;
-
     private boolean slowMo = false;
-    public DriveCommand(DriveSubsystem driveSubsystem, DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotate){
-        this.driveSubsystem = driveSubsystem;
+
+    private boolean autoAim = false;
+
+    private final PIDFController headingController = new PIDFController(
+            .035,
+            .01,
+            0,
+            .009);
+
+    /** The maximum rotational power applied during auto-aim. */
+    public static final double MAX_ROTATION_POWER = 0.98;
+    public static double AUTO_AIM_TOLERANCE = 1;
+
+    private final CameraSubsystem camera;
+
+    public DriveCommand(
+            RobotSystem robot,
+            DoubleSupplier forward,
+            DoubleSupplier strafe,
+            DoubleSupplier rotate){
+        this.driveSubsystem = robot.getDriveSubsystem();
+        this.camera = robot.getCamera();
         this.forward = forward;
         this.strafe = strafe;
         this.rotate = rotate;
@@ -32,11 +56,24 @@ public class DriveCommand extends CommandBase {
     @Override
     public void execute(){
         Follower follower = driveSubsystem.getFollower();
+        //camera.updateRobotOrientation(follower.pose().heading());
         double invert = Alliance.isBlue() && !robotCentric ? -1 : 1;
         double currentPower = isSlowMo() ? slowPower : maxPower;
         double forwardPow = forward.getAsDouble() * currentPower * invert;
         double strafePow = strafe.getAsDouble() * currentPower * invert;
         double rotatePow = rotate.getAsDouble() * currentPower;
+
+        if (autoAim) {
+
+            LLResult result = camera.getLastResult();
+            if (result != null && result.isValid()) {
+                double txDelta = camera.getAdjustedTx(result);
+                rotatePow = getScaledTxOutput(txDelta, AUTO_AIM_TOLERANCE);
+                StealthOpMode.telemetry.addData("Adjusted Tx", txDelta);
+                StealthOpMode.telemetry.addData("Scaled Output", rotatePow);
+            }
+        }
+
         DrivePowers powers = robotCentric?
                 new DrivePowers(forwardPow, strafePow, rotatePow):
                 ManualDrive.fieldCentric(forwardPow, strafePow, rotatePow, follower.pose().heading());
@@ -46,6 +83,36 @@ public class DriveCommand extends CommandBase {
         } else {
             follower.manual(powers);
         }
+    }
+
+    /**
+     * Calculates the required rotational power to correct a given heading error (txDelta)
+     * using a PIDF controller. The output is clamped to a maximum power.
+     *
+     * @param txDelta   The horizontal error from the target (e.g., Limelight's 'tx').
+     * @param tolerance The error margin within which no correction is applied.
+     * @return The calculated rotational power, or 0 if within tolerance.
+     */
+    private double getScaledTxOutput(double txDelta, double tolerance) {
+
+        if (Math.abs(txDelta) < tolerance) {
+            headingController.reset();
+            return 0;
+        }
+
+        // Set the PID controller's target to 0 (no error).
+        headingController.setSetPoint(0);
+        // Update the controller with the current error.
+        double pidOutput = headingController.calculate(txDelta);
+        return  Math.clamp(pidOutput, -MAX_ROTATION_POWER, MAX_ROTATION_POWER);
+    }
+
+    public void setAutoAim(boolean autoAim) {
+        this.autoAim = autoAim;
+
+        if (!autoAim) headingController.reset();
+
+        hold = autoAim;
     }
 
     public void toggleRobotCentric(){

@@ -23,6 +23,7 @@ public class RobotSystem extends StealthSubsystem {
     //private final ShooterSmallSubsystem shooterSmallSubsystem;
     private final SingleShooterSubsystem shooterSmallSubsystem;
     private final DriveSubsystem drive;
+    private final CameraSubsystem camera;
 
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
@@ -30,12 +31,13 @@ public class RobotSystem extends StealthSubsystem {
     private DriveCommand driveCmd;
 
     public RobotSystem(HardwareMap hardwareMap) {
+        camera = new CameraSubsystem(hardwareMap);
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
         //shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
         shooterSmallSubsystem = new SingleShooterSubsystem(hardwareMap);
         drive = new DriveSubsystem(hardwareMap);
-
     }
+
     public RobotSystem(HardwareMap hardwareMap, GamepadEx driver, GamepadEx operator) {
         this(hardwareMap);
         this.driver = driver;
@@ -47,7 +49,7 @@ public class RobotSystem extends StealthSubsystem {
         intakeSubsystem.setDefaultCommand(intakeDefaultCommand(
                 ()-> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)));
 
-        driveCmd = new DriveCommand(drive,
+        driveCmd = new DriveCommand(this,
                 () -> driver.getLeftY(),
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX());
@@ -63,10 +65,21 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(()-> Objects.requireNonNull(driveCmd).setSlowMo(true))
                 .whenReleased(()-> Objects.requireNonNull(driveCmd).setSlowMo(false));
         driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(driveCmd::toggleHoldMode);
+        driver.getGamepadButton(GamepadKeys.Button.A)
+                .whenPressed(()-> Objects.requireNonNull(driveCmd).setAutoAim(true))
+                .whenReleased(()-> Objects.requireNonNull(driveCmd).setAutoAim(false));
     }
 
     public SingleShooterSubsystem getShooterSmall() {
         return shooterSmallSubsystem;
+    }
+
+    public DriveSubsystem getDriveSubsystem() {
+        return drive;
+    }
+
+    public CameraSubsystem getCamera() {
+        return camera;
     }
 
     private Command intakeDefaultCommand(DoubleSupplier intakePower) {

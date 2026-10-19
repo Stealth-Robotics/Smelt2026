@@ -23,10 +23,11 @@ public class SingleShooterSubsystem extends StealthSubsystem {
     private final ElapsedTime shootTimer = new ElapsedTime();
 
     private static final double VELOCITY_TOLERANCE_HIGH = 100;
+    private static final double VELOCITY_CHANGE_TOLERANCE = 50;
     public static final double MAX_RPM = 5400;
     public static final double MIN_RPM = -4000;
-    private static final double MIN_SHOOT_TIME_MS = 500;
-    private static final double MAX_SHOOT_TIME_MS = 3000;
+    private static final double MIN_SHOOT_TIME_MS = 200;
+    private static final double MAX_SHOOT_TIME_MS = 2000;
     private double targetRpm = 0;
     private double currentRpm = 0;
 
@@ -135,7 +136,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         rpm = Math.clamp(rpm, MIN_RPM, MAX_RPM);
 
         // prevents constant resets of the RPM controller
-        if (Math.abs(targetRpm - rpm) > 40) {
+        if (Math.abs(targetRpm - rpm) >= VELOCITY_CHANGE_TOLERANCE) {
             shootTimer.reset();
             shooterController.reset();
         }

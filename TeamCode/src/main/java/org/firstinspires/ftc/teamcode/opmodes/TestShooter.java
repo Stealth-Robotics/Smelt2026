@@ -21,7 +21,7 @@ public class TestShooter extends StealthOpMode {
     private double kf = .00041;
     private double kp = 0.005;
 
-    private  double rpm = 3600;
+    private  double rpm = 3400;
 
     private static final double coast = 500;
 

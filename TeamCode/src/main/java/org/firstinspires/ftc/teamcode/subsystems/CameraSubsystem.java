@@ -88,9 +88,7 @@ public class CameraSubsystem extends StealthSubsystem {
             telemetry.addData("Tags:", getTagIds(result));
 //            telemetry.addData("Tx:", result.getTx());
             telemetry.addData("Adjusted Tx", getAdjustedTx(result));
-            double averageTa = getAverageTa(result);
-            telemetry.addData("Average Ta","%.6f", averageTa);
-            telemetry.addData("Ta Distance", calcGoalDistanceByTa(averageTa));
+            telemetry.addData("Ta Distance", calcGoalDistanceByTa(result));
 //            telemetry.addData("Ty:", result.getTy());
 //            telemetry.addData("Area:", result.getTa());
 //            telemetry.addData("TY Distance", calcGoalDistanceByTy(result.getTy()));
@@ -121,12 +119,23 @@ public class CameraSubsystem extends StealthSubsystem {
     public void toggleAllTagsPipeline() {
         Pipeline cur = getCurrentPipeline();
         switch (cur) {
-            case BLUE_ALL:
-                setPipeline(RED_ALL);
-                break;
             case RED_ALL:
-            default:
                 setPipeline(BLUE_ALL);
+                break;
+            case BLUE_ALL:
+                setPipeline(RED_FAR);
+                break;
+            case RED_FAR:
+                setPipeline(RED_NEAR);
+                break;
+                case RED_NEAR:
+                    setPipeline(BLUE_NEAR);
+                break;
+            case BLUE_NEAR:
+                setPipeline(BLUE_FAR);
+                break;
+            default:
+                setPipeline(RED_ALL);
                 break;
         }
     }
@@ -149,10 +158,11 @@ public class CameraSubsystem extends StealthSubsystem {
 
     /**
      * Calculates distance to a goal by using the cameras Ta value using 4th order polynomial
-     * @param ta % target average size
+     * @param result The LLResult from Limelight
      * @return distance in inches
      */
-    public static double calcGoalDistanceByTa(double ta) {
+    public double calcGoalDistanceByTa(LLResult result) {
+        double ta = getAverageTa(result);
         return  141.857 - 42948.86 * ta + 7811325.0  * Math.pow(ta, 2) - 746920500.0  * Math.pow(ta, 3) + 29360910000.0  * Math.pow(ta, 4);
     }
 
@@ -403,7 +413,7 @@ public class CameraSubsystem extends StealthSubsystem {
             return 0.0;
         }
 
-        double distanceInches = calcGoalDistanceByTa(getAverageTa(result));
+        double distanceInches = calcGoalDistanceByTa(result);
         if (distanceInches <= 0.0 || Double.isNaN(distanceInches)) {
             return 0.0;
         }

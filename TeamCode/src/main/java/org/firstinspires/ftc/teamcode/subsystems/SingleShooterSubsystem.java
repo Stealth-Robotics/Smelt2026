@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.util.InterpLUT;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -10,6 +11,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
+
+import java.util.List;
 
 // TODO:this is for testing a single shooter motor on the prototype bot
 public class SingleShooterSubsystem extends StealthSubsystem {
@@ -28,14 +31,38 @@ public class SingleShooterSubsystem extends StealthSubsystem {
     private double currentRpm = 0;
 
     private double floatPower = 0;
+    private static final double MIN_DISTANCE = 35;
+    private static final double MAX_DISTANCE = 60;
+
+    private double boostRpm = 0;
 
     private static final PIDFController shooterController = new PIDFController(0.005, 0, 0, .00041);
+    private static final InterpLUT rangeToRpm = new InterpLUT();
+    private  static final InterpLUT rangeToHoodAngle = new InterpLUT();
 
     public SingleShooterSubsystem(HardwareMap map) {
         shooterMotor1 = map.get(DcMotorEx.class, "shooterMotor1");
         shooterMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        buildRangeTables();
+    }
+
+    public void buildRangeTables() {
+        rangeToRpm.add(MIN_DISTANCE - 0.1, 3300);
+        rangeToRpm.add(40.0, 3400);
+        rangeToRpm.add(45.0, 3500);
+        rangeToRpm.add(50.0, 3600);
+        rangeToRpm.add(55.0, 3800);
+        rangeToRpm.add(MAX_DISTANCE + 0.1, 4100);
+        rangeToRpm.createLUT();
+
+        rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 30);
+        rangeToHoodAngle.add(40, 20);
+        rangeToHoodAngle.add(50, 10);
+        rangeToHoodAngle.add(MAX_DISTANCE + 0.1, 0);
+        rangeToHoodAngle.createLUT();
+
     }
 
     @Override
@@ -44,17 +71,16 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         if (targetRpm != 0) {
             double calculatedPower= shooterController.calculate(getVelocity());
             setPower(calculatedPower);
-            telemetry.addData("Calc Power   ", calculatedPower);
         } else {
             setPower(floatPower);
         }
 
         //TODO: remove unneeded prints statements
-        telemetry.addData("Target RPM      ", getTargetRpm());
-        telemetry.addData("Current RPM     ", getCurrentRpm());
-        telemetry.addData("Current Power   ", getPower());
-        telemetry.addData("Is shooter Ready", isShootReady());
-        telemetry.addData("PIDF","P: %.5f, F:%.5f", shooterController.getP(), shooterController.getF());
+//        telemetry.addData("Target RPM      ", getTargetRpm());
+//        telemetry.addData("Current RPM     ", getCurrentRpm());
+//        telemetry.addData("Current Power   ", getPower());
+//        telemetry.addData("Is shooter Ready", isShootReady());
+//        telemetry.addData("PIDF","P: %.5f, F:%.5f", shooterController.getP(), shooterController.getF());
     }
 
     public boolean isShootReady() {
@@ -81,22 +107,49 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         shooterController.setPIDF(kp, ki, kd, kf);
     }
 
+    public void shoot(double distance) {
+        if (distance == 0) {
+            stop();
+            return;
+        }
+
+        distance = Math.clamp(distance, MIN_DISTANCE, MAX_DISTANCE);
+
+        setRpm(rangeToRpm.get(distance));
+    }
+
+    public void stop() {
+        setRpm(0);
+    }
+
+    public double getRpmFromRange(double distance) {
+        return rangeToRpm.get(distance);
+    }
+
     public void setRpm(double rpm) {
         // Clamp the RPM to the allowable min/max range to prevent motor damage or unexpected behavior.
-        if (rpm > MAX_RPM) {
-            rpm = MAX_RPM;
-        } else if (rpm < MIN_RPM) {
-            rpm = MIN_RPM;
+        if (rpm != 0) {
+            rpm += boostRpm;
+        }
+
+        rpm = Math.clamp(rpm, MIN_RPM, MAX_RPM);
+
+        // prevents constant resets of the RPM controller
+        if (Math.abs(targetRpm - rpm) > 40) {
+            shootTimer.reset();
+            shooterController.reset();
         }
 
         targetRpm = rpm;
-        shootTimer.reset();
-        shooterController.reset();
         shooterController.setSetPoint(rpmToTps(targetRpm));
     }
 
     public void setFloatPower(double power) {
         floatPower = power;
+    }
+
+    public boolean isActiveShot() {
+        return targetRpm != 0;
     }
 
     private double getPower() {
@@ -116,5 +169,17 @@ public class SingleShooterSubsystem extends StealthSubsystem {
 
     private double rpmToTps( double rpm) {
         return Math.abs(rpm * MOTOR_TICKS_REV / 60);
+    }
+
+    public double getBoostRpm() {
+        return boostRpm;
+    }
+
+    public void setBoostRpm(double boostRpm) {
+        this.boostRpm = boostRpm;
+    }
+
+    public void resetBoostRpm() {
+        this.boostRpm = 0;
     }
 }

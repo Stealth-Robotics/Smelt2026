@@ -56,7 +56,7 @@ public class DriveCommand extends CommandBase {
     @Override
     public void execute(){
         Follower follower = driveSubsystem.getFollower();
-        //camera.updateRobotOrientation(follower.pose().heading());
+        camera.updateRobotOrientation(follower.pose().heading());
         double invert = Alliance.isBlue() && !robotCentric ? -1 : 1;
         double currentPower = isSlowMo() ? slowPower : maxPower;
         double forwardPow = forward.getAsDouble() * currentPower * invert;
@@ -69,8 +69,8 @@ public class DriveCommand extends CommandBase {
             if (result != null && result.isValid()) {
                 double txDelta = camera.getAdjustedTx(result);
                 rotatePow = getScaledTxOutput(txDelta, AUTO_AIM_TOLERANCE);
-                StealthOpMode.telemetry.addData("Adjusted Tx", txDelta);
-                StealthOpMode.telemetry.addData("Scaled Output", rotatePow);
+//                StealthOpMode.telemetry.addData("Adjusted Tx", txDelta);
+//                StealthOpMode.telemetry.addData("Scaled Output", rotatePow);
             }
         }
 
@@ -79,7 +79,7 @@ public class DriveCommand extends CommandBase {
                 ManualDrive.fieldCentric(forwardPow, strafePow, rotatePow, follower.pose().heading());
 
         if (hold) {
-            ManualDrive.driveOrHold(follower, powers);
+            ManualDrive.driveOrHold(follower, powers, 0.05, 0.1);
         } else {
             follower.manual(powers);
         }
@@ -109,10 +109,7 @@ public class DriveCommand extends CommandBase {
 
     public void setAutoAim(boolean autoAim) {
         this.autoAim = autoAim;
-
         if (!autoAim) headingController.reset();
-
-        hold = autoAim;
     }
 
     public void toggleRobotCentric(){

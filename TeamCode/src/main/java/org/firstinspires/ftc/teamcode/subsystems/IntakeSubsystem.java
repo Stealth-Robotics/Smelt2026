@@ -13,6 +13,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class IntakeSubsystem extends SubsystemBase {
     private final DcMotorEx intake;
 
+    private boolean autoIntake = false;
+    private boolean manualControl = false;
+
     public IntakeSubsystem(HardwareMap hardwareMap) {
         intake = hardwareMap.get(DcMotorEx.class,"intakeMotor");
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -20,11 +23,46 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void setPower(double p) {
-        intake.setPower(p);
+        if (Math.abs(p) > .03) {
+            manualControl = true;
+            setAutoIntake(false);
+            intake.setPower(p);
+            return;
+        }
+
+        if (manualControl && Math.abs(p) < .03) {
+            manualControl = false;
+            intake.setPower(0);
+        }
+
     }
 
     @Override
     public void periodic() {
-        telemetry.addData("Intake Power:", intake.getPower());
+//        telemetry.addData("Intake Power:", intake.getPower());
+//        telemetry.addData("Auto Intake:", autoIntake);
+//        telemetry.addData("Manual Control:", manualControl);
+    }
+
+    public boolean getAutoIntake() {
+        return autoIntake;
+    }
+
+    public boolean getManualControl() {
+        return manualControl;
+    }
+
+    public void setAutoIntake(boolean run) {
+        if (manualControl){
+            autoIntake = false;
+            return;
+        }
+
+        autoIntake = run;
+        if (autoIntake) {
+            intake.setPower(1);
+        } else if (intake.getPower() > 0.001) {
+            intake.setPower(0);
+        }
     }
 }

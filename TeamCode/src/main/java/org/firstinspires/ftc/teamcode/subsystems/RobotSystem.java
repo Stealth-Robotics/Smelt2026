@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
+import org.firstinspires.ftc.teamcode.commands.ShootCommand;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -21,9 +22,10 @@ public class RobotSystem extends StealthSubsystem {
     private GamepadEx operator;
     private final IntakeSubsystem intakeSubsystem;
     //private final ShooterSmallSubsystem shooterSmallSubsystem;
-    private final SingleShooterSubsystem shooterSmallSubsystem;
+    private final SingleShooterSubsystem shooter;
     private final DriveSubsystem drive;
     private final CameraSubsystem camera;
+    private final ShootCommand shootCommand;
 
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
@@ -34,7 +36,10 @@ public class RobotSystem extends StealthSubsystem {
         camera = new CameraSubsystem(hardwareMap);
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
         //shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
-        shooterSmallSubsystem = new SingleShooterSubsystem(hardwareMap);
+        shooter = new SingleShooterSubsystem(hardwareMap);
+        shootCommand = new ShootCommand(this);
+        shootCommand.addRequirements(shooter);
+        shooter.setDefaultCommand(shootCommand);
         drive = new DriveSubsystem(hardwareMap);
     }
 
@@ -59,19 +64,34 @@ public class RobotSystem extends StealthSubsystem {
         drive.setDefaultCommand(driveCmd);
 
         driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()-> drive.resetOdometry(false));
+        // TODO:a number of these commands should be moved to operator
         driver.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(driveCmd::toggleSlowMo);
         driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(driveCmd::toggleRobotCentric);
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(()-> Objects.requireNonNull(driveCmd).setSlowMo(true))
                 .whenReleased(()-> Objects.requireNonNull(driveCmd).setSlowMo(false));
         driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(driveCmd::toggleHoldMode);
+
         driver.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(()-> Objects.requireNonNull(driveCmd).setAutoAim(true))
                 .whenReleased(()-> Objects.requireNonNull(driveCmd).setAutoAim(false));
+
+        driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(() -> shootCommand.setStartShoot(true))
+                .whenReleased(() -> shootCommand.setStartShoot(false));
+
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() ->
+            shooter.setBoostRpm(shooter.getBoostRpm() + 50));
+
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() ->
+                shooter.setBoostRpm(shooter.getBoostRpm() - 50));
+
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(shooter::resetBoostRpm);
+
     }
 
     public SingleShooterSubsystem getShooterSmall() {
-        return shooterSmallSubsystem;
+        return shooter;
     }
 
     public DriveSubsystem getDriveSubsystem() {
@@ -82,8 +102,16 @@ public class RobotSystem extends StealthSubsystem {
         return camera;
     }
 
+    public SingleShooterSubsystem getShooter() {
+        return shooter;
+    }
+
     private Command intakeDefaultCommand(DoubleSupplier intakePower) {
         return new RunCommand(() -> intakeSubsystem.setPower(intakePower.getAsDouble()),intakeSubsystem);
+    }
+
+    public IntakeSubsystem getIntakeSubsystem() {
+        return intakeSubsystem;
     }
 
     @Override

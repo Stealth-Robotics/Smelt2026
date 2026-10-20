@@ -9,7 +9,7 @@ import org.stealthrobotics.library.StealthSubsystem;
 public class CameraSubsystem extends StealthSubsystem {
     private final Limelight3A limelight;
     //i'm not sure what i'm supposed to do for the goal blue/red ids? I don't know if those have changed
-    //or if it's affected by our whole apriltagging system ordeal
+    //or if it's affected by our whole april tagging system ordeal
     //will update when i DO know
     public CameraSubsystem (HardwareMap hardwareMap){
     limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -19,7 +19,7 @@ public class CameraSubsystem extends StealthSubsystem {
 
 
         //setting up limelight. wip ignore the mess ^.^
-        //are vision and camera subsystem the same thing...? idk lol
+        //are vision and camera subsystem the same thing...? idk lol prolly are
 
 
     }

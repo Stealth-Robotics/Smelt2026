@@ -28,7 +28,6 @@ public class RobotSystem extends StealthSubsystem {
 
     double rpm = 3600;
 
-
     @Nullable
     private DriveCommand driveCmd;
 

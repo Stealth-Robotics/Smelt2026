@@ -88,6 +88,17 @@ public class RobotSystem extends StealthSubsystem {
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(shooter::resetBoostRpm);
 
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() ->
+                shooter.setBoostRpm(shooter.getBoostRpm() + 50));
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() ->
+                shooter.setBoostRpm(shooter.getBoostRpm() - 50));
+
+        driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(() -> shootCommand.setStartShoot(true))
+                .whenReleased(() -> shootCommand.setStartShoot(false));
+
+        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(() -> drive.resetOdometry(true));
     }
 
     public SingleShooterSubsystem getShooterSmall() {

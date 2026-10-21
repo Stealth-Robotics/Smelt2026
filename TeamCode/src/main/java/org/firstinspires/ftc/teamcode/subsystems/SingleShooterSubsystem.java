@@ -26,6 +26,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
     private static final double VELOCITY_CHANGE_TOLERANCE = 50;
     public static final double MAX_RPM = 5400;
     public static final double MIN_RPM = -4000;
+
     private static final double MIN_SHOOT_TIME_MS = 200;
     private static final double MAX_SHOOT_TIME_MS = 2000;
     private double targetRpm = 0;
@@ -33,13 +34,13 @@ public class SingleShooterSubsystem extends StealthSubsystem {
 
     private double floatPower = 0;
     private static final double MIN_DISTANCE = 35;
-    private static final double MAX_DISTANCE = 60;
+    private static final double MAX_DISTANCE = 70;
 
     private double boostRpm = 0;
 
     private static final PIDFController shooterController = new PIDFController(0.005, 0, 0, .00041);
-    private static final InterpLUT rangeToRpm = new InterpLUT();
-    private  static final InterpLUT rangeToHoodAngle = new InterpLUT();
+    private InterpLUT rangeToRpm;
+    private InterpLUT rangeToHoodAngle;
 
     public SingleShooterSubsystem(HardwareMap map) {
         shooterMotor1 = map.get(DcMotorEx.class, "shooterMotor1");
@@ -50,6 +51,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
     }
 
     public void buildRangeTables() {
+        rangeToRpm = new InterpLUT();
         rangeToRpm.add(MIN_DISTANCE - 0.1, 3300);
         rangeToRpm.add(40.0, 3400);
         rangeToRpm.add(45.0, 3500);
@@ -58,6 +60,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         rangeToRpm.add(MAX_DISTANCE + 0.1, 4100);
         rangeToRpm.createLUT();
 
+        rangeToHoodAngle = new InterpLUT();
         rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 30);
         rangeToHoodAngle.add(40, 20);
         rangeToHoodAngle.add(50, 10);
@@ -77,10 +80,10 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         }
 
         //TODO: remove unneeded prints statements
-//        telemetry.addData("Target RPM      ", getTargetRpm());
-//        telemetry.addData("Current RPM     ", getCurrentRpm());
+        telemetry.addData("Target RPM      ", getTargetRpm());
+        telemetry.addData("Current RPM     ", getCurrentRpm());
 //        telemetry.addData("Current Power   ", getPower());
-//        telemetry.addData("Is shooter Ready", isShootReady());
+        telemetry.addData("Is shooter Ready", isShootReady());
 //        telemetry.addData("PIDF","P: %.5f, F:%.5f", shooterController.getP(), shooterController.getF());
     }
 
@@ -114,9 +117,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
             return;
         }
 
-        distance = Math.clamp(distance, MIN_DISTANCE, MAX_DISTANCE);
-
-        setRpm(rangeToRpm.get(distance));
+        setRpm(getRpmFromRange(distance));
     }
 
     public void stop() {
@@ -124,7 +125,14 @@ public class SingleShooterSubsystem extends StealthSubsystem {
     }
 
     public double getRpmFromRange(double distance) {
-        return rangeToRpm.get(distance);
+        if (distance == 0) {
+            return 0;
+        }
+
+        double dist = Math.clamp(distance, MIN_DISTANCE, MAX_DISTANCE);
+        dist = Math.round(dist * 100.0) / 100.0;
+
+        return rangeToRpm.get(dist);
     }
 
     public void setRpm(double rpm) {

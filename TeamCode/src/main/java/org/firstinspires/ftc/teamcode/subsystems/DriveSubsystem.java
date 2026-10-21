@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.tools.AutoToTeleOpStorage;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.StealthSubsystem;
@@ -22,7 +23,11 @@ public class DriveSubsystem extends StealthSubsystem
 
     public DriveSubsystem(HardwareMap map){
         follower = Constants.create(map);
-        follower.setPose(Alliance.isBlue()?bluePose:redPose);
+        if (AutoToTeleOpStorage.isPoseValid()) {
+            follower.setPose(AutoToTeleOpStorage.getPose());
+        }else {
+            follower.setPose(Alliance.isBlue() ? bluePose : redPose);
+        }
         follower.localizer.reset();
     }
 
@@ -30,10 +35,10 @@ public class DriveSubsystem extends StealthSubsystem
     public void periodic(){
         follower.update();
 
-//        Pose pose = follower.pose();
-//        telemetry.addData("PP X",pose.x());
-//        telemetry.addData("PP Y",pose.y());
-//        telemetry.addData("PP Heading",Math.toDegrees(pose.heading()));
+        Pose pose = follower.pose();
+        telemetry.addData("PP X",pose.x());
+        telemetry.addData("PP Y",pose.y());
+        telemetry.addData("PP Heading",Math.toDegrees(pose.heading()));
     }
 
     public Follower getFollower(){

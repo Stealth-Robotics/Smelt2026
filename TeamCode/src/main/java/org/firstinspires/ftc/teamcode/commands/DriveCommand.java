@@ -1,16 +1,24 @@
 package org.firstinspires.ftc.teamcode.commands;
 
+import static org.stealthrobotics.library.Commands.runOnce;
+
+import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandBase;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
+import org.firstinspires.ftc.teamcode.tools.FieldConstants;
+import org.firstinspires.ftc.teamcode.tools.Pipeline;
 import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -41,6 +49,8 @@ public class DriveCommand extends CommandBase {
 
     private final CameraSubsystem camera;
 
+    public final Follower follower;
+
     public DriveCommand(
             RobotSystem robot,
             DoubleSupplier forward,
@@ -51,12 +61,32 @@ public class DriveCommand extends CommandBase {
         this.forward = forward;
         this.strafe = strafe;
         this.rotate = rotate;
+        this.follower = driveSubsystem.getFollower();
     }
 
     @Override
     public void execute(){
         Follower follower = driveSubsystem.getFollower();
         camera.updateRobotOrientation(follower.pose().heading());
+        Pose cuPose = follower.localizer.pose();
+        int index = camera.getLimelight().getStatus().getPipelineIndex();
+
+        if (Alliance.isBlue())  {
+            if (cuPose.y() < FieldConstants.FIELD_Y_MAX / 2) {
+                camera.setPipeline(Pipeline.BLUE_NEAR);
+            }
+            else {
+                camera.setPipeline(Pipeline.BLUE_FAR);
+            }
+        } else {
+            if (cuPose.y() < FieldConstants.FIELD_Y_MAX) {
+                camera.setPipeline(Pipeline.RED_NEAR);
+            }
+            else {
+                camera.setPipeline(Pipeline.RED_FAR);
+            }
+        }
+
         double invert = Alliance.isBlue() && !robotCentric ? -1 : 1;
         double currentPower = isSlowMo() ? slowPower : maxPower;
         double forwardPow = forward.getAsDouble() * currentPower * invert;
@@ -138,6 +168,43 @@ public class DriveCommand extends CommandBase {
 
     public void setSlowMo(boolean pressed) {
         slowMo = pressed;
+    }
+
+    /**
+     * Follows a path with no timeout and no hold
+     * @param path Pedro path to follow
+     * @return Command
+     */
+    public Command followPathCommand(Path path){
+        return followPathCommand(path, false);
+    }
+
+    /**
+     * Follows a path with then optionally holds at the end point
+     * @param path Path to follow
+     * @param holdPoint true for hold at end otherwise false
+     * @return Command
+     */
+    public Command followPathCommand(Path path, boolean holdPoint){
+        return runOnce(()-> follower.follow(path))
+                .andThen(new WaitUntilCommand(()->
+                        !follower.isBusy())
+                        .whenFinished(
+                        ()-> { if (holdPoint) follower.hold(path.endPose()); }));
+    }
+
+    /**
+     * Follows a path with a timeout and optionally holds at the end point
+     * @param path Path to follow
+     * @param timeout number of milliseconds to wait for path to finish
+     * @param holdPoint true for hold at end otherwise false
+     * @return Command
+     */
+    public Command followPathCommand(Path path, long timeout, boolean holdPoint){
+        long endtime = System.currentTimeMillis() + timeout;
+        return runOnce(()-> follower.follow(path))
+                .andThen(new WaitUntilCommand(()-> (!follower.isBusy() || System.currentTimeMillis() > endtime)))
+                .whenFinished(()-> { if (holdPoint) follower.hold(path.endPose()); });
     }
 
 }

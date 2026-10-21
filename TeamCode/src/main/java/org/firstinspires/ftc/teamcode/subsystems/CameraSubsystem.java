@@ -75,15 +75,15 @@ public class CameraSubsystem extends StealthSubsystem {
         LLResult result = getLastResult();
         telemetry.addData("Pipeline:", getCurrentPipeline());
         if (result != null && result.isValid()) {
-//            telemetry.addData("Latency ms", result.getStaleness());
+////            telemetry.addData("Latency ms", result.getStaleness());
             telemetry.addData("Tags:", getTagIds(result));
-//            telemetry.addData("Tx:", result.getTx());
-            telemetry.addData("Adjusted Tx", getAdjustedTx(result));
-            telemetry.addData("Ta Distance", calcGoalDistanceByTa(result));
-//            telemetry.addData("Ty:", result.getTy());
-//            telemetry.addData("Area:", result.getTa());
-//            telemetry.addData("TY Distance", calcGoalDistanceByTy(result.getTy()));
-//            telemetry.addData("TagIds", getTagIds(result));
+////            telemetry.addData("Tx:", result.getTx());
+//            telemetry.addData("Adjusted Tx", getAdjustedTx(result));
+//            telemetry.addData("Ta Distance", calcGoalDistanceByTa(result));
+////            telemetry.addData("Ty:", result.getTy());
+////            telemetry.addData("Area:", result.getTa());
+////            telemetry.addData("TY Distance", calcGoalDistanceByTy(result.getTy()));
+////            telemetry.addData("TagIds", getTagIds(result));
         } else {
             telemetry.addData("Tags:", "None");
         }
@@ -135,16 +135,15 @@ public class CameraSubsystem extends StealthSubsystem {
      * Switches the Limelight's active pipeline.
      *
      * @param pipeline The {@link Pipeline} to switch to.
-     * @return {@code true} if the pipeline was switched, {@code false} if it was already active.
      */
-    public boolean setPipeline(@NonNull Pipeline pipeline) {
+    public void setPipeline(@NonNull Pipeline pipeline) {
+        telemetry.addData("Pipeline Switch Request", pipeline);
         if (pipeline == getCurrentPipeline()) {
-            return false;
+            return;
         }
 
         limelight.pipelineSwitch(pipeline.id);
         this.lastResult = null;
-        return true;
     }
 
     /**

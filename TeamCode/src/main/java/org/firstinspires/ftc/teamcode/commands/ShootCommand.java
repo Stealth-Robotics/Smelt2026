@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.commands;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.qualcomm.hardware.limelightvision.LLResult;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -24,6 +26,7 @@ public class ShootCommand extends CommandBase {
 
     public ShootCommand(RobotSystem robot) {
         this.robot = robot;
+        addRequirements(robot.getShooter(), robot.getIntakeSubsystem());
     }
 
     @Override
@@ -62,12 +65,28 @@ public class ShootCommand extends CommandBase {
         this.startShoot = shoot;
     }
 
-    public Command StartShootCommand(){
-        return new InstantCommand(()-> setStartShoot(true));
+    public Command startShootCommand() {
+        return new InstantCommand(() -> setStartShoot(true));
     }
 
-    public Command StopShootCommand(){
-        return new InstantCommand(()-> setStartShoot(false));
+    public Command stopShootCommand() {
+        return new InstantCommand(() -> setStartShoot(false));
+    }
+
+
+
+    public Command shootForTimeCommand(long durationMs) {
+        return startShootCommand()
+                .andThen(new WaitCommand(durationMs))
+                .andThen(stopShootCommand());
+    }
+
+    public Command shootWhenReadyCommand(long durationMs) {
+        return startShootCommand()
+                .andThen(new WaitUntilCommand(robot.getShooter()::isShootReady))
+                .andThen(new WaitCommand(durationMs))
+                .andThen(stopShootCommand());
     }
 
 }
+

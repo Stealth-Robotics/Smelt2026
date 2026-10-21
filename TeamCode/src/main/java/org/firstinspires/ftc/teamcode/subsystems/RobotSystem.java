@@ -1,14 +1,16 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.RunCommand;
+
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.DriveCommand;
 import org.firstinspires.ftc.teamcode.commands.ShootCommand;
+import org.firstinspires.ftc.teamcode.tools.FieldConstants;
+import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -29,7 +31,7 @@ public class RobotSystem extends StealthSubsystem {
 
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
-    private DriveCommand driveCmd;
+    private final DriveCommand driveCmd;
 
     public RobotSystem(HardwareMap hardwareMap) {
         initCommon(hardwareMap);
@@ -57,56 +59,44 @@ public class RobotSystem extends StealthSubsystem {
     private void initCommon(HardwareMap hardwareMap) {
         camera = new CameraSubsystem(hardwareMap);
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
-        //shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
         shooter = new SingleShooterSubsystem(hardwareMap);
-        shootCommand = new ShootCommand(this);
-        shootCommand.addRequirements(shooter);
-        shooter.setDefaultCommand(shootCommand);
         drive = new DriveSubsystem(hardwareMap);
+
+        shootCommand = new ShootCommand(this);
+        shooter.setDefaultCommand(shootCommand);
     }
 
     public void configureBindings(){
-        intakeSubsystem.setDefaultCommand(intakeDefaultCommand(
-                ()-> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)));
+        intakeSubsystem.setDefaultCommand(intakeSubsystem.runIntakeCommand(
+                () -> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)));
 
-
-
-        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()-> drive.resetOdometry(false));
-        // TODO:a number of these commands should be moved to operator
-        driver.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(driveCmd::toggleSlowMo);
-        driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(driveCmd::toggleRobotCentric);
+        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(false));
+        driver.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(driveCmd.toggleSlowMoCommand());
+        driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(driveCmd.toggleRobotCentricCommand());
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(()-> Objects.requireNonNull(driveCmd).setSlowMo(true))
-                .whenReleased(()-> Objects.requireNonNull(driveCmd).setSlowMo(false));
-        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(driveCmd::toggleHoldMode);
+                .whenPressed(driveCmd.setSlowMoCommand(true))
+                .whenReleased(driveCmd.setSlowMoCommand(false));
+        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(driveCmd.toggleHoldModeCommand());
 
         driver.getGamepadButton(GamepadKeys.Button.A)
-                .whenPressed(()-> Objects.requireNonNull(driveCmd).setAutoAim(true))
-                .whenReleased(()-> Objects.requireNonNull(driveCmd).setAutoAim(false));
+                .whenPressed(driveCmd.setAutoAimCommand(true))
+                .whenReleased(driveCmd.setAutoAimCommand(false));
 
         driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(() -> shootCommand.setStartShoot(true))
-                .whenReleased(() -> shootCommand.setStartShoot(false));
+                .whenPressed(shootCommand.startShootCommand())
+                .whenReleased(shootCommand.stopShootCommand());
 
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() ->
-            shooter.setBoostRpm(shooter.getBoostRpm() + 50));
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCommand(50));
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(shooter.adjustBoostRpmCommand(-50));
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(shooter.resetBoostRpmCommand());
 
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() ->
-                shooter.setBoostRpm(shooter.getBoostRpm() - 50));
-
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(shooter::resetBoostRpm);
-
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() ->
-                shooter.setBoostRpm(shooter.getBoostRpm() + 50));
-
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() ->
-                shooter.setBoostRpm(shooter.getBoostRpm() - 50));
-
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCommand(50));
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(shooter.adjustBoostRpmCommand(-50));
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(() -> shootCommand.setStartShoot(true))
-                .whenReleased(() -> shootCommand.setStartShoot(false));
+                .whenPressed(shootCommand.startShootCommand())
+                .whenReleased(shootCommand.stopShootCommand());
 
-        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(() -> drive.resetOdometry(true));
+        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(true));
     }
 
     public SingleShooterSubsystem getShooterSmall() {
@@ -133,21 +123,33 @@ public class RobotSystem extends StealthSubsystem {
         return driveCmd;
     }
 
-    private Command intakeDefaultCommand(DoubleSupplier intakePower) {
-        return new RunCommand(() -> intakeSubsystem.setPower(intakePower.getAsDouble()),intakeSubsystem);
-    }
-
     public IntakeSubsystem getIntakeSubsystem() {
         return intakeSubsystem;
     }
 
     @Override
     public void periodic(){
+        if (drive != null && camera != null) {
+            updateCameraPipeline();
+        }
+        
         if (driveCmd != null){
 //            telemetry.addData("Alliance: ", Alliance.get());
 //            telemetry.addData("Slow Motion", driveCmd.isSlowMo());
 //            telemetry.addData("Robot Centric", driveCmd.isRobotCentric());
 //            telemetry.addData("Hold Mode", driveCmd.isHoldMode());
         }
+    }
+
+    public void updateCameraPipeline() {
+        Pose pose = drive.getFollower().pose();
+        camera.updateRobotOrientation(pose.heading());
+
+        boolean isNear = pose.y() < FieldConstants.FIELD_Y_MAX / 2.0;
+        org.firstinspires.ftc.teamcode.tools.Pipeline pipeline = Alliance.isBlue()
+                ? (isNear ? org.firstinspires.ftc.teamcode.tools.Pipeline.BLUE_NEAR : org.firstinspires.ftc.teamcode.tools.Pipeline.BLUE_FAR)
+                : (isNear ? org.firstinspires.ftc.teamcode.tools.Pipeline.RED_NEAR : org.firstinspires.ftc.teamcode.tools.Pipeline.RED_FAR);
+
+        camera.setPipeline(pipeline);
     }
 }

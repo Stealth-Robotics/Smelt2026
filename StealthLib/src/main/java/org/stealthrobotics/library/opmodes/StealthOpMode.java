@@ -77,6 +77,8 @@ public abstract class StealthOpMode extends LinearOpMode {
 
     public void printTelemetry() {}
 
+    public void updateStorage(){}
+
     /**
      * This is a common {@link LinearOpMode#runOpMode()} for both auto and tele opmodes. It ensures
      * we run the {@link CommandScheduler} at the right times, schedules an auto command, keeps
@@ -127,13 +129,19 @@ public abstract class StealthOpMode extends LinearOpMode {
         }
 
         schedule(getAutoCommand());
+        try {
+            while (!isStopRequested() && opModeIsActive()) {
+                printTelemetry();
+                updateStorage();
+                CommandScheduler.getInstance().run();
+                telemetry.update();
+                hubs.forEach(LynxModule::clearBulkCache);
+            }
 
-        while (!isStopRequested() && opModeIsActive()) {
-            printTelemetry();
-            CommandScheduler.getInstance().run();
-            telemetry.update();
-            hubs.forEach(LynxModule::clearBulkCache);
+        }finally {
+            opModeEnded();
         }
+
 
         CommandScheduler.getInstance().reset();
 
@@ -143,7 +151,5 @@ public abstract class StealthOpMode extends LinearOpMode {
         if (!AutoToTeleStorage.isHeadingValid()) {
             AutoToTeleStorage.setHeading(getFinalHeading());
         }
-
-        opModeEnded();
     }
 }

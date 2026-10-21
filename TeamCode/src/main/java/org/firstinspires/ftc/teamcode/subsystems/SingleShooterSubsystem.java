@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.util.InterpLUT;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-import java.util.List;
+
 
 // TODO:this is for testing a single shooter motor on the prototype bot
 public class SingleShooterSubsystem extends StealthSubsystem {
@@ -188,5 +191,29 @@ public class SingleShooterSubsystem extends StealthSubsystem {
 
     public void resetBoostRpm() {
         this.boostRpm = 0;
+    }
+
+    public Command shootCommand(double distance) {
+        return new InstantCommand(() -> shoot(distance), this);
+    }
+
+    public Command shootRpmCommand(double rpm) {
+        return new InstantCommand(() -> setRpm(rpm), this);
+    }
+
+    public Command stopCommand() {
+        return new InstantCommand(this::stop, this);
+    }
+
+    public Command adjustBoostRpmCommand(double delta) {
+        return new InstantCommand(() -> setBoostRpm(getBoostRpm() + delta), this);
+    }
+
+    public Command resetBoostRpmCommand() {
+        return new InstantCommand(this::resetBoostRpm, this);
+    }
+
+    public Command waitUntilReadyCommand() {
+        return new WaitUntilCommand(this::isShootReady);
     }
 }

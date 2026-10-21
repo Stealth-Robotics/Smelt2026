@@ -28,7 +28,7 @@ public class AutoToTeleStorage {
     /**
      * Clear all storage when starting a new autonomous opmode.
      */
-    public static void clear() {
+    public static void reset() {
         poseValid = false;
         headingValid = false;
         finalAutoHeading = 0.0;

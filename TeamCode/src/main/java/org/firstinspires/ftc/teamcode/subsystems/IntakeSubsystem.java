@@ -1,16 +1,18 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.stealthrobotics.library.Commands.run;
-import static org.stealthrobotics.library.opmodes.StealthOpMode.telemetry;
-
 import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.RunCommand;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class IntakeSubsystem extends SubsystemBase {
+import org.stealthrobotics.library.StealthSubsystem;
+
+import java.util.function.DoubleSupplier;
+
+public class IntakeSubsystem extends StealthSubsystem {
     private final DcMotorEx intake;
 
     private boolean autoIntake = false;
@@ -65,4 +67,21 @@ public class IntakeSubsystem extends SubsystemBase {
             intake.setPower(0);
         }
     }
+
+    public Command setAutoIntakeCommand(boolean run) {
+        return new InstantCommand(() -> setAutoIntake(run), this);
+    }
+
+    public Command startAutoIntakeCommand() {
+        return setAutoIntakeCommand(true);
+    }
+
+    public Command stopAutoIntakeCommand() {
+        return setAutoIntakeCommand(false);
+    }
+
+    public Command runIntakeCommand(DoubleSupplier powerSupplier) {
+        return new RunCommand(() -> setPower(powerSupplier.getAsDouble()), this);
+    }
 }
+

@@ -15,6 +15,7 @@ public class StealthOp extends StealthOpMode {
         driver = new GamepadEx(gamepad1);
         operator = new GamepadEx(gamepad2);
         RobotSystem robot = new RobotSystem(hardwareMap, driver, operator);
+        robot.configureBindings();
     }
 
     @TeleOp(name = "TeleOp Blue Alliance", group = "A")

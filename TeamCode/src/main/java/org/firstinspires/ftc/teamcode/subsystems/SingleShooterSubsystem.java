@@ -130,8 +130,6 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         }
 
         double dist = Math.clamp(distance, MIN_DISTANCE, MAX_DISTANCE);
-        dist = Math.round(dist * 100.0) / 100.0;
-
         return rangeToRpm.get(dist);
     }
 

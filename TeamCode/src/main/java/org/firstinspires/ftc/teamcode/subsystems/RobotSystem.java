@@ -29,7 +29,6 @@ public class RobotSystem extends StealthSubsystem {
 
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
-    @Nullable
     private DriveCommand driveCmd;
 
     public RobotSystem(HardwareMap hardwareMap) {
@@ -47,13 +46,6 @@ public class RobotSystem extends StealthSubsystem {
         this(hardwareMap);
         this.driver = driver;
         this.operator = operator;
-        configureBindings();
-    }
-
-    private void configureBindings(){
-        intakeSubsystem.setDefaultCommand(intakeDefaultCommand(
-                ()-> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)));
-
         driveCmd = new DriveCommand(this,
                 () -> driver.getLeftY(),
                 () -> -driver.getLeftX(),
@@ -62,6 +54,13 @@ public class RobotSystem extends StealthSubsystem {
         drive.register();
         driveCmd.addRequirements(drive);
         drive.setDefaultCommand(driveCmd);
+    }
+
+    public void configureBindings(){
+        intakeSubsystem.setDefaultCommand(intakeDefaultCommand(
+                ()-> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)));
+
+
 
         driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()-> drive.resetOdometry(false));
         // TODO:a number of these commands should be moved to operator
@@ -94,7 +93,7 @@ public class RobotSystem extends StealthSubsystem {
         operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() ->
                 shooter.setBoostRpm(shooter.getBoostRpm() - 50));
 
-        driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(() -> shootCommand.setStartShoot(true))
                 .whenReleased(() -> shootCommand.setStartShoot(false));
 
@@ -115,6 +114,10 @@ public class RobotSystem extends StealthSubsystem {
 
     public SingleShooterSubsystem getShooter() {
         return shooter;
+    }
+
+    public DriveCommand getDriveCommand() {
+        return driveCmd;
     }
 
     private Command intakeDefaultCommand(DoubleSupplier intakePower) {

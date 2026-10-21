@@ -18,7 +18,9 @@ public class DriveSubsystem extends StealthSubsystem
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
     private static final Pose bluePose = new Pose(FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X, FieldConstants.ROBOT_CENTER_Y, FieldConstants.ROBOT_BLUE_HEADING);
-    private static final Pose redPose = new Pose(FieldConstants.ROBOT_CENTER_X, FieldConstants.ROBOT_CENTER_Y, FieldConstants.ROBOT_RED_HEADING);
+
+    // TODO: change this to a better start point note that robot right now default to back corner of red vs front corner
+    private static final Pose redPose = new Pose(FieldConstants.ROBOT_CENTER_X, FieldConstants.FIELD_Y_MAX - FieldConstants.ROBOT_CENTER_Y, FieldConstants.ROBOT_RED_HEADING);
 
 
     public DriveSubsystem(HardwareMap map){
@@ -35,10 +37,10 @@ public class DriveSubsystem extends StealthSubsystem
     public void periodic(){
         follower.update();
 
-        Pose pose = follower.pose();
-        telemetry.addData("PP X",pose.x());
-        telemetry.addData("PP Y",pose.y());
-        telemetry.addData("PP Heading",Math.toDegrees(pose.heading()));
+//        Pose pose = follower.pose();
+//        telemetry.addData("PP X",pose.x());
+//        telemetry.addData("PP Y",pose.y());
+//        telemetry.addData("PP Heading",Math.toDegrees(pose.heading()));
     }
 
     public Follower getFollower(){

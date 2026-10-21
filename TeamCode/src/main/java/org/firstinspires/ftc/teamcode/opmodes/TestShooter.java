@@ -25,7 +25,7 @@ public class TestShooter extends StealthOpMode {
 
     private static final double coast = 500;
 
-    private static final double[] stepSizes = {10.0, 1.0, 0.1, 0.001, 0.0001, 0.00001};
+    private static final double[] stepSizes = {0.1, 0.001, 0.0001, 0.00001};
     private int stepIndex = 1;
 
     private boolean shootToggle = false;

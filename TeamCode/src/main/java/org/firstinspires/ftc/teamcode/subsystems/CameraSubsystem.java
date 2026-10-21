@@ -16,16 +16,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.teamcode.tools.AprilTagIds;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.firstinspires.ftc.teamcode.tools.Pipeline;
-import org.stealthrobotics.library.Alliance;
+
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 
 public class CameraSubsystem extends StealthSubsystem {
@@ -61,12 +58,6 @@ public class CameraSubsystem extends StealthSubsystem {
         // setPollRate must be called before start
         limelight.setPollRateHz(250);
         limelight.start();
-
-        if (Alliance.isBlue()) {
-            limelight.pipelineSwitch(BLUE_ALL.id);
-        } else {
-            limelight.pipelineSwitch(RED_ALL.id);
-        }
     }
 
     @Nullable
@@ -163,7 +154,9 @@ public class CameraSubsystem extends StealthSubsystem {
      */
     public double calcGoalDistanceByTa(LLResult result) {
         double ta = getAverageTa(result);
-        return  141.857 - 42948.86 * ta + 7811325.0  * Math.pow(ta, 2) - 746920500.0  * Math.pow(ta, 3) + 29360910000.0  * Math.pow(ta, 4);
+
+        double distance = 141.857 - 42948.86 * ta + 7811325.0  * Math.pow(ta, 2) - 746920500.0  * Math.pow(ta, 3) + 29360910000.0  * Math.pow(ta, 4);
+        return Math.round(distance * 100) / 100.0; // round to 2 decimal places)
     }
 
     /**

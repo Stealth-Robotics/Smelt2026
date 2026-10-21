@@ -36,11 +36,11 @@ public class DriveSubsystem extends StealthSubsystem
     @Override
     public void periodic(){
         follower.update();
-
-//        Pose pose = follower.pose();
-//        telemetry.addData("PP X",pose.x());
-//        telemetry.addData("PP Y",pose.y());
-//        telemetry.addData("PP Heading",Math.toDegrees(pose.heading()));
+        Pose pose = follower.pose();
+        telemetry.addData("PP X",pose.x());
+        telemetry.addData("PP Y",pose.y());
+        telemetry.addData("PP Heading",Math.toDegrees(pose.heading()));
+        telemetry.addData("Distance to end", follower.distanceToEndpoint());
     }
 
     public Follower getFollower(){

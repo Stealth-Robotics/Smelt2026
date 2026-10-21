@@ -36,20 +36,27 @@ public class DriveCommand extends CommandBase {
 
     private boolean autoAim = false;
 
-    private final PIDFController headingController = new PIDFController(
-            0.0012,
-            0.08,
-            0,
-            0.005);
+    private boolean isAimSuccess = false;
 
-    private double kiNear = 0;
+    private boolean isTeleOp = true;
+
+    private final PIDFController headingController = new PIDFController(
+            .02,
+            .0001,
+            0.0015,
+            0);
+
+    private double kiNear = .12;
+    private double kiFar = .0001;
     private boolean kiSet = false;
 
     /** The maximum rotational power applied during auto-aim. */
     public static final double MAX_ROTATION_POWER = 0.98;
-    public static double AUTO_AIM_TOLERANCE = 0.1;
+    public static double AUTO_AIM_TOLERANCE = 0.5;
 
-    public static double AUTO_AIM_CLOSE_TOLERANCE = 3;
+    public static double AUTO_AIM_CLOSE_TOLERANCE = 4;
+
+    private double lastTxDelta = 100;
 
     private final CameraSubsystem camera;
 
@@ -68,12 +75,17 @@ public class DriveCommand extends CommandBase {
         this.follower = driveSubsystem.getFollower();
     }
 
+    public DriveCommand(RobotSystem robot){
+        this(robot, () -> 0, () -> 0, () -> 0);
+        isTeleOp = false;
+    }
+
     @Override
     public void execute(){
         Follower follower = driveSubsystem.getFollower();
         camera.updateRobotOrientation(follower.pose().heading());
         Pose cuPose = follower.pose();
-
+        telemetry.addData("IsTeleOp", isTeleOp);
         Pipeline pipeline;
         if (Alliance.isBlue()) {
             pipeline = (cuPose.y() < FieldConstants.FIELD_Y_MAX / 2)
@@ -94,26 +106,31 @@ public class DriveCommand extends CommandBase {
         double strafePow = strafe.getAsDouble() * currentPower * invert;
         double rotatePow = rotate.getAsDouble() * currentPower;
 
-        if (autoAim) {
 
             LLResult result = camera.getLastResult();
             if (result != null && result.isValid()) {
                 double txDelta = camera.getAdjustedTx(result);
-                txDelta = Math.round(txDelta * 1000) / 1000.0;
-                rotatePow = getScaledTxOutput(txDelta, AUTO_AIM_TOLERANCE);
-                telemetry.addData("Adjusted Tx", txDelta);
-                telemetry.addData("Scaled Output", rotatePow);
+                lastTxDelta = txDelta;
+                if (autoAim) {
+                    rotatePow = getScaledTxOutput(txDelta, AUTO_AIM_TOLERANCE);
+//                    telemetry.addData("Adjusted Tx", txDelta);
+//                    telemetry.addData("Scaled Output", rotatePow);
+                }
             }
-        }
+            else {
+                lastTxDelta = 100;
+            }
 
-        DrivePowers powers = robotCentric?
-                new DrivePowers(forwardPow, strafePow, rotatePow):
-                ManualDrive.fieldCentric(forwardPow, strafePow, rotatePow, follower.pose().heading());
+        if (isTeleOp || autoAim) {
+            DrivePowers powers = robotCentric ?
+                    new DrivePowers(forwardPow, strafePow, rotatePow) :
+                    ManualDrive.fieldCentric(forwardPow, strafePow, rotatePow, follower.pose().heading());
 
-        if (hold) {
-            ManualDrive.driveOrHold(follower, powers, 0.05, 0.1);
-        } else {
-            follower.manual(powers);
+            if (hold) {
+                ManualDrive.driveOrHold(follower, powers, 0.05, 0.1);
+            } else {
+                follower.manual(powers);
+            }
         }
     }
 
@@ -134,25 +151,40 @@ public class DriveCommand extends CommandBase {
 
         if (Math.abs(txDelta) < AUTO_AIM_CLOSE_TOLERANCE) {
 
+                if (!kiSet) {
+                    kiSet = true;
+                    headingController.clearTotalError();
+                }
+
                 headingController.setI(kiNear);
 
         } else {
-            headingController.setI(0);
-            headingController.clearTotalError();
+            if (kiSet) {
+                kiSet = false;
+                headingController.clearTotalError();
+            }
+
+            headingController.setI(kiFar);
+
 
         }
 
         // Set the PID controller's target to Tx
-        headingController.setSetPoint(txDelta);
+        headingController.setSetPoint(0);
         // Update the controller with the Error of 0. Yes this feels backwards.
-        double pidOutput = -headingController.calculate(0);
+        double pidOutput = headingController.calculate(txDelta);
         return  Math.clamp(pidOutput, -MAX_ROTATION_POWER, MAX_ROTATION_POWER);
     }
 
-    public void setAimController(double kp, double ki, double kd, double kf) {
-        kiNear = ki;
-        headingController.setPIDF(kp, 0, kd, kf);
+    public void setAimController(double kp, double kiFar, double kiNear, double kd, double kf) {
+        this.kiNear = kiNear;
+        this.kiFar = kiFar;
+        headingController.setPIDF(kp, kiFar, kd, kf);
         headingController.reset();
+    }
+
+    public void setTeleOp(boolean teleOp) {
+        isTeleOp = teleOp;
     }
 
     public PIDFController getAimController() {
@@ -192,6 +224,10 @@ public class DriveCommand extends CommandBase {
         slowMo = pressed;
     }
 
+    public boolean isAimed(){
+        return (Math.abs(lastTxDelta) < AUTO_AIM_TOLERANCE);
+    }
+
     /**
      * Follows a path with no timeout and no hold
      * @param path Pedro path to follow
@@ -210,7 +246,7 @@ public class DriveCommand extends CommandBase {
     public Command followPathCommand(Path path, boolean holdPoint){
         return runOnce(()-> follower.follow(path))
                 .andThen(new WaitUntilCommand(()->
-                        !follower.isBusy())
+                        follower.atParametricEnd())
                         .whenFinished(
                         ()-> { if (holdPoint) follower.hold(path.endPose()); }));
     }
@@ -225,7 +261,7 @@ public class DriveCommand extends CommandBase {
     public Command followPathCommand(Path path, long timeout, boolean holdPoint){
         long endtime = System.currentTimeMillis() + timeout;
         return runOnce(()-> follower.follow(path))
-                .andThen(new WaitUntilCommand(()-> (!follower.isBusy() || System.currentTimeMillis() > endtime)))
+                .andThen(new WaitUntilCommand(()-> (follower.atParametricEnd() || System.currentTimeMillis() > endtime)))
                 .whenFinished(()-> { if (holdPoint) follower.hold(path.endPose()); });
     }
 

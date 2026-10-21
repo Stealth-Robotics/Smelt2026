@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.commands;
 
+import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandBase;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.qualcomm.hardware.limelightvision.LLResult;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -58,6 +60,14 @@ public class ShootCommand extends CommandBase {
 
     public void setStartShoot(boolean shoot) {
         this.startShoot = shoot;
+    }
+
+    public Command StartShootCommand(){
+        return new InstantCommand(()-> setStartShoot(true));
+    }
+
+    public Command StopShootCommand(){
+        return new InstantCommand(()-> setStartShoot(false));
     }
 
 }

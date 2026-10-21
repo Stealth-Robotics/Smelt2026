@@ -80,10 +80,10 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         }
 
         //TODO: remove unneeded prints statements
-        telemetry.addData("Target RPM      ", getTargetRpm());
-        telemetry.addData("Current RPM     ", getCurrentRpm());
+//        telemetry.addData("Target RPM      ", getTargetRpm());
+//        telemetry.addData("Current RPM     ", getCurrentRpm());
 //        telemetry.addData("Current Power   ", getPower());
-        telemetry.addData("Is shooter Ready", isShootReady());
+//        telemetry.addData("Is shooter Ready", isShootReady());
 //        telemetry.addData("PIDF","P: %.5f, F:%.5f", shooterController.getP(), shooterController.getF());
     }
 

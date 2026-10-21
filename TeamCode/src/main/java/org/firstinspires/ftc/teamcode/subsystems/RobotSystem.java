@@ -20,30 +20,28 @@ import javax.annotation.Nullable;
 public class RobotSystem extends StealthSubsystem {
     private GamepadEx driver;
     private GamepadEx operator;
-    private final IntakeSubsystem intakeSubsystem;
+    private IntakeSubsystem intakeSubsystem;
     //private final ShooterSmallSubsystem shooterSmallSubsystem;
-    private final SingleShooterSubsystem shooter;
-    private final DriveSubsystem drive;
-    private final CameraSubsystem camera;
-    private final ShootCommand shootCommand;
+    private SingleShooterSubsystem shooter;
+    private DriveSubsystem drive;
+    private CameraSubsystem camera;
+    private ShootCommand shootCommand;
 
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
     private DriveCommand driveCmd;
 
     public RobotSystem(HardwareMap hardwareMap) {
-        camera = new CameraSubsystem(hardwareMap);
-        intakeSubsystem = new IntakeSubsystem(hardwareMap);
-        //shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
-        shooter = new SingleShooterSubsystem(hardwareMap);
-        shootCommand = new ShootCommand(this);
-        shootCommand.addRequirements(shooter);
-        shooter.setDefaultCommand(shootCommand);
-        drive = new DriveSubsystem(hardwareMap);
+        initCommon(hardwareMap);
+        driveCmd = new DriveCommand(this);
+
+        drive.register();
+        driveCmd.addRequirements(drive);
+        drive.setDefaultCommand(driveCmd);
     }
 
     public RobotSystem(HardwareMap hardwareMap, GamepadEx driver, GamepadEx operator) {
-        this(hardwareMap);
+        initCommon(hardwareMap);
         this.driver = driver;
         this.operator = operator;
         driveCmd = new DriveCommand(this,
@@ -54,6 +52,17 @@ public class RobotSystem extends StealthSubsystem {
         drive.register();
         driveCmd.addRequirements(drive);
         drive.setDefaultCommand(driveCmd);
+    }
+
+    private void initCommon(HardwareMap hardwareMap) {
+        camera = new CameraSubsystem(hardwareMap);
+        intakeSubsystem = new IntakeSubsystem(hardwareMap);
+        //shooterSmallSubsystem = new ShooterSmallSubsystem(hardwareMap);
+        shooter = new SingleShooterSubsystem(hardwareMap);
+        shootCommand = new ShootCommand(this);
+        shootCommand.addRequirements(shooter);
+        shooter.setDefaultCommand(shootCommand);
+        drive = new DriveSubsystem(hardwareMap);
     }
 
     public void configureBindings(){
@@ -102,6 +111,10 @@ public class RobotSystem extends StealthSubsystem {
 
     public SingleShooterSubsystem getShooterSmall() {
         return shooter;
+    }
+
+    public ShootCommand getShootCommand() {
+        return shootCommand;
     }
 
     public DriveSubsystem getDriveSubsystem() {

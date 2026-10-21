@@ -20,8 +20,8 @@ public class TestAutoAim extends StealthOpMode {
     private RobotSystem robotSystem;
 
     private int kIndex = 0;
-    private double[] kValues = {0, 0, 0, 0.02};
-    private static String[] kKeys = { "Kp", "Ki", "Kd", "Kf" };
+    private double[] kValues = {.02, .0001, 0.15, 0.0015, 0.00};
+    private static final String[] kKeys = { "Kp", "KiFar", "KiNear", "Kd", "Kf" };
 
     private static final double[] stepSizes = {0.1, 0.01, 0.001, 0.0001, 0.00001};
     private int stepIndex = 0;
@@ -38,7 +38,7 @@ public class TestAutoAim extends StealthOpMode {
         kIndex = 0;
         stepIndex = 0;
         configBindings();
-        robotSystem.getDriveCommand().setAimController(kValues[0], kValues[1], kValues[2], kValues[3]);
+        robotSystem.getDriveCommand().setAimController(kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
         schedule(this.printInfo());
     }
 
@@ -67,12 +67,12 @@ public class TestAutoAim extends StealthOpMode {
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()-> {
             kValues[kIndex] += stepSizes[stepIndex];
-            driveCmd.setAimController(kValues[0], kValues[1], kValues[2], kValues[3]);
+            driveCmd.setAimController(kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
         });
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->{
             kValues[kIndex] -= stepSizes[stepIndex];
-            driveCmd.setAimController(kValues[0], kValues[1], kValues[2], kValues[3]);
+            driveCmd.setAimController(kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
         });
 
     }
@@ -82,7 +82,7 @@ public class TestAutoAim extends StealthOpMode {
            telemetry.addData("Step Index", stepIndex);
            telemetry.addData("Step Value", "%.5f", stepSizes[stepIndex]);
            telemetry.addData("Selected", kKeys[kIndex]);
-           telemetry.addData("K Values", "Kp %.5f, Ki %.5f, Kd %.5f, Kf %.5f", kValues[0], kValues[1], kValues[2], kValues[3]);
+           telemetry.addData("K Values", "Kp %.5f, KiFar %.5f, KiNear %.5f, Kd %.5f, Kf %.5f", kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
            telemetry.addData("Current kI", robotSystem.getDriveCommand().getAimController().getI());
         });
     }

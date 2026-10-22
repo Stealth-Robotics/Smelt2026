@@ -8,11 +8,11 @@ android {
         targetSdkVersion 28
     }
 
-    compileSdkVersion 30
+    compileSdkVersion 37
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     namespace = 'org.stealthrobotics.library'

@@ -19,7 +19,7 @@ public class testauto extends BiobuzzAutos {
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
     private final Pose start = poseFactory.of(56, 8, 90);
-    private final Pose path1 = poseFactory.of(56, 36, 180);
+    private final Pose path1 = poseFactory.of(56, 36, 90);
 
     private RobotSystem robot;
 

@@ -18,13 +18,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
 
-    private static Follower follower = null;
-
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
-        c.frontLeftName.set("leftFront");
-        c.frontRightName.set("rightFront");
-        c.backLeftName.set("leftRear");
-        c.backRightName.set("rightRear");
+        c.frontLeftName.set("frontLeft");
+        c.frontRightName.set("frontRight");
+        c.backLeftName.set("backLeft");
+        c.backRightName.set("backRight");
         c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
         c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
         c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
@@ -34,8 +32,8 @@ public class Constants {
     public static final PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("goBildaPP");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(3.503057524913878);
-        c.yPodOffset.set(-6.070313341035618);
+        c.xPodOffset.set(-6.595);
+        c.yPodOffset.set(-2.42);
         c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
@@ -67,19 +65,12 @@ public class Constants {
                 c.naturalStrafeDeceleration.set(70.38975401126757);
             }
     );
+
     public static Follower create(HardwareMap h) {
         return new Follower(
                 new PinpointLocalizer(h, localizerConfig),
                 new Mecanum(h, drivetrainConfig),
                 new Foresight(foresightConfig)
         );
-    }
-
-    public static Follower getFollower(HardwareMap h) {
-        if (follower == null) {
-            follower = create(h);
-        }
-
-        return follower;
     }
 }

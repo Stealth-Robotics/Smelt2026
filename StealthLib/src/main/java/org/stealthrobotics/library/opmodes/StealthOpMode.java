@@ -56,6 +56,12 @@ public abstract class StealthOpMode extends LinearOpMode {
     }
 
     /**
+     * Do any commands that you want executed at the end of the OpMode.
+     * i.e. set the final Pose
+     */
+    public void opModeEnded() {}
+
+    /**
      * Schedules {@link com.arcrobotics.ftclib.command.Command} objects to the scheduler
      */
     public void schedule(Command... commands) {
@@ -137,5 +143,7 @@ public abstract class StealthOpMode extends LinearOpMode {
         if (!AutoToTeleStorage.isHeadingValid()) {
             AutoToTeleStorage.setHeading(getFinalHeading());
         }
+
+        opModeEnded();
     }
 }

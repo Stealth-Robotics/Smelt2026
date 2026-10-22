@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -43,5 +46,23 @@ public class DriveSubsystem extends StealthSubsystem
 
         double heading = Alliance.isBlue() ? FieldConstants.ROBOT_BLUE_HEADING : FieldConstants.ROBOT_RED_HEADING;
         follower.setPose(new Pose(basePose.x(), basePose.y(), heading));
+    }
+    public Command followPathCommand(Path path){
+        return followPathCommand(path, false);
+    }
+
+    public Command followPathCommand(Path path, boolean holdPoint){
+        return runOnce(()-> follower.follow(path))
+                .andThen(new WaitUntilCommand(()->
+                        !follower.isBusy())
+                        .whenFinished(
+                                ()-> { if (holdPoint) follower.hold(path.endPose()); }));
+    }
+
+    public Command followPathCommand(Path path, long timeout, boolean holdPoint){
+        long endtime = System.currentTimeMillis() + timeout;
+        return runOnce(()-> follower.follow(path))
+                .andThen(new WaitUntilCommand(()-> (!follower.isBusy() || System.currentTimeMillis() > endtime)))
+                .whenFinished(()-> { if (holdPoint) follower.hold(path.endPose()); });
     }
 }

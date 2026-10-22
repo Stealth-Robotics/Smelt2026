@@ -98,6 +98,10 @@ public class RobotSystem extends StealthSubsystem {
         return new RunCommand(() -> intakeSubsystem.setPower(intakePower.getAsDouble()),intakeSubsystem);
     }
 
+    public DriveSubsystem getDrive() {
+        return drive;
+    }
+
     @Override
     public void periodic(){
         if (driveCmd != null){

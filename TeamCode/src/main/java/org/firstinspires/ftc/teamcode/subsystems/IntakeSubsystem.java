@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.stealthrobotics.library.opmodes.StealthOpMode.telemetry;
+
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.RunCommand;
@@ -13,63 +15,59 @@ import org.stealthrobotics.library.StealthSubsystem;
 import java.util.function.DoubleSupplier;
 
 public class IntakeSubsystem extends StealthSubsystem {
+    private static final double POWER_THRESHOLD = 0.03;
+
+    private static final double MAX_INTAKE_POWER = 1.0;
+    private static final String INTAKE_MOTOR_NAME = "intakeMotor";
+
     private final DcMotorEx intake;
 
-    private boolean autoIntake = false;
-    private boolean manualControl = false;
+    public enum IntakeMode { OFF, MANUAL, AUTO }
+    private IntakeMode currentMode = IntakeMode.OFF;
 
     public IntakeSubsystem(HardwareMap hardwareMap) {
-        intake = hardwareMap.get(DcMotorEx.class,"intakeMotor");
+        intake = hardwareMap.get(DcMotorEx.class, INTAKE_MOTOR_NAME);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void setPower(double p) {
-        if (Math.abs(p) > .03) {
-            manualControl = true;
-            setAutoIntake(false);
+    public void setManualPower(double p) {
+        if (Math.abs(p) > POWER_THRESHOLD) {
             intake.setPower(p);
-            return;
-        }
-
-        if (manualControl && Math.abs(p) < .03) {
-            manualControl = false;
+            currentMode = IntakeMode.MANUAL;
+        } else {
             intake.setPower(0);
+            currentMode = IntakeMode.OFF;
         }
-
     }
 
     @Override
     public void periodic() {
 //        telemetry.addData("Intake Power:", intake.getPower());
-//        telemetry.addData("Auto Intake:", autoIntake);
-//        telemetry.addData("Manual Control:", manualControl);
+//        telemetry.addData("Intake Mode:", currentMode);
     }
 
     public boolean getAutoIntake() {
-        return autoIntake;
-    }
-
-    public boolean getManualControl() {
-        return manualControl;
+        return currentMode == IntakeMode.AUTO;
     }
 
     public void setAutoIntake(boolean run) {
-        if (manualControl){
-            autoIntake = false;
+        telemetry.addData("Intake SET:", run);
+        if (currentMode == IntakeMode.MANUAL) {
             return;
         }
 
-        autoIntake = run;
-        if (autoIntake) {
-            intake.setPower(1);
-        } else if (intake.getPower() > 0.001) {
+        currentMode = run ? IntakeMode.AUTO : IntakeMode.OFF;
+
+        if (run) {
+            intake.setPower(MAX_INTAKE_POWER);
+        } else {
             intake.setPower(0);
         }
     }
 
     public Command setAutoIntakeCommand(boolean run) {
-        return new InstantCommand(() -> setAutoIntake(run), this);
+        return runOnce(() -> setAutoIntake(run));
     }
 
     public Command startAutoIntakeCommand() {
@@ -81,7 +79,6 @@ public class IntakeSubsystem extends StealthSubsystem {
     }
 
     public Command runIntakeCommand(DoubleSupplier powerSupplier) {
-        return new RunCommand(() -> setPower(powerSupplier.getAsDouble()), this);
+        return run(() -> setManualPower(powerSupplier.getAsDouble()));
     }
 }
-

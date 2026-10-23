@@ -7,10 +7,9 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.commands.DriveCommand;
+import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 
-import org.firstinspires.ftc.teamcode.subsystems.SingleShooterSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 @TeleOp(name = "TestAutoAim")
@@ -26,25 +25,25 @@ public class TestAutoAim extends StealthOpMode {
     private static final double[] stepSizes = {0.1, 0.01, 0.001, 0.0001, 0.00001};
     private int stepIndex = 0;
 
+    private DriveSubsystem drive;
+
     @Override
     public void initialize() {
         driver = new GamepadEx(gamepad1);
         operator = new GamepadEx(gamepad2);
-         robotSystem = new RobotSystem(
-            hardwareMap,
-                 driver,
-                 operator);
+        robotSystem = new RobotSystem(hardwareMap,driver,operator);
+        drive = robotSystem.getDrive();
 
         kIndex = 0;
         stepIndex = 0;
         configBindings();
-        robotSystem.getDriveCommand().setAimController(kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
+        drive.setAimController(kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
         schedule(this.printInfo());
     }
 
     private void configBindings() {
 
-        DriveCommand driveCmd = robotSystem.getDriveCommand();
+
         driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()->{
             kIndex = (kIndex + 1) % kKeys.length;
         });
@@ -62,17 +61,17 @@ public class TestAutoAim extends StealthOpMode {
         });
 
         driver.getGamepadButton(GamepadKeys.Button.A).whenPressed(() -> {
-            driveCmd.setAutoAim(true);
-        }).whenReleased(() -> driveCmd.setAutoAim(false));
+            drive.setAutoAim(true);
+        }).whenReleased(() -> drive.setAutoAim(false));
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()-> {
             kValues[kIndex] += stepSizes[stepIndex];
-            driveCmd.setAimController(kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
+            drive.setAimController(kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
         });
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->{
             kValues[kIndex] -= stepSizes[stepIndex];
-            driveCmd.setAimController(kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
+            drive.setAimController(kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
         });
 
     }
@@ -83,7 +82,7 @@ public class TestAutoAim extends StealthOpMode {
            telemetry.addData("Step Value", "%.5f", stepSizes[stepIndex]);
            telemetry.addData("Selected", kKeys[kIndex]);
            telemetry.addData("K Values", "Kp %.5f, KiFar %.5f, KiNear %.5f, Kd %.5f, Kf %.5f", kValues[0], kValues[1], kValues[2], kValues[3], kValues[4]);
-           telemetry.addData("Current kI", robotSystem.getDriveCommand().getAimController().getI());
+           telemetry.addData("Current kI", drive.getAimController().getI());
         });
     }
 }

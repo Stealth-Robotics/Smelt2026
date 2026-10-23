@@ -31,9 +31,13 @@ public class StealthOp extends StealthOpMode {
 
     @Override
     public void whileWaitingToStart() {
+        robot.updateCameraPipeline();
+        Pose pose = robot.getDrive().getPose();
+
         telemetry.addData("Alliance", Alliance.get());
-        telemetry.addData("Auto Pose Valid", AutoToTeleOpStorage.isPoseValid());
-        telemetry.addData("Current Pose", robot.getDriveSubsystem().getFollower().pose());
+        telemetry.addData("Camera Pipeline", robot.getCamera().getCurrentPipeline());
+        telemetry.addData("Stored Pose Valid", AutoToTeleOpStorage.isPoseValid());
+        telemetry.addData("Current Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
     }
 
 }

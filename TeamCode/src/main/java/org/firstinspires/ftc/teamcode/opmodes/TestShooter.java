@@ -40,13 +40,14 @@ public class TestShooter extends StealthOpMode {
                  operator);
 
         configBindings();
-        robotSystem.getShooterSmall().setController(kp, 0,0, kf);
+        robotSystem.getShooter
+                ().setController(kp, 0,0, kf);
         schedule(this.printInfo());
     }
 
     private void configBindings() {
 
-        SingleShooterSubsystem shooter = robotSystem.getShooterSmall();
+        SingleShooterSubsystem shooter = robotSystem.getShooter();
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()->{
             shootToggle = !shootToggle;
             if (shootToggle) {
@@ -75,12 +76,12 @@ public class TestShooter extends StealthOpMode {
         });
 
         operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(() -> {
-            rpm += 100;
+            rpm += 50;
             shooter.setRpm(rpm);
         });
 
         operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(() -> {
-            rpm -= 100;
+            rpm -= 50;
             shooter.setRpm(rpm);
         });
 

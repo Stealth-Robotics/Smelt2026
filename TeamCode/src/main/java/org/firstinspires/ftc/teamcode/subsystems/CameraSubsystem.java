@@ -137,7 +137,7 @@ public class CameraSubsystem extends StealthSubsystem {
      * @param pipeline The {@link Pipeline} to switch to.
      */
     public void setPipeline(@NonNull Pipeline pipeline) {
-        telemetry.addData("Pipeline Switch Request", pipeline);
+
         if (pipeline == getCurrentPipeline()) {
             return;
         }

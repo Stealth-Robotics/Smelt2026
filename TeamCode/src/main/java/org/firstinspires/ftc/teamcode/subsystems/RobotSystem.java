@@ -7,148 +7,132 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.commands.DriveCommand;
-import org.firstinspires.ftc.teamcode.commands.ShootCommand;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
+import org.firstinspires.ftc.teamcode.tools.Pipeline;
 import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-import java.util.Objects;
-import java.util.function.DoubleSupplier;
 
-import javax.annotation.Nullable;
-
+/**
+ * The primary subsystem manager for the robot.
+ * This class initializes all hardware subsystems and manages gamepad bindings for driver and operator.
+ */
 public class RobotSystem extends StealthSubsystem {
-    private GamepadEx driver;
-    private GamepadEx operator;
-    private IntakeSubsystem intakeSubsystem;
-    //private final ShooterSmallSubsystem shooterSmallSubsystem;
-    private SingleShooterSubsystem shooter;
-    private DriveSubsystem drive;
-    private CameraSubsystem camera;
-    private ShootCommand shootCommand;
+    /** Gamepad for the driver */
+    private final GamepadEx driver;
+    /** Gamepad for the operator */
+    private final GamepadEx operator;
+    private final IntakeSubsystem intakeSubsystem;
+    private final SingleShooterSubsystem shooter;
+    private final DriveSubsystem drive;
+    private final CameraSubsystem camera;
 
+    /** Telemetry for robot status information */
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
-    private final DriveCommand driveCmd;
-
-    public RobotSystem(HardwareMap hardwareMap) {
-        initCommon(hardwareMap);
-        driveCmd = new DriveCommand(this);
-
-        drive.register();
-        driveCmd.addRequirements(drive);
-        drive.setDefaultCommand(driveCmd);
-    }
-
+    /**
+     * Initializes the robot system with the provided hardware map and gamepads.
+     *
+     * @param hardwareMap The hardware map provided by the OpMode.
+     * @param driver The gamepad used by the driver.
+     * @param operator The gamepad used by the operator.
+     */
     public RobotSystem(HardwareMap hardwareMap, GamepadEx driver, GamepadEx operator) {
-        initCommon(hardwareMap);
-        this.driver = driver;
-        this.operator = operator;
-        driveCmd = new DriveCommand(this,
-                () -> driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> -driver.getRightX());
-
-        drive.register();
-        driveCmd.addRequirements(drive);
-        drive.setDefaultCommand(driveCmd);
-    }
-
-    private void initCommon(HardwareMap hardwareMap) {
         camera = new CameraSubsystem(hardwareMap);
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
-        shooter = new SingleShooterSubsystem(hardwareMap);
-        drive = new DriveSubsystem(hardwareMap);
+        shooter = new SingleShooterSubsystem(hardwareMap, this);
+        drive = new DriveSubsystem(hardwareMap, this);
 
-        shootCommand = new ShootCommand(this);
-        shooter.setDefaultCommand(shootCommand);
+        this.driver = driver;
+        this.operator = operator;
+
     }
 
+    /**
+     * Configures gamepad bindings for both the driver and the operator.
+     */
     public void configureBindings(){
+        // --- Driver Controls ---
+        drive.setDriver(driver);
+
         intakeSubsystem.setDefaultCommand(intakeSubsystem.runIntakeCommand(
                 () -> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)));
 
         driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(false));
-        driver.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(driveCmd.toggleSlowMoCommand());
-        driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(driveCmd.toggleRobotCentricCommand());
+        driver.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(drive.toggleSlowMoCommand());
+        driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(drive.toggleRobotCentricCommand());
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(driveCmd.setSlowMoCommand(true))
-                .whenReleased(driveCmd.setSlowMoCommand(false));
-        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(driveCmd.toggleHoldModeCommand());
+                .whenPressed(drive.setSlowMoCommand(true))
+                .whenReleased(drive.setSlowMoCommand(false));
+        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(drive.toggleHoldModeCommand());
 
         driver.getGamepadButton(GamepadKeys.Button.A)
-                .whenPressed(driveCmd.setAutoAimCommand(true))
-                .whenReleased(driveCmd.setAutoAimCommand(false));
+                .whenPressed(drive.setAutoAimCommand(true))
+                .whenReleased(drive.setAutoAimCommand(false));
 
         driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shootCommand.startShootCommand())
-                .whenReleased(shootCommand.stopShootCommand());
+                .whenPressed(shooter.startShootCommand())
+                .whenReleased(shooter.stopShootCommand());
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCommand(50));
         driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(shooter.adjustBoostRpmCommand(-50));
         driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(shooter.resetBoostRpmCommand());
 
+        // --- Operator Controls ---
         operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCommand(50));
         operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(shooter.adjustBoostRpmCommand(-50));
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shootCommand.startShootCommand())
-                .whenReleased(shootCommand.stopShootCommand());
+                .whenPressed(shooter.startShootCommand())
+                .whenReleased(shooter.stopShootCommand());
 
         operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(true));
     }
 
-    public SingleShooterSubsystem getShooterSmall() {
-        return shooter;
+
+    @Override
+    public void periodic(){
+        updateCameraPipeline();
+//        telemetry.addData("Alliance: ", Alliance.get());
+//        telemetry.addData("Slow Motion", driveCmd.isSlowMo());
+//        telemetry.addData("Robot Centric", driveCmd.isRobotCentric());
+//        telemetry.addData("Hold Mode", driveCmd.isHoldMode());
+
     }
 
-    public ShootCommand getShootCommand() {
-        return shootCommand;
-    }
-
-    public DriveSubsystem getDriveSubsystem() {
+    /** @return The drive subsystem */
+    public DriveSubsystem getDrive() {
         return drive;
     }
 
+    /** @return The camera subsystem */
     public CameraSubsystem getCamera() {
         return camera;
     }
 
+    /** @return The shooter subsystem */
     public SingleShooterSubsystem getShooter() {
         return shooter;
     }
 
-    public DriveCommand getDriveCommand() {
-        return driveCmd;
-    }
-
-    public IntakeSubsystem getIntakeSubsystem() {
+    /** @return The intake subsystem */
+    public IntakeSubsystem getIntake() {
         return intakeSubsystem;
     }
 
-    @Override
-    public void periodic(){
-        if (drive != null && camera != null) {
-            updateCameraPipeline();
-        }
-        
-        if (driveCmd != null){
-//            telemetry.addData("Alliance: ", Alliance.get());
-//            telemetry.addData("Slow Motion", driveCmd.isSlowMo());
-//            telemetry.addData("Robot Centric", driveCmd.isRobotCentric());
-//            telemetry.addData("Hold Mode", driveCmd.isHoldMode());
-        }
-    }
-
+    /**
+     * Updates the camera pipeline based on the robot's current pose.
+     * Assumes the drive subsystem's follower is initialized.
+     */
     public void updateCameraPipeline() {
-        Pose pose = drive.getFollower().pose();
-        camera.updateRobotOrientation(pose.heading());
 
-        boolean isNear = pose.y() < FieldConstants.FIELD_Y_MAX / 2.0;
-        org.firstinspires.ftc.teamcode.tools.Pipeline pipeline = Alliance.isBlue()
-                ? (isNear ? org.firstinspires.ftc.teamcode.tools.Pipeline.BLUE_NEAR : org.firstinspires.ftc.teamcode.tools.Pipeline.BLUE_FAR)
-                : (isNear ? org.firstinspires.ftc.teamcode.tools.Pipeline.RED_NEAR : org.firstinspires.ftc.teamcode.tools.Pipeline.RED_FAR);
+        Pose cuPose = drive.getFollower().pose();
+        camera.updateRobotOrientation(cuPose.heading());
+
+        boolean isNear = cuPose.y() < FieldConstants.FIELD_Y_MAX / 2.0;
+        Pipeline pipeline = Alliance.isBlue()
+                ? (isNear ? Pipeline.BLUE_NEAR : Pipeline.BLUE_FAR)
+                : (isNear ? Pipeline.RED_NEAR : Pipeline.RED_FAR);
 
         camera.setPipeline(pipeline);
     }

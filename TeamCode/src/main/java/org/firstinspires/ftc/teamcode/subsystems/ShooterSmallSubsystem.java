@@ -86,17 +86,16 @@ public class ShooterSmallSubsystem extends StealthSubsystem {
         if (targetRpm != 0) {
             double calculatedPower = shooterController.calculate(getVelocity());
             setPower(calculatedPower);
-            telemetry.addData("Calc Power   ", calculatedPower);
         } else {
             setPower(floatPower);
         }
 
         // TODO: Once tuned remove a bunch of these
-        telemetry.addData("Target RPM      ", getTargetRpm());
-        telemetry.addData("Current RPM     ", getCurrentRpm());
-        telemetry.addData("Current Power   ", getPower());
-        telemetry.addData("Is shooter Ready", isShootReady());
-        telemetry.addData("PIDF","P: %.5f, F:%.5f", shooterController.getP(), shooterController.getF());
+//        telemetry.addData("Target RPM      ", getTargetRpm());
+//        telemetry.addData("Current RPM     ", getCurrentRpm());
+//        telemetry.addData("Current Power   ", getPower());
+//        telemetry.addData("Is shooter Ready", isShootReady());
+//        telemetry.addData("PIDF","P: %.5f, F:%.5f", shooterController.getP(), shooterController.getF());
     }
 
     public void setFloatPower(double power) {

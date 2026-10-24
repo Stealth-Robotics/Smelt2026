@@ -80,6 +80,8 @@ public class SingleShooterSubsystem extends StealthSubsystem {
     /** The robot system instance containing other subsystems. */
     private final RobotSystem robot;
 
+    private final HoodSubsystem hood;
+
     private final IntakeSubsystem intake;
 
     public enum ShootState {
@@ -99,18 +101,19 @@ public class SingleShooterSubsystem extends StealthSubsystem {
      */
     public SingleShooterSubsystem(HardwareMap map, RobotSystem robot) {
         this.robot = robot;
+        hood = new HoodSubsystem(map);
         shooterMotor1 = map.get(DcMotorEx.class, "shooterMotor1");
-        shooterMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intake = robot.getIntake();
-        buildRangeTables();
+        buildRangeTable();
     }
 
     /**
      * Initializes the interpolation tables for distance-based lookups.
      */
-    public void buildRangeTables() {
+    public void buildRangeTable() {
         rangeToRpm = new InterpLUT();
         rangeToRpm.add(MIN_DISTANCE - 0.1, 3300);
         rangeToRpm.add(40.0, 3400);
@@ -119,14 +122,6 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         rangeToRpm.add(55.0, 3700);
         rangeToRpm.add(MAX_DISTANCE + 0.1, 4100);
         rangeToRpm.createLUT();
-
-        rangeToHoodAngle = new InterpLUT();
-        rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 30);
-        rangeToHoodAngle.add(40, 20);
-        rangeToHoodAngle.add(50, 10);
-        rangeToHoodAngle.add(MAX_DISTANCE + 0.1, 0);
-        rangeToHoodAngle.createLUT();
-
     }
 
     /**
@@ -142,19 +137,27 @@ public class SingleShooterSubsystem extends StealthSubsystem {
             lastDistance = camera.calcGoalDistanceByTa(result);
         }
 
-//        telemetry.addData("Target RPM", targetRpm);
-//        telemetry.addData("Current RPM", currentRpm);
-//        telemetry.addData("Last Distance", lastDistance);
+        if (lastDistance == 0) {
+            lastDistance = DEFAULT_SHOOT_DISTANCE;
+        }
+
+        // set the hood angle to the distance
+        hood.setHoodAngle(lastDistance);
+
+        telemetry.addData("Target RPM", targetRpm);
+        telemetry.addData("Current RPM", currentRpm);
+        telemetry.addData("Last Distance", lastDistance);
+        telemetry.addData("Hood Angle", hood.getHoodAngle());
 
 
         // if we are shooting or waiting to shoot
         if (isActiveShot()) {
-            if (lastDistance == 0) {
-                lastDistance = DEFAULT_SHOOT_DISTANCE;
-            }
+
 
             // set the target RPMs for the distance
             setRpmFromRange(lastDistance);
+
+
 
             // Apply PID control while an active shot is in progress
             double calculatedPower = shooterController.calculate(getVelocity());
@@ -173,6 +176,10 @@ public class SingleShooterSubsystem extends StealthSubsystem {
                 shootState = ShootState.WAITING_TO_SHOOT;
             }
         }
+    }
+
+    public HoodSubsystem getHood(){
+        return hood;
     }
 
     private void setFeeding(boolean feed) {

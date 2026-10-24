@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-@TeleOp(name = "TestAutoAim")
+@TeleOp(name = "TestAutoAim", group = "Tests")
 public class TestAutoAim extends StealthOpMode {
     private GamepadEx driver;
     private GamepadEx operator;

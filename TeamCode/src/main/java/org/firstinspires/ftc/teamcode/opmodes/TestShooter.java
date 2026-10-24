@@ -12,14 +12,14 @@ import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.firstinspires.ftc.teamcode.subsystems.SingleShooterSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-@TeleOp(name = "TestShooter")
+@TeleOp(name = "TestShooter", group = "Tests")
 public class TestShooter extends StealthOpMode {
     private GamepadEx driver;
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    private double kf = .00041;
-    private double kp = 0.005;
+    private double kf = 0;
+    private double kp = 0;
 
     private  double rpm = 3400;
 
@@ -38,10 +38,9 @@ public class TestShooter extends StealthOpMode {
             hardwareMap,
                  driver,
                  operator);
-
+        robotSystem.getDrive().setDriver(driver);
         configBindings();
-        robotSystem.getShooter
-                ().setController(kp, 0,0, kf);
+        robotSystem.getShooter().setController(kp, 0,0, kf);
         schedule(this.printInfo());
     }
 
@@ -53,7 +52,7 @@ public class TestShooter extends StealthOpMode {
             if (shootToggle) {
                 shooter.setRpm(rpm);
             }else {
-                shooter.setRpm(0);
+                shooter.stop();
                 shooter.setFloatPower(0);
             }
         });
@@ -62,7 +61,7 @@ public class TestShooter extends StealthOpMode {
             shooter.setRpm(rpm);
             shootToggle = true;
         }).whenReleased(()-> {
-            shooter.setRpm(0);
+            shooter.stop();
             shooter.setFloatPower(.15);
             shootToggle = false;
         });
@@ -111,6 +110,9 @@ public class TestShooter extends StealthOpMode {
         return new RunCommand(() ->{
            telemetry.addData("Step Index", stepIndex);
            telemetry.addData("Step Value", "%.5f", stepSizes[stepIndex]);
+           telemetry.addData("KP","%.5f", kp);
+           telemetry.addData("KF","%.5f", kf);
+
         });
     }
 }

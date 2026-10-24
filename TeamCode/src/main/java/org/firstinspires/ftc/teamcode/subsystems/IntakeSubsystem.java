@@ -60,7 +60,7 @@ public class IntakeSubsystem extends StealthSubsystem {
         currentMode = run ? IntakeMode.AUTO : IntakeMode.OFF;
 
         if (run) {
-            intake.setPower(MAX_INTAKE_POWER);
+            intake.setPower(-MAX_INTAKE_POWER);
         } else {
             intake.setPower(0);
         }

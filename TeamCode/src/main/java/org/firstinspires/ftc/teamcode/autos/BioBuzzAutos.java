@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 
+import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
@@ -24,6 +26,8 @@ public class BioBuzzAutos extends StealthOpMode {
 
     public SingleShooterSubsystem shooter;
 
+    public CameraSubsystem camera;
+
     @Override
     public void initialize() {
         robot = new RobotSystem(hardwareMap, null, null);
@@ -31,6 +35,8 @@ public class BioBuzzAutos extends StealthOpMode {
         shooter = robot.getShooter();
         drive = robot.getDrive();
         intake = robot.getIntake();
+        camera = robot.getCamera();
+
         AutoToTeleOpStorage.reset();
     }
 
@@ -61,6 +67,10 @@ public class BioBuzzAutos extends StealthOpMode {
 
     public Command waitFor(long ms) {
         return new WaitCommand(ms);
+    }
+
+    public Command waitForTags(long timeout) {
+        return new WaitUntilCommand(camera::areTagsVisible).withTimeout(timeout);
     }
 
 }

@@ -17,17 +17,25 @@ import java.util.function.DoubleSupplier;
 public class IntakeSubsystem extends StealthSubsystem {
     private static final double POWER_THRESHOLD = 0.03;
 
-    private static final double MAX_INTAKE_POWER = 1.0;
+    private static final double MAX_INTAKE_POWER = 0.7;
     private static final String INTAKE_MOTOR_NAME = "intakeMotor";
 
     private final DcMotorEx intake;
 
-    public enum IntakeMode { OFF, MANUAL, AUTO }
+    public enum IntakeMode {
+        OFF,
+        MANUAL,
+        AUTO;
+
+        public boolean isEqual(IntakeMode mode) {
+            return this == mode;
+        }
+    }
     private IntakeMode currentMode = IntakeMode.OFF;
 
     public IntakeSubsystem(HardwareMap hardwareMap) {
         intake = hardwareMap.get(DcMotorEx.class, INTAKE_MOTOR_NAME);
-        intake.setDirection(DcMotorSimple.Direction.FORWARD);
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
@@ -52,15 +60,14 @@ public class IntakeSubsystem extends StealthSubsystem {
     }
 
     public void setAutoIntake(boolean run) {
-        telemetry.addData("Intake SET:", run);
-        if (currentMode == IntakeMode.MANUAL) {
+        if (currentMode.isEqual(IntakeMode.MANUAL)) {
             return;
         }
 
         currentMode = run ? IntakeMode.AUTO : IntakeMode.OFF;
 
         if (run) {
-            intake.setPower(-MAX_INTAKE_POWER);
+            intake.setPower(MAX_INTAKE_POWER);
         } else {
             intake.setPower(0);
         }

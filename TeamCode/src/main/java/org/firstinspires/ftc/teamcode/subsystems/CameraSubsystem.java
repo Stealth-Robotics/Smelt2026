@@ -52,6 +52,7 @@ public class CameraSubsystem extends StealthSubsystem {
     /** The last valid result received from the Limelight. */
     private LLResult lastResult;
 
+    private boolean areTagsVisible = false;
 
     public CameraSubsystem (HardwareMap hardwareMap){
         limelight = hardwareMap.get(Limelight3A.class, NAME);
@@ -75,22 +76,27 @@ public class CameraSubsystem extends StealthSubsystem {
         LLResult result = getLastResult();
         telemetry.addData("Pipeline:", getCurrentPipeline());
         if (result != null && result.isValid()) {
+            areTagsVisible = true;
 ////            telemetry.addData("Latency ms", result.getStaleness());
             telemetry.addData("Tags:", getTagIds(result));
 ////            telemetry.addData("Tx:", result.getTx());
-//            telemetry.addData("Adjusted Tx", getAdjustedTx(result));
-//            telemetry.addData("Ta Distance", calcGoalDistanceByTa(result));
+////            telemetry.addData("Adjusted Tx", getAdjustedTx(result));
+////            telemetry.addData("Ta Distance", calcGoalDistanceByTa(result));
 ////            telemetry.addData("Ty:", result.getTy());
 ////            telemetry.addData("Area:", result.getTa());
 ////            telemetry.addData("TY Distance", calcGoalDistanceByTy(result.getTy()));
-////            telemetry.addData("TagIds", getTagIds(result));
         } else {
+            areTagsVisible = false;
             telemetry.addData("Tags:", "None");
         }
     }
 
     public Limelight3A getLimelight() {
         return limelight;
+    }
+
+    public boolean areTagsVisible() {
+        return areTagsVisible;
     }
 
     public void updateRobotOrientation(double pedroHeading){

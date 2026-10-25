@@ -61,6 +61,7 @@ public class RedFarDoubleShoot extends BioBuzzAutos {
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
                 drive.followPathCommand(goShoot()),
+                waitForTags(8000),
                 shootSequence(),
                 drive.followPathCommand(afterFirstShot()),
                 intake.startAutoIntakeCommand(),

@@ -157,8 +157,6 @@ public class SingleShooterSubsystem extends StealthSubsystem {
             // set the target RPMs for the distance
             setRpmFromRange(lastDistance);
 
-
-
             // Apply PID control while an active shot is in progress
             double calculatedPower = shooterController.calculate(getVelocity());
             setPower(calculatedPower);

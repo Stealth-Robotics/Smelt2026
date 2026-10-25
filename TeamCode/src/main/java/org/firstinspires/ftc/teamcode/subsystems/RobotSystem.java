@@ -57,7 +57,7 @@ public class RobotSystem extends StealthSubsystem {
         drive.setDriver(driver);
 
         intakeSubsystem.setDefaultCommand(intakeSubsystem.runIntakeCommand(
-                () -> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)));
+                () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
 
         driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(false));
         driver.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(drive.toggleSlowMoCommand());

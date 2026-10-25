@@ -15,8 +15,8 @@ public class HoodSubsystem extends StealthSubsystem {
     private InterpLUT rangeToHoodAngle;
     private static final double MIN_DISTANCE = 30;
     private static final double MAX_DISTANCE = 70;
+    public double angleOverride = 0;
     private static final double DEFAULT_POSITION = 0.5;
-
 
     public HoodSubsystem(HardwareMap map) {
         hoodServo = map.get(Servo.class, "hoodServo");
@@ -25,7 +25,7 @@ public class HoodSubsystem extends StealthSubsystem {
     }
 
     private void buildRangeTable() {
-        // TODO: made these angles for easier readability
+        // TODO: make these angles for easier readability
         rangeToHoodAngle = new InterpLUT();
         rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 0.1);
         rangeToHoodAngle.add(40, 0.2);
@@ -37,6 +37,7 @@ public class HoodSubsystem extends StealthSubsystem {
     }
 
     public void setPosition(double pos) {
+        pos += angleOverride;
         pos = Math.clamp(pos, MIN_POSITION, MAX_POSITION);
         hoodServo.setPosition(pos);
     }
@@ -59,8 +60,17 @@ public class HoodSubsystem extends StealthSubsystem {
         return rangeToHoodAngle.get(dist);
     }
 
+    // This will just return whatever hangle was requested by setPosition
     public double getHoodAngle() {
         return hoodServo.getPosition();
+    }
+
+    public void setAngleOverride(double angle) {
+        angleOverride = angle;
+    }
+
+    public double getAngleOverride() {
+        return angleOverride;
     }
 
 }

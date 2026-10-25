@@ -27,13 +27,10 @@ public class DriveSubsystem extends StealthSubsystem
 {
     private final Follower follower;
     private final Telemetry telemetry = StealthOpMode.telemetry;
-
     private final CameraSubsystem camera;
-
     private DoubleSupplier forward = () -> 0;
     private DoubleSupplier strafe = () -> 0;
     private DoubleSupplier rotate = () -> 0;
-
     private boolean robotCentric = false;
     private boolean hold = false;
     private static final double SLOW_POWER = 0.3;

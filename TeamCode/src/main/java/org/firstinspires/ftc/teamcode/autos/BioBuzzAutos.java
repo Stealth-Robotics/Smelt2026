@@ -28,6 +28,8 @@ public class BioBuzzAutos extends StealthOpMode {
 
     public CameraSubsystem camera;
 
+    private boolean tagSeen = false;
+
     @Override
     public void initialize() {
         robot = new RobotSystem(hardwareMap, null, null);
@@ -69,8 +71,15 @@ public class BioBuzzAutos extends StealthOpMode {
         return new WaitCommand(ms);
     }
 
+    protected boolean getTagSeen() {
+        return tagSeen;
+    }
+
     public Command waitForTags(long timeout) {
-        return new WaitUntilCommand(camera::areTagsVisible).withTimeout(timeout);
+        return new WaitUntilCommand(()-> {
+            tagSeen = camera.areTagsVisible();
+            return tagSeen;
+        }).withTimeout(timeout);
     }
 
 }

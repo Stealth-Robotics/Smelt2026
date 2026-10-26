@@ -17,6 +17,9 @@ public class TestShooterRange extends StealthOpMode {
     private RobotSystem robot;
     private double hoodAngleAdd = 0;
     private double rpmboost = 0;
+    private static final double[] hoodSteps = {0.1, 0.01, 0.001};
+    private static final double[] rpmSteps = {500, 100, 50};
+    private int stepIndex = 1;
 
     SingleShooterSubsystem shooter;
 
@@ -39,6 +42,33 @@ public class TestShooterRange extends StealthOpMode {
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(shooter.startShootCommand())
                 .whenReleased(shooter.stopShootCommand());
+
+        operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(() -> {
+            stepIndex = (stepIndex + 1) % hoodSteps.length;
+        });
+        operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(() -> {
+            stepIndex = (stepIndex - 1) % hoodSteps.length;
+        });
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(() -> {
+            hoodAngleAdd += hoodSteps[stepIndex];
+            shooter.getHood().setAngleOverride(hoodAngleAdd);
+        });
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(() -> {
+            hoodAngleAdd -= hoodSteps[stepIndex];
+            shooter.getHood().setAngleOverride(hoodAngleAdd);
+        });
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() -> {
+            rpmboost += rpmSteps[stepIndex];
+            shooter.setBoostRpm(rpmboost);
+        });
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> {
+            rpmboost -= rpmSteps[stepIndex];
+            shooter.setBoostRpm(rpmboost);
+        });
+
     }
 
     public Command printInfo() {
@@ -48,6 +78,9 @@ public class TestShooterRange extends StealthOpMode {
             telemetry.addData("Hood Angle", shooter.getHood().getHoodAngle());
             telemetry.addData("Shooter Target RPM", shooter.getTargetRpm());
             telemetry.addData("Shooter RPM", shooter.getCurrentRpm());
+            telemetry.addData("Step Index", stepIndex);
+            telemetry.addData("Step Value", "%.5f", hoodSteps[stepIndex]);
+            telemetry.addData("Step Value", "%.5f", rpmSteps[stepIndex]);
         });
     }
 }

@@ -44,6 +44,7 @@ public class TestServo extends StealthOpMode {
             position += stepSizes[stepIndex];
             servo.setPosition(position);
         });
+
         operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(() -> {
             stepIndex = (stepIndex + 1) % stepSizes.length;
         });

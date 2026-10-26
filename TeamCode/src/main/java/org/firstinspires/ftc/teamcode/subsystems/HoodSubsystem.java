@@ -56,6 +56,7 @@ public class HoodSubsystem extends StealthSubsystem {
         if (distance == 0) {
             return 0;
         }
+
         double dist = Math.clamp(distance, MIN_DISTANCE, MAX_DISTANCE);
         return rangeToHoodAngle.get(dist);
     }
@@ -67,6 +68,10 @@ public class HoodSubsystem extends StealthSubsystem {
 
     public void setAngleOverride(double angle) {
         angleOverride = angle;
+    }
+
+    public void incrementAngleOverride(double amount) {
+        angleOverride += amount;
     }
 
     public double getAngleOverride() {

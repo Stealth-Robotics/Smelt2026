@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -71,16 +72,19 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
     /** Additional RPM added to the target during shooting. */
     private double boostRpm = 0;
 
-    /** PIDF controller for maintaining target RPM. */
-    private static final PIDFController shooterController = new PIDFController(
-            0.000004,
-            0.000000,
-            0.0,
-            0.000388);
-    /** Interpolation table for Distance -> RPM. */
+   private final PIDFCoefficients pidfCoefficients =
+           new PIDFCoefficients(
+                   10,
+                   0.17,
+                   0,
+                   11.62
+//                   0.000003,
+//                   0.000000,
+//                   0.0,
+//                   0.000408
+           );
+
     private InterpLUT rangeToRpm;
-    /** Interpolation table for Distance -> Hood Angle. */
-    private InterpLUT rangeToHoodAngle;
 
     /** The robot system instance containing other subsystems. */
     private final RobotSystem robot;
@@ -112,6 +116,9 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
         shooterMotor1 = map.get(DcMotorEx.class, "shooterMotor1");
         shooterMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooterMotor1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        shooterMotor1.setPositionPIDFCoefficients(5.0);
+        shooterMotor1.setTargetPositionTolerance(20);
         //shooterMotor1.pi
         intake = robot.getIntake();
         buildRangeTable();
@@ -165,10 +172,6 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
 
             // set the target RPMs for the distance
             setRpmFromRange(lastDistance);
-
-            // Apply PID control while an active shot is in progress
-            double calculatedPower = shooterController.calculate(getVelocity());
-            setVelocity(calculatedPower);
 
             // Do not run the intake/transfer until the shooter is ready
             if (shootState == ShootState.WAITING_TO_SHOOT) {
@@ -227,7 +230,7 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
      * @return the current RPM.
      */
     public double getCurrentRpm() {
-        return tpsToRpm(shooterMotor1.getVelocity());
+        return tpsToRpm(getVelocity());
     }
 
     /**
@@ -248,7 +251,7 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
      * @param kf Feedforward gain
      */
     public void setController(double kp, double ki, double kd, double kf) {
-        shooterController.setPIDF(kp, ki, kd, kf);
+        shooterMotor1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(kp, ki, kd, kf));
     }
 
     /**
@@ -270,7 +273,7 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
      */
     public void stop() {
         customDistance = 0;
-        setRpm(0);
+        shooterMotor1.setPower(floatPower);
         setFeeding(false);
     }
 
@@ -289,6 +292,10 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
         return rangeToRpm.get(dist);
     }
 
+    public void setDistance(double distance) {
+        customDistance = distance;
+    }
+
     /**
      * Sets the target RPM, applying boost and clamping to valid ranges.
      *
@@ -296,10 +303,7 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
      */
     public void setRpm(double rpm) {
         if (rpm == 0) {
-            shootState = ShootState.NOT_SHOOTING;
-            targetRpm = 0;
-            shooterController.reset();
-            setVelocity(floatPower);
+            stop();
             return;
         }
 
@@ -312,11 +316,10 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
         // prevents constant resets of the RPM controller
         if (Math.abs(targetRpm - rpm) >= VELOCITY_CHANGE_TOLERANCE) {
             shootTimer.reset();
-            shooterController.reset();
         }
 
         targetRpm = rpm;
-        shooterController.setSetPoint(rpmToTps(targetRpm));
+        setVelocity(rpmToTps(targetRpm));
     }
 
     /**
@@ -363,7 +366,7 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
      * @return RPM.
      */
     private double tpsToRpm(double tps) {
-        return Math.abs(tps * 60 / MOTOR_TICKS_REV) / GEAR_RATIO;
+        return Math.abs(tps  / MOTOR_TICKS_REV * 60) / GEAR_RATIO;
     }
 
     /**
@@ -418,7 +421,6 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
     public void setStartShoot(boolean shoot) {
         if (shoot) {
             shootTimer.reset();
-            shooterController.reset();
             shootState = ShootState.WAITING_TO_SHOOT;
         } else {
             stop();

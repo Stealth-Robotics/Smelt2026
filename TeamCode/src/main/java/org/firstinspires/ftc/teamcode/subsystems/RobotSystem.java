@@ -24,7 +24,7 @@ public class RobotSystem extends StealthSubsystem {
     /** Gamepad for the operator */
     private final GamepadEx operator;
     private final IntakeSubsystem intakeSubsystem;
-    private final SingleShooterSubsystem shooter;
+    private final VelocityShooterSubsystem shooter;
     private final DriveSubsystem drive;
     private final CameraSubsystem camera;
 
@@ -41,7 +41,7 @@ public class RobotSystem extends StealthSubsystem {
     public RobotSystem(HardwareMap hardwareMap, GamepadEx driver, GamepadEx operator) {
         camera = new CameraSubsystem(hardwareMap);
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
-        shooter = new SingleShooterSubsystem(hardwareMap, this);
+        shooter = new VelocityShooterSubsystem(hardwareMap, this);
         drive = new DriveSubsystem(hardwareMap, this);
 
         this.driver = driver;
@@ -56,16 +56,16 @@ public class RobotSystem extends StealthSubsystem {
         // --- Driver Controls ---
         drive.setDriver(driver);
 
+        // intake is analog left reverses and right intakes
         intakeSubsystem.setDefaultCommand(intakeSubsystem.runIntakeCommand(
                 () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
 
+        // Driver only reset heading
         driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(false));
-        driver.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(drive.toggleSlowMoCommand());
-        driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(drive.toggleRobotCentricCommand());
+
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(drive.setSlowMoCommand(true))
                 .whenReleased(drive.setSlowMoCommand(false));
-        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(drive.toggleHoldModeCommand());
 
         driver.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(drive.setAutoAimCommand(true))
@@ -75,9 +75,6 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(shooter.startShootCommand())
                 .whenReleased(shooter.stopShootCommand());
 
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCommand(50));
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(shooter.adjustBoostRpmCommand(-50));
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(shooter.resetBoostRpmCommand());
 
         // --- Operator Controls ---
         operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCommand(50));
@@ -86,6 +83,8 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(shooter.startShootCommand())
                 .whenReleased(shooter.stopShootCommand());
 
+        // operator can reset the bot position to the audience side corner wall
+        // TODO: should driver do this?
         operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(true));
     }
 
@@ -111,7 +110,7 @@ public class RobotSystem extends StealthSubsystem {
     }
 
     /** @return The shooter subsystem */
-    public SingleShooterSubsystem getShooter() {
+    public VelocityShooterSubsystem getShooter() {
         return shooter;
     }
 

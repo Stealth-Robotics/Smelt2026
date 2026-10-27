@@ -79,8 +79,6 @@ public class SingleShooterSubsystem extends StealthSubsystem {
             0.000408);
     /** Interpolation table for Distance -> RPM. */
     private InterpLUT rangeToRpm;
-    /** Interpolation table for Distance -> Hood Angle. */
-    private InterpLUT rangeToHoodAngle;
 
     /** The robot system instance containing other subsystems. */
     private final RobotSystem robot;
@@ -112,7 +110,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         shooterMotor1 = map.get(DcMotorEx.class, "shooterMotor1");
         shooterMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        //shooterMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intake = robot.getIntake();
         buildRangeTable();
     }

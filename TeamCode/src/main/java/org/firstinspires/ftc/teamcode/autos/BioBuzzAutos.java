@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.firstinspires.ftc.teamcode.subsystems.SingleShooterSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.VelocityShooterSubsystem;
 import org.firstinspires.ftc.teamcode.tools.AutoToTeleOpStorage;
 import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
@@ -24,7 +25,7 @@ public class BioBuzzAutos extends StealthOpMode {
 
     public IntakeSubsystem intake;
 
-    public SingleShooterSubsystem shooter;
+    public VelocityShooterSubsystem shooter;
 
     public CameraSubsystem camera;
 

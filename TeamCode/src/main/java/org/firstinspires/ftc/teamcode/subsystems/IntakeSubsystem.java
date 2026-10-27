@@ -75,11 +75,13 @@ public class IntakeSubsystem extends StealthSubsystem {
         return runOnce(() -> setAutoIntake(run));
     }
 
-    public Command startAutoIntakeCommand() {
+    public Command startAutoIntakeCommand(boolean deployPollenWedge) {
+        // TODO: build this out with servo and pollen wedge
         return setAutoIntakeCommand(true);
     }
 
     public Command stopAutoIntakeCommand() {
+        // TODO: Retract pollen wedge if out
         return setAutoIntakeCommand(false);
     }
 

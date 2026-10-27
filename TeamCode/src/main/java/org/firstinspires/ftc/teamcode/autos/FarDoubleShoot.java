@@ -20,13 +20,12 @@ public class FarDoubleShoot extends BioBuzzAutos {
 
     private final Pose start;
     private final Pose goShoot;
-    private final Pose afterFirstShotStart;
     private final Pose afterFirstShot;
     private final Pose collectFromFlower;
     private final Pose shootAgainStart;
     private final Pose shootAgain;
     private final Pose park;
-    private final Pose parkControl;
+    private final Pose parkControl1;
     // failed to tip
 
     private final Pose noHive;
@@ -43,38 +42,27 @@ public class FarDoubleShoot extends BioBuzzAutos {
             poseFactory = PoseFactory.degrees();
         }
 
-        start = poseFactory.of(59, 132.5, 270);
-        goShoot = poseFactory.of(59, 128, 260);
-        afterFirstShotStart = poseFactory.of(59, 128, 260);
-        afterFirstShot = poseFactory.of(48, 126, 270);
-        collectFromFlower = poseFactory.of(48, 132, -90);
-        shootAgainStart = poseFactory.of(48, 132, 270);
-        shootAgain = poseFactory.of(48, 124.5, 280);
-        park = poseFactory.of(13.4, 121.5, 178);
-        parkControl = poseFactory.of(40.5, 121, 0);
-        noHive = poseFactory.of(59, 114, 90);
-        shootOtherSide = poseFactory.of(59, 22, 90);
-        goBackForPark = poseFactory.of(48, 121.5, 170.0157);
+        start = poseFactory.of(60, 132, 90);
+        goShoot = poseFactory.of(60, 121, 88);
+        afterFirstShot = poseFactory.of(47.5, 120, 90);
+        collectFromFlower = poseFactory.of(47.5, 132, 90);
+        shootAgainStart = poseFactory.of(47.5, 132, 90);
+        shootAgain = poseFactory.of(49, 116, 109);
+        park = poseFactory.of(15.0343, 123.9935, -178.6281);
+        parkControl1 = poseFactory.of(40.7941, 124.6549, 0);
+
+        noHive = poseFactory.of(59, 114, 270);
+        shootOtherSide = poseFactory.of(59, 22, -90);
+        goBackForPark = poseFactory.of(48, 121.5, -10);
         goBackForParkControl1 = poseFactory.of(65, 119, 0);
     }
 
-    public Path noHive() {
-        return Paths.line(goShoot, noHive).linear(start, noHive);
-    }
-
-    public Path shootOtherSide() {
-        return Paths.line(noHive, shootOtherSide).reverseTangent();
-    }
-
-    public Path goBackForPark() {
-        return Paths.curve(shootOtherSide, goBackForParkControl1, goBackForPark).tangent();
-    }
     public Path goShoot() {
         return Paths.line(start, goShoot).linear(start, goShoot);
     }
 
     public Path afterFirstShot() {
-        return Paths.line(afterFirstShotStart, afterFirstShot).linear(afterFirstShotStart, afterFirstShot);
+        return Paths.line(goShoot, afterFirstShot).constant(afterFirstShot);
     }
 
     // Example of controlling speed
@@ -90,7 +78,19 @@ public class FarDoubleShoot extends BioBuzzAutos {
     }
 
     public Path park() {
-        return Paths.curve(shootAgain, parkControl, park).tangent();
+        return Paths.curve(shootAgain, parkControl1, park).tangent();
+    }
+
+    public Path noHive() {
+        return Paths.line(goShoot, noHive).linear(start, noHive);
+    }
+
+    public Path shootOtherSide() {
+        return Paths.line(noHive, shootOtherSide).reverseTangent();
+    }
+
+    public Path goBackForPark() {
+        return Paths.curve(shootOtherSide, goBackForParkControl1, goBackForPark).tangent();
     }
 
     public void initialize() {
@@ -109,7 +109,7 @@ public class FarDoubleShoot extends BioBuzzAutos {
                     new SequentialCommandGroup(
                         shootSequence(),
                         drive.followPathCommand(afterFirstShot()),
-                        intake.startAutoIntakeCommand(),
+                        intake.startAutoIntakeCommand(true),
                         drive.followPathCommand(collectFromFlower()),
                         waitFor(4000),
                         intake.stopAutoIntakeCommand(),

@@ -6,8 +6,11 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.firstinspires.ftc.teamcode.subsystems.SingleShooterSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.VelocityShooterSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 @TeleOp(name = "Test Shooter Range Map", group = "Tests")
@@ -21,7 +24,7 @@ public class TestShooterRange extends StealthOpMode {
     private static final double[] rpmSteps = {500, 100, 50};
     private int stepIndex = 1;
 
-    SingleShooterSubsystem shooter;
+    VelocityShooterSubsystem shooter;
 
     @Override
     public void initialize() {
@@ -39,6 +42,28 @@ public class TestShooterRange extends StealthOpMode {
     }
 
     private void configBindings() {
+        VelocityShooterSubsystem shooter = robot.getShooter();
+        IntakeSubsystem intakeSubsystem = robot.getIntake();
+        DriveSubsystem drive = robot.getDrive();
+
+        intakeSubsystem.setDefaultCommand(intakeSubsystem.runIntakeCommand(
+                () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
+
+        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(true));
+
+        driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenPressed(drive.setSlowMoCommand(true))
+                .whenReleased(drive.setSlowMoCommand(false));
+        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(drive.toggleHoldModeCommand());
+
+        driver.getGamepadButton(GamepadKeys.Button.A)
+                .whenPressed(drive.setAutoAimCommand(true))
+                .whenReleased(drive.setAutoAimCommand(false));
+
+        driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(shooter.startShootCommand())
+                .whenReleased(shooter.stopShootCommand());
+
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(shooter.startShootCommand())
                 .whenReleased(shooter.stopShootCommand());
@@ -46,8 +71,9 @@ public class TestShooterRange extends StealthOpMode {
         operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(() -> {
             stepIndex = (stepIndex + 1) % hoodSteps.length;
         });
+
         operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(() -> {
-            stepIndex = (stepIndex - 1) % hoodSteps.length;
+            stepIndex = (stepIndex - 1 + hoodSteps.length) % hoodSteps.length;
         });
         operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(() -> {
             hoodAngleAdd += hoodSteps[stepIndex];

@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 
 import org.firstinspires.ftc.teamcode.subsystems.SingleShooterSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.VelocityShooterSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 @TeleOp(name = "Test Shooter PID", group = "Tests")
@@ -25,7 +26,7 @@ public class TestShooterPid extends StealthOpMode {
 
     private static final double coast = 500;
 
-    private static final double[] stepSizes = {0.01, 0.001, 0.0001, 0.00001, 0.000001};
+    private static final double[] stepSizes = {1.0, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001};
     private int stepIndex = 1;
 
     private boolean shootToggle = false;
@@ -47,23 +48,22 @@ public class TestShooterPid extends StealthOpMode {
 
     private void configBindings() {
 
-        SingleShooterSubsystem shooter = robotSystem.getShooter();
+        VelocityShooterSubsystem shooter = robotSystem.getShooter();
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()->{
             shootToggle = !shootToggle;
             if (shootToggle) {
                 shooter.setStartShoot(true);
             }else {
                 shooter.stop();
-                shooter.setFloatPower(0);
             }
         });
 
         operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(()->{
-            shooter.setRpm(rpm);
+            // Runs a fixed distance for testing
+            shooter.setDistance(40);
             shootToggle = true;
         }).whenReleased(()-> {
             shooter.stop();
-            shooter.setFloatPower(0);
             shootToggle = false;
         });
 
@@ -73,16 +73,6 @@ public class TestShooterPid extends StealthOpMode {
 
         operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(() -> {
             stepIndex = (stepIndex - 1 + stepSizes.length) % stepSizes.length;
-        });
-
-        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(() -> {
-            rpm += 50;
-            shooter.setRpm(rpm);
-        });
-
-        operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(() -> {
-            rpm -= 50;
-            shooter.setRpm(rpm);
         });
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(()-> {

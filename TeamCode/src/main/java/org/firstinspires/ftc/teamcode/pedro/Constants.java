@@ -41,13 +41,24 @@ public class Constants {
 //        c.backRightDirection.set(DcMotorSimple.Direction.FORWARD);
 //    });
 
-    public static final PinpointConfig localizerConfig = new PinpointConfig(c -> {
+//    public static final PinpointConfig localizerConfig = new PinpointConfig(c -> {
+//        c.name.set("goBildaPP");
+//        c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+//        c.xPodOffset.set(-6.595);
+//        c.yPodOffset.set(-2.42);
+//        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+//        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+//        c.globalDistanceUnit.set(DistanceUnit.INCH);
+//        c.offsetUnits.set(DistanceUnit.INCH);
+//    });
+
+    public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("goBildaPP");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(-6.595);
-        c.yPodOffset.set(-2.42);
-        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
-        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        c.xPodOffset.set(3.2932329553318773);
+        c.yPodOffset.set(-6.49216959795614);
+        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
         c.offsetUnits.set(DistanceUnit.INCH);
     });

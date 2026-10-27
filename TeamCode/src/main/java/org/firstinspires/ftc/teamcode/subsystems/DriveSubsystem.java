@@ -56,9 +56,19 @@ public class DriveSubsystem extends StealthSubsystem
 
     private double lastTxDelta = 100;
 
-    private static final Pose bluePose = new Pose(FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X, FieldConstants.ROBOT_CENTER_Y, FieldConstants.ROBOT_BLUE_HEADING);
-    private static final Pose redPose = new Pose(FieldConstants.ROBOT_CENTER_X, FieldConstants.ROBOT_CENTER_Y, FieldConstants.ROBOT_RED_HEADING);
-// FieldConstants.FIELD_Y_MAX -
+    // Rests to the Audience side Blue wall intake facing away from driver
+    private static final Pose bluePose = new Pose(
+            FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X,
+            FieldConstants.ROBOT_CENTER_Y,
+            FieldConstants.ROBOT_BLUE_HEADING);
+
+    // Rests to the Audience side Red wall intake facing away from driver
+    // TODO: RED side may be set to far red for testing check if this is correct FieldConstants.FIELD_Y_MAX - FieldConstants.ROBOT_CENTER_Y makes it far red
+    private static final Pose redPose = new Pose(
+            FieldConstants.ROBOT_CENTER_X,
+            FieldConstants.FIELD_Y_MAX -
+                    FieldConstants.ROBOT_CENTER_Y,
+            FieldConstants.ROBOT_RED_HEADING);
 
     public DriveSubsystem(HardwareMap map, RobotSystem robot){
 
@@ -71,7 +81,7 @@ public class DriveSubsystem extends StealthSubsystem
             follower.setPose(Alliance.isBlue() ? bluePose : redPose);
         }
 
-        follower.localizer.reset();
+        //follower.localizer.reset();
         setTeleOp(false);
     }
 

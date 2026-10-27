@@ -26,6 +26,7 @@ public class TestServo extends StealthOpMode {
 
     @Override
     public void initialize() {
+        stepIndex = 1;
         driver = new GamepadEx(gamepad1);
         operator = new GamepadEx(gamepad2);
         robotSystem = new RobotSystem(
@@ -48,8 +49,9 @@ public class TestServo extends StealthOpMode {
         operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(() -> {
             stepIndex = (stepIndex + 1) % stepSizes.length;
         });
+
         operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(() -> {
-            stepIndex = (stepIndex - 1) % stepSizes.length;
+            stepIndex = (stepIndex - 1 + stepSizes.length) % stepSizes.length;
         });
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(()->{

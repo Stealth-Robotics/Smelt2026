@@ -10,7 +10,7 @@ import org.stealthrobotics.library.StealthSubsystem;
 public class HoodSubsystem extends StealthSubsystem {
     private final Servo hoodServo;
     private static final double MIN_POSITION = 0;
-    private static final double MAX_POSITION = 0.97;
+    private static final double MAX_POSITION = 0.63;
 
     private InterpLUT rangeToHoodAngle;
     private static final double MIN_DISTANCE = 30;
@@ -32,7 +32,8 @@ public class HoodSubsystem extends StealthSubsystem {
         rangeToHoodAngle.add(50, .4);
         rangeToHoodAngle.add(55, .5);
         rangeToHoodAngle.add(60, .6);
-        rangeToHoodAngle.add(MAX_DISTANCE + 0.1, .97);
+        rangeToHoodAngle.add(MAX_DISTANCE + 0.1, MAX_POSITION
+        );
         rangeToHoodAngle.createLUT();
     }
 

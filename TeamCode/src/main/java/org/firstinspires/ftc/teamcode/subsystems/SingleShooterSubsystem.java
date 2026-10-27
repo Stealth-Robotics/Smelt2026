@@ -39,6 +39,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
 
     /** RPM tolerance for considering the target reached. */
     private static final double VELOCITY_TOLERANCE_HIGH = 100;
+
     /** Threshold for RPM changes to reset the PID controller. */
     private static final double VELOCITY_CHANGE_TOLERANCE = 50;
     /** Maximum allowable RPM. */
@@ -65,13 +66,17 @@ public class SingleShooterSubsystem extends StealthSubsystem {
     /** Minimum distance for lookup tables. */
     private static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
-    private static final double MAX_DISTANCE = 70;
+    private static final double MAX_DISTANCE = 75;
 
     /** Additional RPM added to the target during shooting. */
     private double boostRpm = 0;
 
     /** PIDF controller for maintaining target RPM. */
-    private static final PIDFController shooterController = new PIDFController(0.005, 0, 0, .00041);
+    private static final PIDFController shooterController = new PIDFController(
+            0.000003,
+            0.000000,
+            0.0,
+            0.000408);
     /** Interpolation table for Distance -> RPM. */
     private InterpLUT rangeToRpm;
     /** Interpolation table for Distance -> Hood Angle. */
@@ -92,6 +97,8 @@ public class SingleShooterSubsystem extends StealthSubsystem {
 
     private ShootState shootState = ShootState.NOT_SHOOTING;
 
+    // Allows for autonomous shooting overrides the distance calculation
+    private double customDistance = 0;
 
     /**
      * Constructs a new SingleShooterSubsystem.
@@ -105,7 +112,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         shooterMotor1 = map.get(DcMotorEx.class, "shooterMotor1");
         shooterMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        shooterMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //shooterMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intake = robot.getIntake();
         buildRangeTable();
     }
@@ -115,11 +122,12 @@ public class SingleShooterSubsystem extends StealthSubsystem {
      */
     public void buildRangeTable() {
         rangeToRpm = new InterpLUT();
-        rangeToRpm.add(MIN_DISTANCE - 0.1, 3300);
-        rangeToRpm.add(40.0, 3400);
-        rangeToRpm.add(45.0, 3500);
-        rangeToRpm.add(50.0, 3600);
-        rangeToRpm.add(55.0, 3700);
+        rangeToRpm.add(MIN_DISTANCE - 0.1, 3550);
+        rangeToRpm.add(40.0, 3600);
+        rangeToRpm.add(45.0, 3625);
+        rangeToRpm.add(50.0, 3630);
+        rangeToRpm.add(55.0, 3650);
+        rangeToRpm.add(69.0, 4000);
         rangeToRpm.add(MAX_DISTANCE + 0.1, 4100);
         rangeToRpm.createLUT();
     }
@@ -137,12 +145,11 @@ public class SingleShooterSubsystem extends StealthSubsystem {
             lastDistance = camera.calcGoalDistanceByTa(result);
         }
 
-        if (lastDistance == 0) {
+        if (customDistance != 0) {
+            lastDistance = customDistance;
+        }else if (lastDistance == 0) {
             lastDistance = DEFAULT_SHOOT_DISTANCE;
         }
-
-        // set the hood angle to the distance
-        hood.setHoodAngle(lastDistance);
 
         telemetry.addData("Target RPM", targetRpm);
         telemetry.addData("Current RPM", currentRpm);
@@ -153,6 +160,8 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         // if we are shooting or waiting to shoot
         if (isActiveShot()) {
 
+            // set the hood angle to the distance
+            hood.setHoodAngle(lastDistance);
 
             // set the target RPMs for the distance
             setRpmFromRange(lastDistance);
@@ -173,6 +182,9 @@ public class SingleShooterSubsystem extends StealthSubsystem {
             } else {
                 shootState = ShootState.WAITING_TO_SHOOT;
             }
+        }
+        else {
+            setFeeding(false);
         }
     }
 
@@ -205,7 +217,8 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         }
 
         // Ready if RPM is within tolerance
-        return (difference <= VELOCITY_TOLERANCE_HIGH);
+        return (difference <= VELOCITY_TOLERANCE_HIGH)
+                ;//|| (curMs > MAX_SHOOT_TIME_MS);
     }
 
     /**
@@ -243,7 +256,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
      *
      * @param distance The distance to the target.
      */
-    public void setRpmFromRange(double distance) {
+    private void setRpmFromRange(double distance) {
         if (distance == 0) {
             stop();
             return;
@@ -256,6 +269,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
      * Stops the motor by setting target RPM to zero and turning off intake.
      */
     public void stop() {
+        customDistance = 0;
         setRpm(0);
         setFeeding(false);
     }
@@ -299,7 +313,6 @@ public class SingleShooterSubsystem extends StealthSubsystem {
         if (Math.abs(targetRpm - rpm) >= VELOCITY_CHANGE_TOLERANCE) {
             shootTimer.reset();
             shooterController.reset();
-            shootState = ShootState.WAITING_TO_SHOOT;
         }
 
         targetRpm = rpm;
@@ -401,7 +414,7 @@ public class SingleShooterSubsystem extends StealthSubsystem {
      *
      * @param shoot true if shooting should start, false otherwise.
      */
-    private void setStartShoot(boolean shoot) {
+    public void setStartShoot(boolean shoot) {
         if (shoot) {
             shootTimer.reset();
             shooterController.reset();
@@ -418,7 +431,10 @@ public class SingleShooterSubsystem extends StealthSubsystem {
      * @return A command that performs the shoot action.
      */
     public Command shootCommand(double distance) {
-        return runOnce(() -> setRpmFromRange(distance));
+        return runOnce(() -> {
+            customDistance = distance;
+            setStartShoot(true);
+        });
     }
 
     /**

@@ -18,20 +18,21 @@ public class TestShooterPid extends StealthOpMode {
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    private double kf = 0;
-    private double kp = 0;
+    private double kf = .0;
+    private double kp = .0;
 
     private  double rpm = 3400;
 
     private static final double coast = 500;
 
-    private static final double[] stepSizes = {0.1, 0.01, 0.001, 0.0001, 0.00001};
+    private static final double[] stepSizes = {0.01, 0.001, 0.0001, 0.00001, 0.000001};
     private int stepIndex = 1;
 
     private boolean shootToggle = false;
 
     @Override
     public void initialize() {
+        stepIndex = 1;
         driver = new GamepadEx(gamepad1);
         operator = new GamepadEx(gamepad2);
          robotSystem = new RobotSystem(
@@ -50,7 +51,7 @@ public class TestShooterPid extends StealthOpMode {
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()->{
             shootToggle = !shootToggle;
             if (shootToggle) {
-                shooter.setRpm(rpm);
+                shooter.setStartShoot(true);
             }else {
                 shooter.stop();
                 shooter.setFloatPower(0);
@@ -62,7 +63,7 @@ public class TestShooterPid extends StealthOpMode {
             shootToggle = true;
         }).whenReleased(()-> {
             shooter.stop();
-            shooter.setFloatPower(.15);
+            shooter.setFloatPower(0);
             shootToggle = false;
         });
 
@@ -71,7 +72,7 @@ public class TestShooterPid extends StealthOpMode {
         });
 
         operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(() -> {
-            stepIndex = (stepIndex - 1) % stepSizes.length;
+            stepIndex = (stepIndex - 1 + stepSizes.length) % stepSizes.length;
         });
 
         operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(() -> {
@@ -109,9 +110,9 @@ public class TestShooterPid extends StealthOpMode {
     public Command printInfo() {
         return new RunCommand(() ->{
            telemetry.addData("Step Index", stepIndex);
-           telemetry.addData("Step Value", "%.5f", stepSizes[stepIndex]);
-           telemetry.addData("KP","%.5f", kp);
-           telemetry.addData("KF","%.5f", kf);
+           telemetry.addData("Step Value", "%.6f", stepSizes[stepIndex]);
+           telemetry.addData("KP","%.6f", kp);
+           telemetry.addData("KF","%.6f", kf);
 
         });
     }

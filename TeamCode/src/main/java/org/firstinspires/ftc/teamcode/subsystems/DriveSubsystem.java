@@ -57,7 +57,7 @@ public class DriveSubsystem extends StealthSubsystem
     private double lastTxDelta = 100;
 
     private static final Pose bluePose = new Pose(FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X, FieldConstants.ROBOT_CENTER_Y, FieldConstants.ROBOT_BLUE_HEADING);
-    private static final Pose redPose = new Pose(FieldConstants.ROBOT_CENTER_X, FieldConstants.FIELD_Y_MAX - FieldConstants.ROBOT_CENTER_Y, FieldConstants.ROBOT_RED_HEADING);
+    private static final Pose redPose = new Pose(FieldConstants.ROBOT_CENTER_X, FieldConstants.ROBOT_CENTER_Y, FieldConstants.ROBOT_RED_HEADING);
 // FieldConstants.FIELD_Y_MAX -
 
     public DriveSubsystem(HardwareMap map, RobotSystem robot){

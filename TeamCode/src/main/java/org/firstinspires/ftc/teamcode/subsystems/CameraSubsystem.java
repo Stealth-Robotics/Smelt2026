@@ -161,7 +161,7 @@ public class CameraSubsystem extends StealthSubsystem {
         double ta = getAverageTa(result);
 
         double distance = 141.857 - 42948.86 * ta + 7811325.0  * Math.pow(ta, 2) - 746920500.0  * Math.pow(ta, 3) + 29360910000.0  * Math.pow(ta, 4);
-        return Math.round(distance * 100) / 100.0; // round to 2 decimal places)
+        return Math.round(distance * 10) / 10.0; // round to 1 decimal places)
     }
 
     /**

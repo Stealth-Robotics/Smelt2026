@@ -122,7 +122,7 @@ public class FarDoubleShoot extends BioBuzzAutos {
                             shootSequence(),
                             drive.followPathCommand(goBackForPark())
                     )))
-                //,drive.followPathCommand(park())
+                ,drive.followPathCommand(park())
         );
     }
     @Autonomous (name = "Red Far Double Shoot park", group = "RED")

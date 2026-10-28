@@ -8,6 +8,8 @@ import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.subsystems.GateSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.HarvesterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -34,8 +36,9 @@ public class TestServo extends StealthOpMode {
                 driver,
                 operator);
         // Change Servo here to test different servos
-        servo = robotSystem.getShooter().getHood().getServo();
+        servo = new HarvesterSubsystem(hardwareMap).getServo();
         robotSystem.getDrive().setDriver(driver);
+        servo.setPosition(0);
         configBindings();
         schedule(this.printInfo());
     }

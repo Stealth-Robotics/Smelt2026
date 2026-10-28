@@ -17,10 +17,10 @@ public class NearRedAuto extends BioBuzzAutos {
     private final Pose start = poseFactory.of(55.1326, 8.2169, 90);
     private final Pose goShoot = poseFactory.of(55, 32, 90);
     private final Pose goToIntakeStart = poseFactory.of(55, 32, 90);
-    private final Pose goToIntake = poseFactory.of(20, 8, 180);
-    private final Pose intakeStart = poseFactory.of(20, 8, 180);
-    private final Pose intaking = poseFactory.of(8, 8, 180);
-    private final Pose goShoot2Start = poseFactory.of(8, 8, 180);
+    private final Pose goToIntake = poseFactory.of(20, 8, 0);
+    private final Pose intakeStart = poseFactory.of(20, 8, 0);
+    private final Pose intaking = poseFactory.of(8, 8, 0);
+    private final Pose goShoot2Start = poseFactory.of(8, 8, 0);
     private final Pose goShoot2 = poseFactory.of(55, 32, 90);
 
     public Path goShoot() {

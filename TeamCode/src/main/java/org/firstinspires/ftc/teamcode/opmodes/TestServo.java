@@ -38,6 +38,7 @@ public class TestServo extends StealthOpMode {
         // Change Servo here to test different servos
         servo = new HarvesterSubsystem(hardwareMap).getServo();
         robotSystem.getDrive().setDriver(driver);
+        servo.setPosition(0);
         configBindings();
         schedule(this.printInfo());
     }

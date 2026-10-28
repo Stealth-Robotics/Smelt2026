@@ -7,10 +7,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.stealthrobotics.library.StealthSubsystem;
 
 public class HarvesterSubsystem extends StealthSubsystem {
-    //placeholder, still working on the other system ._.
     public final Servo servo;
     public HarvesterSubsystem(HardwareMap map){
-        servo = map.get(Servo.class, "harvesterServo");
+        servo = map.get(Servo.class, "pollenServo");
     }
 
     public Servo getServo() {

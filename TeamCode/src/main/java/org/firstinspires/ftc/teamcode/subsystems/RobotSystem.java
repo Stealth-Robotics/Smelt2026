@@ -25,6 +25,8 @@ public class RobotSystem extends StealthSubsystem {
     private final GamepadEx operator;
     private final IntakeSubsystem intakeSubsystem;
     private final VelocityShooterSubsystem shooter;
+    private final GateSubsystem gateSubsystem;
+    private final HarvesterSubsystem harvesterSubsystem;
     private final DriveSubsystem drive;
     private final CameraSubsystem camera;
 
@@ -43,6 +45,8 @@ public class RobotSystem extends StealthSubsystem {
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
         shooter = new VelocityShooterSubsystem(hardwareMap, this);
         drive = new DriveSubsystem(hardwareMap, this);
+        gateSubsystem = new GateSubsystem(hardwareMap);
+        harvesterSubsystem = new HarvesterSubsystem(hardwareMap);
 
         this.driver = driver;
         this.operator = operator;
@@ -97,6 +101,12 @@ public class RobotSystem extends StealthSubsystem {
 //        telemetry.addData("Robot Centric", driveCmd.isRobotCentric());
 //        telemetry.addData("Hold Mode", driveCmd.isHoldMode());
 
+    }
+    public GateSubsystem getGateSubsystem(){
+        return gateSubsystem;
+    }
+    public HarvesterSubsystem getHarvesterSubsystem(){
+        return harvesterSubsystem;
     }
 
     /** @return The drive subsystem */

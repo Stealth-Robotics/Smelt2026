@@ -38,7 +38,11 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
     private final ElapsedTime shootTimer = new ElapsedTime();
 
     /** RPM tolerance for considering the target reached. */
-    private static final double VELOCITY_TOLERANCE_HIGH = 100;
+    private static final double VELOCITY_TOLERANCE_HIGH = 150;
+
+    /** RPM tolerance for considering the target reached. */
+    private static final double VELOCITY_TOLERANCE_LOW = -50;
+
 
     /** Threshold for RPM changes to reset the PID controller. */
     private static final double VELOCITY_CHANGE_TOLERANCE = 50;
@@ -248,7 +252,7 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
         }
 
         // Ready if RPM is within tolerance
-        return (difference <= VELOCITY_TOLERANCE_HIGH)
+        return (currentRpm - targetRpm >= VELOCITY_TOLERANCE_LOW) && (currentRpm - targetRpm <= VELOCITY_TOLERANCE_HIGH)
                 ;//|| (curMs > MAX_SHOOT_TIME_MS);
     }
 

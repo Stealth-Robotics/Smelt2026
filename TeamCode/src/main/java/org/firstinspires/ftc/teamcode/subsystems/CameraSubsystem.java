@@ -40,14 +40,14 @@ public class CameraSubsystem extends StealthSubsystem {
     private static final double LIMELIGHT_MOUNT_ANGLE_DEGREES = 40;
 
     /** Distance from the center of the Limelight lens to the floor, in inches. */
-    private static final double LIMELIGHT_FLOOR_HEIGHT_INCHES = 11.5;
+    private static final double LIMELIGHT_FLOOR_HEIGHT_INCHES = 11;
 
     /** The height of the center of an AprilTag from the floor, in inches. */
     private static final double APRIL_TAG_CENTER_HEIGHT_INCHES = 49.65551;
 
     /** Physical Y offset of the Limelight lens relative to the shooter/robot center (in inches).
      *  Positive value indicates the camera is mounted to the LEFT of the shooter. */
-    public static final double LIMELIGHT_Y_OFFSET_INCHES = 2.2;
+    public static final double LIMELIGHT_Y_OFFSET_INCHES = 0;
 
     /** The last valid result received from the Limelight. */
     private LLResult lastResult;
@@ -407,7 +407,7 @@ public class CameraSubsystem extends StealthSubsystem {
      * @return The angular offset in degrees to add to tx.
      */
     public double getPhysicalCameraOffsetDegrees(@Nullable LLResult result) {
-        if (result == null || !result.isValid()) {
+        if (result == null || !result.isValid() || LIMELIGHT_Y_OFFSET_INCHES == 0) {
             return 0.0;
         }
 

@@ -3,14 +3,13 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.util.InterpLUT;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -72,17 +71,15 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
     /** Additional RPM added to the target during shooting. */
     private double boostRpm = 0;
 
-   private final PIDFCoefficients pidfCoefficients =
-           new PIDFCoefficients(
-                   10,
-                   0.17,
-                   0,
-                   11.62
-//                   0.000003,
-//                   0.000000,
-//                   0.0,
-//                   0.000408
-           );
+    /** Voltage sensor to monitor battery level and compensate PIDF. */
+    private final VoltageSensor voltageSensor;
+    /** Nominal voltage for feedforward calculation (12V baseline). */
+    private final double NOMINAL_VOLTAGE = 13.1;
+
+    private double baseKp = 1.6;
+    private double baseKi = 0;
+    private double baseKd = 0.0;
+    private double baseKf = 10.0;
 
     private InterpLUT rangeToRpm;
 
@@ -112,11 +109,12 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
      */
     public VelocityShooterSubsystem(HardwareMap map, RobotSystem robot) {
         this.robot = robot;
+        voltageSensor = map.voltageSensor.iterator().next();
         hood = new HoodSubsystem(map);
         shooterMotor1 = map.get(DcMotorEx.class, "shooterMotor1");
         shooterMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        shooterMotor1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, baseKf);
         shooterMotor1.setPositionPIDFCoefficients(5.0);
         shooterMotor1.setTargetPositionTolerance(20);
         //shooterMotor1.pi
@@ -131,8 +129,8 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
         rangeToRpm = new InterpLUT();
         rangeToRpm.add(MIN_DISTANCE - 0.1, 3550);
         rangeToRpm.add(40.0, 3600);
-        rangeToRpm.add(45.0, 3650);
-        rangeToRpm.add(50.0, 3675);
+        rangeToRpm.add(45.0, 3620);
+        rangeToRpm.add(50.0, 3650);
         rangeToRpm.add(55.0, 3700);
         rangeToRpm.add(69.0, 4025);
         rangeToRpm.add(MAX_DISTANCE + 0.1, 4100);
@@ -158,6 +156,8 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
             lastDistance = DEFAULT_SHOOT_DISTANCE;
         }
 
+        double currentVoltage = getBatteryVoltage();
+        telemetry.addData("Battery Voltage", "%.2f V", currentVoltage);
         telemetry.addData("Target RPM", targetRpm);
         telemetry.addData("Current RPM", currentRpm);
         telemetry.addData("Last Distance", lastDistance);
@@ -166,6 +166,9 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
 
         // if we are shooting or waiting to shoot
         if (isActiveShot()) {
+
+            // Apply battery voltage compensation to feedforward (kF)
+            updateVoltageCompensation(currentVoltage);
 
             // set the hood angle to the distance
             hood.setHoodAngle(lastDistance);
@@ -188,6 +191,31 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
         }
         else {
             setFeeding(false);
+        }
+    }
+
+    /**
+     * Gets the current battery voltage from the hardware map's voltage sensor.
+     *
+     * @return Battery voltage in Volts.
+     */
+    public double getBatteryVoltage() {
+        if (voltageSensor != null) {
+            return voltageSensor.getVoltage();
+        }
+        return NOMINAL_VOLTAGE;
+    }
+
+    /**
+     * Updates the motor PIDF coefficients with voltage-compensated feedforward (kF).
+     *
+     * @param currentVoltage Current measured battery voltage.
+     */
+    private void updateVoltageCompensation(double currentVoltage) {
+        if (currentVoltage > 8.0) { // Safety check against zero/invalid sensor values
+            double compensatedKf = baseKf * (NOMINAL_VOLTAGE / currentVoltage);
+            shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
+            telemetry.addData("Compensated KF", "%.4f", compensatedKf);
         }
     }
 
@@ -251,7 +279,11 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
      * @param kf Feedforward gain
      */
     public void setController(double kp, double ki, double kd, double kf) {
-        shooterMotor1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(kp, ki, kd, kf));
+        baseKp = kp;
+        baseKi = ki;
+        baseKd = kd;
+        baseKf = kf;
+        updateVoltageCompensation(getBatteryVoltage());
     }
 
     /**
@@ -272,6 +304,7 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
      * Stops the motor by setting target RPM to zero and turning off intake.
      */
     public void stop() {
+        shootState = ShootState.NOT_SHOOTING;
         customDistance = 0;
         shooterMotor1.setPower(floatPower);
         setFeeding(false);
@@ -419,10 +452,10 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
      * @param shoot true if shooting should start, false otherwise.
      */
     public void setStartShoot(boolean shoot) {
-        if (shoot) {
+        if (shoot && shootState == ShootState.NOT_SHOOTING) {
             shootTimer.reset();
             shootState = ShootState.WAITING_TO_SHOOT;
-        } else {
+        } else if (shootState != ShootState.NOT_SHOOTING){
             stop();
         }
     }

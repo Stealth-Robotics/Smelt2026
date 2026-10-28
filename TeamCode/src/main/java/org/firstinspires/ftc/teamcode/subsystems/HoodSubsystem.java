@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.util.InterpLUT;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -27,11 +26,12 @@ public class HoodSubsystem extends StealthSubsystem {
     private void buildRangeTable() {
         // TODO: make these angles for easier readability
         rangeToHoodAngle = new InterpLUT();
-        rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 0.1);
-        rangeToHoodAngle.add(40, 0.13);
-        rangeToHoodAngle.add(50, .25);
-        rangeToHoodAngle.add(55, .33);
-        rangeToHoodAngle.add(60, .4);
+        rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 0.23);
+        rangeToHoodAngle.add(40, 0.26);
+        rangeToHoodAngle.add(48, 0.38);
+        rangeToHoodAngle.add(50, .39);
+        rangeToHoodAngle.add(55, .41);
+        rangeToHoodAngle.add(60, .42);
         rangeToHoodAngle.add(MAX_DISTANCE + 0.1, MAX_POSITION
         );
         rangeToHoodAngle.createLUT();

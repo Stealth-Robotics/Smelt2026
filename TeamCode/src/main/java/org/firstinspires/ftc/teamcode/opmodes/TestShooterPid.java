@@ -4,12 +4,9 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
-
-import org.firstinspires.ftc.teamcode.subsystems.SingleShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.VelocityShooterSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -19,8 +16,10 @@ public class TestShooterPid extends StealthOpMode {
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    private double kf = .0;
-    private double kp = .0;
+    private double kf = 12.16; //12.16  2.0
+    private double kp = 0.7; //0.7 5.8
+
+    private double ki = 0.0;
 
     private  double rpm = 3400;
 
@@ -42,7 +41,7 @@ public class TestShooterPid extends StealthOpMode {
                  operator);
         robotSystem.getDrive().setDriver(driver);
         configBindings();
-        robotSystem.getShooter().setController(kp, 0,0, kf);
+        robotSystem.getShooter().setController(kp, ki,0, kf);
         schedule(this.printInfo());
     }
 
@@ -77,23 +76,34 @@ public class TestShooterPid extends StealthOpMode {
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(()-> {
            kf += stepSizes[stepIndex];
-            shooter.setController(kp, 0, 0, kf);
+            shooter.setController(kp, ki, 0, kf);
         });
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(()->{
             kf -= stepSizes[stepIndex];
-            shooter.setController(kp, 0, 0, kf);
+            shooter.setController(kp, ki, 0, kf);
         });
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()-> {
             kp += stepSizes[stepIndex];
-            shooter.setController(kp, 0, 0, kf);
+            shooter.setController(kp, ki, 0, kf);
         });
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->{
             kp -= stepSizes[stepIndex];
-            shooter.setController(kp, 0, 0, kf);
+            shooter.setController(kp, ki, 0, kf);
         });
+
+        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()->{
+            ki += stepSizes[stepIndex];
+            shooter.setController(kp, ki, 0, kf);
+        });
+
+        operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(()->{
+            ki -= stepSizes[stepIndex];
+            shooter.setController(kp, ki, 0, kf);
+        });
+
 
     }
 
@@ -103,7 +113,7 @@ public class TestShooterPid extends StealthOpMode {
            telemetry.addData("Step Value", "%.6f", stepSizes[stepIndex]);
            telemetry.addData("KP","%.6f", kp);
            telemetry.addData("KF","%.6f", kf);
-
+           telemetry.addData("KI","%.6f", ki);
         });
     }
 }

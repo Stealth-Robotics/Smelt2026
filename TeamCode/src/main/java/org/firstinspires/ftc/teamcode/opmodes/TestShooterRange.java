@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
-import org.firstinspires.ftc.teamcode.subsystems.SingleShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.VelocityShooterSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -75,6 +74,7 @@ public class TestShooterRange extends StealthOpMode {
         operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(() -> {
             stepIndex = (stepIndex - 1 + hoodSteps.length) % hoodSteps.length;
         });
+
         operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(() -> {
             hoodAngleAdd += hoodSteps[stepIndex];
             shooter.getHood().setAngleOverride(hoodAngleAdd);

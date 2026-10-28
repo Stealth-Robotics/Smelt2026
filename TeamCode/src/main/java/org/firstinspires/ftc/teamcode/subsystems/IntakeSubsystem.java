@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.stealthrobotics.library.opmodes.StealthOpMode.telemetry;
-
 import com.arcrobotics.ftclib.command.Command;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,7 +13,7 @@ import java.util.function.DoubleSupplier;
 public class IntakeSubsystem extends StealthSubsystem {
     private static final double POWER_THRESHOLD = 0.05;
 
-    private static final double SHOOT_POWER = .7;
+    private static final double SHOOT_POWER = .8;
     private static final String INTAKE_MOTOR_NAME = "intakeMotor";
 
     private final DcMotorEx intake;

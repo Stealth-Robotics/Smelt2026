@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.subsystems.DoubleShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.firstinspires.ftc.teamcode.subsystems.VelocityShooterSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
@@ -47,7 +48,7 @@ public class TestShooterPid extends StealthOpMode {
 
     private void configBindings() {
 
-        VelocityShooterSubsystem shooter = robotSystem.getShooter();
+        DoubleShooterSubsystem shooter = robotSystem.getShooter();
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()->{
             shootToggle = !shootToggle;
             if (shootToggle) {

@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.subsystems.DoubleShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
@@ -23,7 +24,7 @@ public class TestShooterRange extends StealthOpMode {
     private static final double[] rpmSteps = {500, 100, 50};
     private int stepIndex = 1;
 
-    VelocityShooterSubsystem shooter;
+    DoubleShooterSubsystem shooter;
 
     @Override
     public void initialize() {
@@ -41,7 +42,6 @@ public class TestShooterRange extends StealthOpMode {
     }
 
     private void configBindings() {
-        VelocityShooterSubsystem shooter = robot.getShooter();
         IntakeSubsystem intakeSubsystem = robot.getIntake();
         DriveSubsystem drive = robot.getDrive();
 

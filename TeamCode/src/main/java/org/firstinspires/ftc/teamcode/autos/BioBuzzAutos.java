@@ -7,7 +7,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.DoubleShooterSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.DmShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
@@ -24,7 +24,7 @@ public class BioBuzzAutos extends StealthOpMode {
 
     public IntakeSubsystem intake;
 
-    public DoubleShooterSubsystem shooter;
+    public DmShooterSubsystem shooter;
 
     public CameraSubsystem camera;
 

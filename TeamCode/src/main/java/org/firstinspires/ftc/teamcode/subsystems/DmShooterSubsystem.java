@@ -24,7 +24,7 @@ import org.stealthrobotics.library.opmodes.StealthOpMode;
  * a target RPM. It also includes lookup tables for converting distance to RPM
  * and hood angle to RPM.</p>
  */
-public class DoubleShooterSubsystem extends StealthSubsystem {
+public class DmShooterSubsystem extends StealthSubsystem {
 
     /** The motor that drives the shooter. */
     private final DcMotorEx shooterMotor1;
@@ -85,10 +85,10 @@ public class DoubleShooterSubsystem extends StealthSubsystem {
     /** Nominal voltage for feedforward calculation (12V baseline). */
     private final double NOMINAL_VOLTAGE = 13.1;
 
-    private double baseKp = 7.62;
-    private double baseKi = .004;
+    private double baseKp = 1.0;
+    private double baseKi = 0.2;
     private double baseKd = 0.0;
-    private double baseKf = 12.5;
+    private double baseKf = 12.16;
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
     private double kfScaler = .8;
 
@@ -118,7 +118,7 @@ public class DoubleShooterSubsystem extends StealthSubsystem {
      * @param map     The hardware map for accessing robot components.
      * @param robot   The main robot system instance.
      */
-    public DoubleShooterSubsystem(HardwareMap map, RobotSystem robot) {
+    public DmShooterSubsystem(HardwareMap map, RobotSystem robot) {
         this.robot = robot;
         voltageSensor = map.voltageSensor.iterator().next();
         hood = new HoodSubsystem(map);

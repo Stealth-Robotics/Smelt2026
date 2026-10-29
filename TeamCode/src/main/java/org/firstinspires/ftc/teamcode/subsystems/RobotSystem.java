@@ -24,7 +24,7 @@ public class RobotSystem extends StealthSubsystem {
     /** Gamepad for the operator */
     private final GamepadEx operator;
     private final IntakeSubsystem intakeSubsystem;
-    private final DoubleShooterSubsystem shooter;
+    private final DmShooterSubsystem shooter;
     private final GateSubsystem gateSubsystem;
     private final HarvesterSubsystem harvesterSubsystem;
     private final DriveSubsystem drive;
@@ -43,7 +43,7 @@ public class RobotSystem extends StealthSubsystem {
     public RobotSystem(HardwareMap hardwareMap, GamepadEx driver, GamepadEx operator) {
         camera = new CameraSubsystem(hardwareMap);
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
-        shooter = new DoubleShooterSubsystem(hardwareMap, this);
+        shooter = new DmShooterSubsystem(hardwareMap, this);
         drive = new DriveSubsystem(hardwareMap, this);
         gateSubsystem = new GateSubsystem(hardwareMap);
         harvesterSubsystem = new HarvesterSubsystem(hardwareMap);
@@ -129,7 +129,7 @@ public class RobotSystem extends StealthSubsystem {
     }
 
     /** @return The shooter subsystem */
-    public DoubleShooterSubsystem getShooter() {
+    public DmShooterSubsystem getShooter() {
         return shooter;
     }
 

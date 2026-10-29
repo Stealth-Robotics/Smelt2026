@@ -12,7 +12,17 @@ public class HarvesterSubsystem extends StealthSubsystem {
     public static final double HARVESTER_DOWN = 0.699;
     public HarvesterSubsystem(HardwareMap map){
         servo = map.get(Servo.class, "pollenServo");
+        setPosition(HARVESTER_UP);
     }
+    public void toggle(){
+        if (servo.getPosition() == HARVESTER_UP){
+            setPosition(HARVESTER_DOWN);
+        }
+        else {
+            setPosition(HARVESTER_UP);
+        }
+    }
+
     public void Up(){
         setPosition(HARVESTER_UP);
     }
@@ -24,6 +34,8 @@ public class HarvesterSubsystem extends StealthSubsystem {
         return servo;
     }
 
-    public void setPosition(double position) { servo.setPosition(position); }
+    public void setPosition(double position) {
+        position = Math.clamp(HARVESTER_DOWN, HARVESTER_UP, position);
+        servo.setPosition(position); }
 }
 

@@ -87,6 +87,7 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(shooter.startShootCommand())
                 .whenReleased(shooter.stopShootCommand());
 
+        operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(()-> harvesterSubsystem.toggle());
         // operator can reset the bot position to the audience side corner wall
         // TODO: should driver do this?
         operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(true));

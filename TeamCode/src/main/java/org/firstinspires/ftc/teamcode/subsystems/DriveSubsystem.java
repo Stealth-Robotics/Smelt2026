@@ -56,17 +56,29 @@ public class DriveSubsystem extends StealthSubsystem
 
     private double lastTxDelta = 100;
 
+    // Rests to the Scoring table side Blue wall intake facing away from driver
+    private static final Pose blueFarPose = new Pose(
+            FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X,
+            FieldConstants.FIELD_Y_MAX -
+                    FieldConstants.ROBOT_CENTER_Y,
+            FieldConstants.ROBOT_BLUE_HEADING);
+
     // Rests to the Audience side Blue wall intake facing away from driver
-    private static final Pose bluePose = new Pose(
+    private static final Pose blueNearPose = new Pose(
             FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X,
             FieldConstants.ROBOT_CENTER_Y,
             FieldConstants.ROBOT_BLUE_HEADING);
 
-    // Rests to the Audience side Red wall intake facing away from driver
-    // TODO: RED side may be set to far red for testing check if this is correct FieldConstants.FIELD_Y_MAX - FieldConstants.ROBOT_CENTER_Y makes it far red
-    private static final Pose redPose = new Pose(
+    // Resets to the Audience side Red wall intake facing away from driver
+    private static final Pose redNearPose = new Pose(
             FieldConstants.ROBOT_CENTER_X,
-          //  FieldConstants.FIELD_Y_MAX -
+            FieldConstants.ROBOT_CENTER_Y,
+            FieldConstants.ROBOT_RED_HEADING);
+
+    // Resets to the scoring table side red wall
+    private static final Pose redFarPose = new Pose(
+            FieldConstants.ROBOT_CENTER_X,
+            FieldConstants.FIELD_Y_MAX -
                     FieldConstants.ROBOT_CENTER_Y,
             FieldConstants.ROBOT_RED_HEADING);
 
@@ -78,7 +90,7 @@ public class DriveSubsystem extends StealthSubsystem
         if (AutoToTeleOpStorage.isPoseValid()) {
             follower.setPose(AutoToTeleOpStorage.getPose());
         }else {
-            follower.setPose(Alliance.isBlue() ? bluePose : redPose);
+            follower.setPose(Alliance.isBlue() ? blueNearPose : redNearPose);
         }
 
         //follower.localizer.reset();
@@ -261,19 +273,17 @@ public class DriveSubsystem extends StealthSubsystem
         return follower.pose();
     }
 
-    public void resetOdometry(boolean resetPose) {
-        Pose basePose = resetPose ? (Alliance.isBlue() ? bluePose : redPose) : follower.pose();
-
-        double heading = Alliance.isBlue() ? FieldConstants.ROBOT_BLUE_HEADING : FieldConstants.ROBOT_RED_HEADING;
-        follower.setPose(new Pose(basePose.x(), basePose.y(), heading));
+    public void resetHeading() {
+        follower.setHeading(Alliance.isBlue() ? FieldConstants.ROBOT_BLUE_HEADING : FieldConstants.ROBOT_RED_HEADING);
     }
 
-    public Command resetOdometryCommand(boolean resetPose) {
-        return runOnce(() -> resetOdometry(resetPose));
+    public Command resetHeadingCommand() {
+        return runOnce(this::resetHeading);
     }
 
-    public Command resetOdometryCommand() {
-        return resetOdometryCommand(false);
+    public void resetPosition(boolean near) {
+        Pose pose = near ? (Alliance.isBlue() ? blueNearPose : redNearPose) : (Alliance.isBlue() ? blueFarPose : redFarPose);
+        follower.setPose(pose);
     }
 
     /**

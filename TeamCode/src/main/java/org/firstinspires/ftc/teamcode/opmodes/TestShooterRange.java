@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.subsystems.DoubleShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
-import org.firstinspires.ftc.teamcode.subsystems.VelocityShooterSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 @TeleOp(name = "Test Shooter Range Map", group = "Tests")
@@ -48,7 +47,9 @@ public class TestShooterRange extends StealthOpMode {
         intakeSubsystem.setDefaultCommand(intakeSubsystem.runIntakeCommand(
                 () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
 
-        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(true));
+        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetHeadingCommand());
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()-> drive.resetPosition(false));
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()-> drive.resetPosition(true));
 
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(drive.setSlowMoCommand(true))
@@ -60,7 +61,7 @@ public class TestShooterRange extends StealthOpMode {
                 .whenReleased(drive.setAutoAimCommand(false));
 
         driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shooter.startShootCommand())
+                .whenPressed(shooter.startShootCommand(0))
                 .whenReleased(shooter.stopShootCommand());
 
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
@@ -94,11 +95,6 @@ public class TestShooterRange extends StealthOpMode {
             rpmboost -= rpmSteps[stepIndex];
             shooter.setBoostRpm(rpmboost);
         });
-
-        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(() -> {
-            drive.resetOdometry(true);
-        });
-
     }
 
     public Command printInfo() {

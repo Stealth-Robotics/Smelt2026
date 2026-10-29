@@ -4,26 +4,24 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystems.GateSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.HarvesterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-@TeleOp(name = "TestServo", group = "Tests")
+@TeleOp(name = "TestServo Gate", group = "Tests")
 public class TestServo extends StealthOpMode {
     private GamepadEx driver;
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    double position = 0;
+    double position = .3;
 
     private Servo servo;
 
-    private static final double[] stepSizes = {0.1, 0.01, 0.001, 0.0001, 0.00001};
+    private static final double[] stepSizes = {0.1, 0.01, 0.001};
     private int stepIndex = 1;
 
     @Override
@@ -36,15 +34,15 @@ public class TestServo extends StealthOpMode {
                 driver,
                 operator);
         // Change Servo here to test different servos
-        servo = new HarvesterSubsystem(hardwareMap).getServo();
+        servo = new GateSubsystem(hardwareMap).getServo();
         robotSystem.getDrive().setDriver(driver);
-        servo.setPosition(0);
+        servo.setPosition(position);
         configBindings();
         schedule(this.printInfo());
     }
 
     private void configBindings() {
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(()-> {
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()-> {
             position += stepSizes[stepIndex];
             servo.setPosition(position);
         });
@@ -57,7 +55,7 @@ public class TestServo extends StealthOpMode {
             stepIndex = (stepIndex - 1 + stepSizes.length) % stepSizes.length;
         });
 
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(()->{
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->{
             position -= stepSizes[stepIndex];
             // servos can't go bellow 0
             if (position < 0) {
@@ -79,7 +77,7 @@ public class TestServo extends StealthOpMode {
     public Command printInfo() {
         return new RunCommand(() ->{
             telemetry.addData("Step Index", stepIndex);
-            telemetry.addData("Step Value", "%.5f", stepSizes[stepIndex]);
+            telemetry.addData("Step Value", "%.3f", stepSizes[stepIndex]);
             telemetry.addData("Position", position);
         });
     }

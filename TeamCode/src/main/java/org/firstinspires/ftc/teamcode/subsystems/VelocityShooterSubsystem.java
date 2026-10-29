@@ -84,6 +84,8 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
     private double baseKi = 0;
     private double baseKd = 0.0;
     private double baseKf = 7.88;
+    /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
+    private double kfScaler = 1.0;
 
     private InterpLUT rangeToRpm;
 
@@ -218,7 +220,8 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
      */
     private void updateVoltageCompensation(double currentVoltage) {
         if (currentVoltage > 8.0) { // Safety check against zero/invalid sensor values
-            double compensatedKf = baseKf * (NOMINAL_VOLTAGE / currentVoltage);
+            double voltageDelta = (NOMINAL_VOLTAGE / currentVoltage) - 1.0;
+            double compensatedKf = baseKf * (1.0 + (voltageDelta * kfScaler));
             shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
             telemetry.addData("Compensated KF", "%.4f", compensatedKf);
         }
@@ -288,6 +291,25 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
         baseKi = ki;
         baseKd = kd;
         baseKf = kf;
+        updateVoltageCompensation(getBatteryVoltage());
+    }
+
+    /**
+     * Gets the voltage compensation kF scaler.
+     *
+     * @return The kF voltage compensation scaler.
+     */
+    public double getKfScaler() {
+        return kfScaler;
+    }
+
+    /**
+     * Sets the voltage compensation kF scaler.
+     *
+     * @param kfScaler Scaler factor for voltage compensation (1.0 = full compensation, 0.5 = half, 0.0 = none).
+     */
+    public void setKfScaler(double kfScaler) {
+        this.kfScaler = kfScaler;
         updateVoltageCompensation(getBatteryVoltage());
     }
 

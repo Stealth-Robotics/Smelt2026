@@ -56,7 +56,7 @@ public class RobotSystem extends StealthSubsystem {
     /**
      * Configures gamepad bindings for both the driver and the operator.
      */
-    public void configureBindings(){
+    public void configureBindings() {
         // --- Driver Controls ---
         drive.setDriver(driver);
 
@@ -64,8 +64,13 @@ public class RobotSystem extends StealthSubsystem {
         intakeSubsystem.setDefaultCommand(intakeSubsystem.runIntakeCommand(
                 () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
 
-        // Driver only reset heading
-        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(false));
+        // Reset the heading only
+        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetHeadingCommand());
+
+        // Reset the position to the Scoring side corner wall
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() -> drive.resetPosition(false));
+        // Reset the position to the audience side corner wall
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> drive.resetPosition(true));
 
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(drive.setSlowMoCommand(true))
@@ -79,6 +84,10 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(shooter.startShootCommand())
                 .whenReleased(shooter.stopShootCommand());
 
+        driver.getGamepadButton(GamepadKeys.Button.X)
+                .whenPressed(shooter::toggleFloatPower);
+
+
 
         // --- Operator Controls ---
         operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCommand(50));
@@ -87,10 +96,9 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(shooter.startShootCommand())
                 .whenReleased(shooter.stopShootCommand());
 
-        operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(()-> harvesterSubsystem.toggle());
-        // operator can reset the bot position to the audience side corner wall
-        // TODO: should driver do this?
-        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetOdometryCommand(true));
+        operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(harvesterSubsystem::toggle);
+
+
     }
 
 

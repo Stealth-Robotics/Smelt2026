@@ -107,22 +107,23 @@ public class FarDoubleShoot extends BioBuzzAutos {
                 new IfCommand(this::getTagSeen,
                     // Tags Seen == TRUE
                     new SequentialCommandGroup(
-                        shootSequence(),
-                        drive.followPathCommand(afterFirstShot()),
-                        intake.startAutoIntakeCommand(true),
-                        drive.followPathCommand(collectFromFlower()),
-                        waitFor(4000),
-                        intake.stopAutoIntakeCommand(),
-                        drive.followPathCommand(shootAgain()),
-                        shootSequence(),
-                    // tags seen == FALSE
+                        //shootSequence(),
+                          shooter.startShootCommand(40),
+//                        drive.followPathCommand(afterFirstShot()),
+//                        intake.startAutoIntakeCommand(true),
+//                        drive.followPathCommand(collectFromFlower()),
+//                        waitFor(4000),
+//                        intake.stopAutoIntakeCommand(),
+//                        drive.followPathCommand(shootAgain()),
+//                        shootSequence(),
+//                    // tags seen == FALSE
                     new SequentialCommandGroup(
-                            drive.followPathCommand(noHive()),
-                            drive.followPathCommand(shootOtherSide()),
-                            shootSequence(),
-                            drive.followPathCommand(goBackForPark())
+//                            drive.followPathCommand(noHive()),
+//                            drive.followPathCommand(shootOtherSide()),
+//                            shootSequence(),
+//                            drive.followPathCommand(goBackForPark())
                     )))
-                ,drive.followPathCommand(park())
+                //,drive.followPathCommand(park())
         );
     }
     @Autonomous (name = "Red Far Double Shoot park", group = "RED")

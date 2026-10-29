@@ -70,6 +70,8 @@ public class DoubleShooterSubsystem extends StealthSubsystem {
 
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;
+
+    private static final double FLOAT_DEFAULT_POWER = .4;
     /** Minimum distance for lookup tables. */
     private static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
@@ -81,12 +83,14 @@ public class DoubleShooterSubsystem extends StealthSubsystem {
     /** Voltage sensor to monitor battery level and compensate PIDF. */
     private final VoltageSensor voltageSensor;
     /** Nominal voltage for feedforward calculation (12V baseline). */
-    private final double NOMINAL_VOLTAGE = 13;
+    private final double NOMINAL_VOLTAGE = 13.1;
 
-    private double baseKp = 2.5;
-    private double baseKi = 0;
+    private double baseKp = 7.62;
+    private double baseKi = .004;
     private double baseKd = 0.0;
-    private double baseKf = 7.88;
+    private double baseKf = 12.5;
+    /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
+    private double kfScaler = .8;
 
     private InterpLUT rangeToRpm;
 
@@ -229,8 +233,9 @@ public class DoubleShooterSubsystem extends StealthSubsystem {
      * @param currentVoltage Current measured battery voltage.
      */
     private void updateVoltageCompensation(double currentVoltage) {
-        if (currentVoltage > 8.0) { // Safety check against zero/invalid sensor values
-            double compensatedKf = baseKf * (NOMINAL_VOLTAGE / currentVoltage);
+        if (currentVoltage > 8.0 && currentVoltage < NOMINAL_VOLTAGE) {
+            double voltageDelta = (NOMINAL_VOLTAGE / currentVoltage) - 1.0;
+            double compensatedKf = baseKf * (1.0 + (voltageDelta * kfScaler));
             shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
             shooterMotor2.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
             telemetry.addData("Compensated KF", "%.4f", compensatedKf);
@@ -301,6 +306,25 @@ public class DoubleShooterSubsystem extends StealthSubsystem {
         baseKi = ki;
         baseKd = kd;
         baseKf = kf;
+        updateVoltageCompensation(getBatteryVoltage());
+    }
+
+    /**
+     * Gets the voltage compensation kF scaler.
+     *
+     * @return The kF voltage compensation scaler.
+     */
+    public double getKfScaler() {
+        return kfScaler;
+    }
+
+    /**
+     * Sets the voltage compensation kF scaler.
+     *
+     * @param kfScaler Scaler factor for voltage compensation (1.0 = full compensation, 0.5 = half, 0.0 = none).
+     */
+    public void setKfScaler(double kfScaler) {
+        this.kfScaler = kfScaler;
         updateVoltageCompensation(getBatteryVoltage());
     }
 
@@ -381,6 +405,11 @@ public class DoubleShooterSubsystem extends StealthSubsystem {
      */
     public void setFloatPower(double power) {
         floatPower = power;
+    }
+
+    public void toggleFloatPower(){
+        floatPower = floatPower > 0 ? 0 : FLOAT_DEFAULT_POWER;
+        stop();
     }
 
     /**
@@ -505,12 +534,25 @@ public class DoubleShooterSubsystem extends StealthSubsystem {
 
     /**
      * Returns a command that starts the shooting sequence.
+     * with override distance
+     * @return A command that sets the start shoot flag to true.
+     */
+    public Command startShootCommand(double overrideDistance) {
+        return runOnce(() -> {
+            this.setDistance(overrideDistance);
+            setStartShoot(true);
+        });
+    }
+
+    /**
+     * Returns a command that starts the shooting sequence.
      *
      * @return A command that sets the start shoot flag to true.
      */
     public Command startShootCommand() {
-        return runOnce(() -> setStartShoot(true));
+        return startShootCommand(0);
     }
+
 
     /**
      * Returns a command that stops the shooting sequence.
@@ -538,21 +580,33 @@ public class DoubleShooterSubsystem extends StealthSubsystem {
      * @return A command that shoots for the specified duration.
      */
     public Command shootForTimeCommand(long durationMs) {
-        return startShootCommand()
+        return startShootCommand(0)
                 .andThen(new WaitCommand(durationMs))
                 .andThen(stopShootCommand());
     }
 
     /**
-     * Returns a command that shoots until the motor is ready and then waits for a specified duration.
+     * Returns a command that waits for shooter spinup and then shoots for given duration.
      *
      * @param durationMs The duration in milliseconds to wait after becoming ready.
      * @return A command that shoots until ready and then waits.
      */
     public Command shootWhenReadyCommand(long durationMs) {
-        return startShootCommand()
+        return shootWhenReadyCmd(durationMs, 0);
+    }
+
+    /**
+     * Returns a command that waits for shooter spinup and then shoots for given duration and distance
+     * @param durationMs The duration in milliseconds to wait after becoming ready.
+     * @param distanceOverride Override the distance to shoot to the goal good for not needing to calc distance
+     * @return A command that shoots until ready and then waits.
+     */
+    public Command shootWhenReadyCmd(long durationMs, double distanceOverride) {
+        return startShootCommand(distanceOverride)
                 .andThen(new WaitUntilCommand(this::isShootReady))
                 .andThen(new WaitCommand(durationMs))
                 .andThen(stopShootCommand());
     }
+
+
 }

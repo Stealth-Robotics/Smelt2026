@@ -66,7 +66,7 @@ public class DriveSubsystem extends StealthSubsystem
     // TODO: RED side may be set to far red for testing check if this is correct FieldConstants.FIELD_Y_MAX - FieldConstants.ROBOT_CENTER_Y makes it far red
     private static final Pose redPose = new Pose(
             FieldConstants.ROBOT_CENTER_X,
-            FieldConstants.FIELD_Y_MAX -
+          //  FieldConstants.FIELD_Y_MAX -
                     FieldConstants.ROBOT_CENTER_Y,
             FieldConstants.ROBOT_RED_HEADING);
 

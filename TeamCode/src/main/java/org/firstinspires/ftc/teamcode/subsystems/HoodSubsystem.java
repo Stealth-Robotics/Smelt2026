@@ -28,10 +28,11 @@ public class HoodSubsystem extends StealthSubsystem {
         rangeToHoodAngle = new InterpLUT();
         rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 0.23);
         rangeToHoodAngle.add(40, 0.26);
-        rangeToHoodAngle.add(48, 0.38);
-        rangeToHoodAngle.add(50, .39);
+        rangeToHoodAngle.add(48, 0.39);
+        rangeToHoodAngle.add(50, .392);
         rangeToHoodAngle.add(55, .41);
-        rangeToHoodAngle.add(60, .42);
+        rangeToHoodAngle.add(57,0.45);
+        rangeToHoodAngle.add(60, .455);
         rangeToHoodAngle.add(MAX_DISTANCE + 0.1, MAX_POSITION
         );
         rangeToHoodAngle.createLUT();

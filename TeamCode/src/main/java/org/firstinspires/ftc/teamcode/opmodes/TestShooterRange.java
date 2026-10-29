@@ -95,6 +95,10 @@ public class TestShooterRange extends StealthOpMode {
             shooter.setBoostRpm(rpmboost);
         });
 
+        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(() -> {
+            drive.resetOdometry(true);
+        });
+
     }
 
     public Command printInfo() {

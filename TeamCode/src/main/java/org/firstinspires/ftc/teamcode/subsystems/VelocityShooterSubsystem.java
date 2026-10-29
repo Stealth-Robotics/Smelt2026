@@ -78,12 +78,12 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
     /** Voltage sensor to monitor battery level and compensate PIDF. */
     private final VoltageSensor voltageSensor;
     /** Nominal voltage for feedforward calculation (12V baseline). */
-    private final double NOMINAL_VOLTAGE = 13.15;
+    private final double NOMINAL_VOLTAGE = 13;
 
-    private double baseKp = 1.6;
+    private double baseKp = 2.5;
     private double baseKi = 0;
     private double baseKd = 0.0;
-    private double baseKf = 10.0;
+    private double baseKf = 7.88;
 
     private InterpLUT rangeToRpm;
 
@@ -134,7 +134,7 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
         rangeToRpm.add(MIN_DISTANCE - 0.1, 3550);
         rangeToRpm.add(40.0, 3600);
         rangeToRpm.add(45.0, 3620);
-        rangeToRpm.add(50.0, 3650);
+        rangeToRpm.add(50.0, 3610);
         rangeToRpm.add(55.0, 3700);
         rangeToRpm.add(69.0, 4025);
         rangeToRpm.add(MAX_DISTANCE + 0.1, 4100);
@@ -170,7 +170,7 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
 
         // if we are shooting or waiting to shoot
         if (isActiveShot()) {
-
+            robot.getGateSubsystem().openGate();
             // Apply battery voltage compensation to feedforward (kF)
             updateVoltageCompensation(currentVoltage);
 
@@ -195,6 +195,7 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
         }
         else {
             setFeeding(false);
+            robot.getGateSubsystem().closeGate();
         }
     }
 
@@ -228,7 +229,6 @@ public class VelocityShooterSubsystem extends StealthSubsystem {
     }
 
     private void setFeeding(boolean feed) {
-        robot.getGateSubsystem().setGate(feed);
         intake.setAutoIntake(feed);
         // TODO: add the stopper servo
     }

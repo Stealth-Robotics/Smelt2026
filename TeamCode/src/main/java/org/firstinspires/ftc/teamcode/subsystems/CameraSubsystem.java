@@ -25,7 +25,8 @@ import org.stealthrobotics.library.opmodes.StealthOpMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CameraSubsystem extends StealthSubsystem {
+public class CameraSubsystem extends StealthSubsystem
+{
 
     private final Telemetry telemetry = StealthOpMode.telemetry;
     public static final String NAME = "limelight";

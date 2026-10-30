@@ -148,7 +148,9 @@ public class DmShooterSubsystem extends StealthSubsystem {
         rangeToRpm.add(40.0, 3600);
         rangeToRpm.add(45.0, 3620);
         rangeToRpm.add(50.0, 3610);
-        rangeToRpm.add(55.0, 3700);
+        rangeToRpm.add(55.0, 3675);
+        rangeToRpm.add(61.0, 3700);
+        rangeToRpm.add(62.0, 3710);
         rangeToRpm.add(69.0, 4025);
         rangeToRpm.add(MAX_DISTANCE + 0.1, 4100);
         rangeToRpm.createLUT();

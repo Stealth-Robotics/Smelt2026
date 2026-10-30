@@ -32,7 +32,8 @@ public class HoodSubsystem extends StealthSubsystem {
         rangeToHoodAngle.add(50, .392);
         rangeToHoodAngle.add(55, .41);
         rangeToHoodAngle.add(57,0.45);
-        rangeToHoodAngle.add(60, .455);
+        rangeToHoodAngle.add(60, .5);
+        rangeToHoodAngle.add(62, 0.5106);
         rangeToHoodAngle.add(MAX_DISTANCE + 0.1, MAX_POSITION
         );
         rangeToHoodAngle.createLUT();

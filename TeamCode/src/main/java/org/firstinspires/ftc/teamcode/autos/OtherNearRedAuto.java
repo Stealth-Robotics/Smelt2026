@@ -47,7 +47,9 @@ public class OtherNearRedAuto extends BioBuzzAutos
         return Paths.line(point5, parkIt).tangent();
     }
 
-    public OtherNearRedAuto() {
+    @Override
+        public void initialize(){
+        super.initialize();
         follower.setPose(start);
     }
 

@@ -207,12 +207,12 @@ public class DmShooterSubsystem extends StealthSubsystem {
                 setFeeding(true);
             } else {
                 shootState = ShootState.WAITING_TO_SHOOT;
+                setFeeding(false);
+                robot.getGateSubsystem().closeGate();
+                }
             }
-        }
-        else {
-            setFeeding(false);
-            robot.getGateSubsystem().closeGate();
-        }
+
+
     }
 
     /**

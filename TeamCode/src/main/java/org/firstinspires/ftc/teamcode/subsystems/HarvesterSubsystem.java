@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.arcrobotics.ftclib.command.Command;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -36,5 +37,12 @@ public class HarvesterSubsystem extends StealthSubsystem {
     public void setPosition(double position) {
         position = Math.clamp(HARVESTER_DOWN, HARVESTER_UP, position);
         servo.setPosition(position); }
+
+    public Command HarvDown(){
+        return runOnce(this::Down);
+    }
+    public Command HarvUp(){
+        return runOnce(this::Up);
+    }
 }
 

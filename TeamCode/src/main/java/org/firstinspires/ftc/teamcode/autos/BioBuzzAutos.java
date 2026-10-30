@@ -69,7 +69,7 @@ public class BioBuzzAutos extends StealthOpMode {
 
     public Command shootSequence(double distance){
         return drive.aimAtTargetCommand(100)
-                .andThen(shooter.shootWhenReadyCmd(5000, 64));
+                .andThen(shooter.shootWhenReadyCmd(3000, 64));
     }
 
     public Command waitFor(long ms) {

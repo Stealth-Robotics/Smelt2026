@@ -14,37 +14,43 @@ public class OtherNearRedAuto extends BioBuzzAutos
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
     private final Pose start = poseFactory.of(56.8844, 8.2077, 90);
+    private final Pose moveUp = poseFactory.of(56.838, 12.3968, -89.3649);
     private final Pose alignFlower = poseFactory.of(29.6241, 47, 86.73);
     private final Pose alignFlowerControl1 = poseFactory.of(28.318, 24.1395, 0);
-    private final Pose harvest = poseFactory.of(14, 47, 0);
-    private final Pose postHarvest = poseFactory.of(18, 47, 0);
-    private final Pose goShootToo = poseFactory.of(45.7115, 123.7349, 173.5971);
-    private final Pose goShootTooControl1 = poseFactory.of(4.0117, 128.4145, 0);
-    private final Pose point5 = poseFactory.of(47.4095, 120.1535, 115.3667);
-    private final Pose parkIt = poseFactory.of(11.8202, 119.4826, -178.9201);
+    private final Pose harvest = poseFactory.of(14, 47, 180);
+    private final Pose postHarvest = poseFactory.of(18, 47, 180);
+    private final Pose goShootToo = poseFactory.of(32.626, 120.2039, 65.2955);
+    private final Pose goShootTooControl1 = poseFactory.of(18.3434, 89.158, 0);
+    private final Pose aimforshootStart = poseFactory.of(32.626, 120.2039, 90);
+    private final Pose aimforshoot = poseFactory.of(40.3475, 126.177, 120);
+    private final Pose parkIt = poseFactory.of(11.8202, 119.4826, -166.7936);
+
+    public Path moveUp() {
+        return Paths.line(start, moveUp).reverseTangent();
+    }
 
     public Path alignFlower() {
-        return Paths.curve(start, alignFlowerControl1, alignFlower).tangent();
+        return Paths.curve(moveUp, alignFlowerControl1, alignFlower).tangent();
     }
 
     public Path harvest() {
-        return Paths.line(alignFlower, harvest).reverseTangent();
+        return Paths.line(alignFlower, harvest).tangent();
     }
 
     public Path postHarvest() {
-        return Paths.line(harvest, postHarvest).tangent();
+        return Paths.line(harvest, postHarvest).reverseTangent();
     }
 
     public Path goShootToo() {
-        return Paths.curve(postHarvest, goShootTooControl1, goShootToo).reverseTangent();
+        return Paths.curve(postHarvest, goShootTooControl1, goShootToo).tangent();
     }
 
-    public Path path5() {
-        return Paths.line(goShootToo, point5).reverseTangent();
+    public Path aimforshoot() {
+        return Paths.line(aimforshootStart, aimforshoot).linear(aimforshootStart, aimforshoot);
     }
 
     public Path parkIt() {
-        return Paths.line(point5, parkIt).tangent();
+        return Paths.line(aimforshoot, parkIt).tangent();
     }
 
     @Override
@@ -56,7 +62,8 @@ public class OtherNearRedAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequence(60),
+                shootSequence(59),
+                drive.followPathCommand(moveUp()),
                 drive.followPathCommand(alignFlower()),
                 robot.getHarvesterSubsystem().HarvDown(),
                 intake.startAutoIntakeCommand(true),
@@ -67,7 +74,7 @@ public class OtherNearRedAuto extends BioBuzzAutos
                 robot.getHarvesterSubsystem().HarvUp(),
                 intake.stopAutoIntakeCommand(),
                 drive.followPathCommand(goShootToo()),
-                drive.followPathCommand(path5()),
+                drive.followPathCommand(aimforshoot()),
                 shootSequence(),
                 drive.followPathCommand(parkIt())
         );

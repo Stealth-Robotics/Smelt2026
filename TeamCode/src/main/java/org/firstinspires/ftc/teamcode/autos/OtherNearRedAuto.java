@@ -8,7 +8,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "OtherNearRedAuto")
+@Autonomous(name = "Other Near Red Auto")
 public class OtherNearRedAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees();
@@ -46,6 +46,11 @@ public class OtherNearRedAuto extends BioBuzzAutos
     public Path parkIt() {
         return Paths.line(point5, parkIt).tangent();
     }
+
+    public OtherNearRedAuto() {
+        follower.setPose(start);
+    }
+
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(

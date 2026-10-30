@@ -65,7 +65,7 @@ public class RobotSystem extends StealthSubsystem {
                 () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
 
         // Reset the heading only
-        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetHeadingCommand());
+        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetHeadingCmd());
 
         // Reset the position to the Scoring side corner wall
         driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() -> drive.resetPosition(false));
@@ -73,16 +73,16 @@ public class RobotSystem extends StealthSubsystem {
         driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> drive.resetPosition(true));
 
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(drive.setSlowMoCommand(true))
-                .whenReleased(drive.setSlowMoCommand(false));
+                .whenPressed(drive.setSlowMoCmd(true))
+                .whenReleased(drive.setSlowMoCmd(false));
 
         driver.getGamepadButton(GamepadKeys.Button.A)
-                .whenPressed(drive.setAutoAimCommand(true))
-                .whenReleased(drive.setAutoAimCommand(false));
+                .whenPressed(drive.setAutoAimCmd(true))
+                .whenReleased(drive.setAutoAimCmd(false));
 
         driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shooter.startShootCommand())
-                .whenReleased(shooter.stopShootCommand());
+                .whenPressed(shooter.startShootCmd())
+                .whenReleased(shooter.stopShootCmd());
 
         driver.getGamepadButton(GamepadKeys.Button.X)
                 .whenPressed(shooter::toggleFloatPower);
@@ -90,11 +90,11 @@ public class RobotSystem extends StealthSubsystem {
 
 
         // --- Operator Controls ---
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCommand(50));
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(shooter.adjustBoostRpmCommand(-50));
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCmd(50));
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(shooter.adjustBoostRpmCmd(-50));
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shooter.startShootCommand())
-                .whenReleased(shooter.stopShootCommand());
+                .whenPressed(shooter.startShootCmd())
+                .whenReleased(shooter.stopShootCmd());
 
         operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(harvesterSubsystem::toggle);
 
@@ -105,10 +105,13 @@ public class RobotSystem extends StealthSubsystem {
     @Override
     public void periodic(){
         updateCameraPipeline();
+
 //        telemetry.addData("Alliance: ", Alliance.get());
-//        telemetry.addData("Slow Motion", driveCmd.isSlowMo());
-//        telemetry.addData("Robot Centric", driveCmd.isRobotCentric());
+//        telemetry.addData("Slow Motion", drive.isSlowMo());
+//        telemetry.addData("Robot Centric", drive.isRobotCentric());
 //        telemetry.addData("Hold Mode", driveCmd.isHoldMode());
+        Pose pose = drive.getFollower().pose();
+        telemetry.addData("Current Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
 
     }
     public GateSubsystem getGateSubsystem(){

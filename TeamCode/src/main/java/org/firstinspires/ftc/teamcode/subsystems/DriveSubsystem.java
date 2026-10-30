@@ -235,21 +235,21 @@ public class DriveSubsystem extends StealthSubsystem
         return (Math.abs(lastTxDelta) < AUTO_AIM_TOLERANCE);
     }
 
-    public Command setAutoAimCommand(boolean autoAim) {
+    public Command setAutoAimCmd(boolean autoAim) {
         return new InstantCommand(() -> setAutoAim(autoAim), this);
     }
 
-    public Command aimAtTargetCommand(long timeoutMs) {
-        return setAutoAimCommand(true)
+    public Command aimAtTargetCmd(long timeoutMs) {
+        return setAutoAimCmd(true)
                 .andThen(new WaitUntilCommand(this::isAimed).withTimeout(timeoutMs))
-                .andThen(setAutoAimCommand(false));
+                .andThen(setAutoAimCmd(false));
     }
 
-    public Command toggleSlowMoCommand() {
+    public Command toggleSlowMoCmd() {
         return new InstantCommand(this::toggleSlowMo, this);
     }
 
-    public Command setSlowMoCommand(boolean slowMo) {
+    public Command setSlowMoCmd(boolean slowMo) {
         return new InstantCommand(() -> setSlowMo(slowMo), this);
     }
 
@@ -257,7 +257,7 @@ public class DriveSubsystem extends StealthSubsystem
         return new InstantCommand(this::toggleRobotCentric, this);
     }
 
-    public Command toggleHoldModeCommand() {
+    public Command toggleHoldModeCmd() {
         return new InstantCommand(this::toggleHoldMode, this);
     }
 
@@ -277,7 +277,7 @@ public class DriveSubsystem extends StealthSubsystem
         follower.setHeading(Alliance.isBlue() ? FieldConstants.ROBOT_BLUE_HEADING : FieldConstants.ROBOT_RED_HEADING);
     }
 
-    public Command resetHeadingCommand() {
+    public Command resetHeadingCmd() {
         return runOnce(this::resetHeading);
     }
 
@@ -291,8 +291,12 @@ public class DriveSubsystem extends StealthSubsystem
      * @param path Pedro path to follow
      * @return Command to follow path
      */
-    public Command followPathCommand(Path path){
-        return followPathCommand(path, false);
+    public Command followPathCmd(Path path){
+        return followPathCmd(path, false);
+    }
+
+    public Command setStartPoseCmd(Pose pose){
+        return runOnce(() -> follower.setPose(pose));
     }
 
     /**
@@ -301,7 +305,7 @@ public class DriveSubsystem extends StealthSubsystem
      * @return Command to follow path
      * @param holdPoint true for hold at the end otherwise false
      */
-    public Command followPathCommand(Path path, boolean holdPoint){
+    public Command followPathCmd(Path path, boolean holdPoint){
         return runOnce(() -> follower.follow(path))
                 .andThen(new WaitUntilCommand(follower::atParametricEnd)
                         .whenFinished(() -> { if (holdPoint) follower.hold(path.endPose()); }));
@@ -313,7 +317,7 @@ public class DriveSubsystem extends StealthSubsystem
      * @param timeout number of milliseconds to wait for path to finish
      * @param holdPoint true for hold at the end otherwise false
      */
-    public Command followPathCommand(Path path, long timeout, boolean holdPoint){
+    public Command followPathCmd(Path path, long timeout, boolean holdPoint){
         long endtime = System.currentTimeMillis() + timeout;
         return runOnce(() -> follower.follow(path))
                 .andThen(new WaitUntilCommand(() -> (follower.atParametricEnd() || System.currentTimeMillis() > endtime)))

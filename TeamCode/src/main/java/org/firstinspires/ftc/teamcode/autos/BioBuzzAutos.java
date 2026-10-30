@@ -62,17 +62,17 @@ public class BioBuzzAutos extends StealthOpMode {
         AutoToTeleOpStorage.setPose(follower.pose());
     }
 
-    public Command shootSequence(){
-        return drive.aimAtTargetCommand(1000)
-                .andThen(shooter.shootWhenReadyCommand(5000));
+    public Command shootSequenceCmd(){
+        return drive.aimAtTargetCmd(1000)
+                .andThen(shooter.shootWhenReadyCmd(5000));
     }
 
-    public Command shootSequence(double distance){
-        return drive.aimAtTargetCommand(100)
+    public Command shootSequenceCmd(double distance){
+        return drive.aimAtTargetCmd(100)
                 .andThen(shooter.shootWhenReadyCmd(3000, 64));
     }
 
-    public Command waitFor(long ms) {
+    public Command waitCmd(long ms) {
         return new WaitCommand(ms);
     }
 
@@ -80,7 +80,7 @@ public class BioBuzzAutos extends StealthOpMode {
         return tagSeen;
     }
 
-    public Command waitForTags(long timeout) {
+    public Command waitForTagsCmd(long timeout) {
         return new WaitUntilCommand(()-> {
             tagSeen = camera.areTagsVisible();
             return tagSeen;

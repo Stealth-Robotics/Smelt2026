@@ -47,26 +47,26 @@ public class TestShooterRange extends StealthOpMode {
         intakeSubsystem.setDefaultCommand(intakeSubsystem.runIntakeCommand(
                 () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
 
-        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetHeadingCommand());
+        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetHeadingCmd());
         driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()-> drive.resetPosition(false));
         driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()-> drive.resetPosition(true));
 
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(drive.setSlowMoCommand(true))
-                .whenReleased(drive.setSlowMoCommand(false));
-        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(drive.toggleHoldModeCommand());
+                .whenPressed(drive.setSlowMoCmd(true))
+                .whenReleased(drive.setSlowMoCmd(false));
+        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(drive.toggleHoldModeCmd());
 
         driver.getGamepadButton(GamepadKeys.Button.A)
-                .whenPressed(drive.setAutoAimCommand(true))
-                .whenReleased(drive.setAutoAimCommand(false));
+                .whenPressed(drive.setAutoAimCmd(true))
+                .whenReleased(drive.setAutoAimCmd(false));
 
         driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shooter.startShootCommand(0))
-                .whenReleased(shooter.stopShootCommand());
+                .whenPressed(shooter.startShootCmd(0))
+                .whenReleased(shooter.stopShootCmd());
 
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shooter.startShootCommand())
-                .whenReleased(shooter.stopShootCommand());
+                .whenPressed(shooter.startShootCmd())
+                .whenReleased(shooter.stopShootCmd());
 
         operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(() -> {
             stepIndex = (stepIndex + 1) % hoodSteps.length;
@@ -99,14 +99,14 @@ public class TestShooterRange extends StealthOpMode {
 
     public Command printInfo() {
         return new RunCommand(() -> {
-            telemetry.addData("Range ", hoodAngleAdd);
-            telemetry.addData("RPM Boost", rpmboost);
-            telemetry.addData("Hood Angle", shooter.getHood().getHoodAngle());
             telemetry.addData("Shooter Target RPM", shooter.getTargetRpm());
             telemetry.addData("Shooter RPM", shooter.getCurrentRpm());
-            telemetry.addData("Step Index", stepIndex);
-            telemetry.addData("Step Value", "%.5f", hoodSteps[stepIndex]);
             telemetry.addData("Step Value", "%.5f", rpmSteps[stepIndex]);
+            telemetry.addData("RPM Override", rpmboost);
+            telemetry.addLine();
+            telemetry.addData("Hood Angle", shooter.getHood().getHoodAngle());
+            telemetry.addData("Step Value", "%.5f", hoodSteps[stepIndex]);
+            telemetry.addData("Hood Angle Override ", hoodAngleAdd);
         });
     }
 }

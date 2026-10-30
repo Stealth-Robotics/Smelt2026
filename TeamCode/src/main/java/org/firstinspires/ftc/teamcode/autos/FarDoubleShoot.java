@@ -101,14 +101,14 @@ public class FarDoubleShoot extends BioBuzzAutos {
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                drive.followPathCommand(goShoot()),
-                waitForTags(8000),
+                drive.followPathCmd(goShoot()),
+                waitForTagsCmd(8000),
                 // If we time out on tags do something different
                 new IfCommand(this::getTagSeen,
                     // Tags Seen == TRUE
                     new SequentialCommandGroup(
                         //shootSequence(),
-                          shooter.startShootCommand(40),
+                          shooter.startShootCmd(40),
 //                        drive.followPathCommand(afterFirstShot()),
 //                        intake.startAutoIntakeCommand(true),
 //                        drive.followPathCommand(collectFromFlower()),

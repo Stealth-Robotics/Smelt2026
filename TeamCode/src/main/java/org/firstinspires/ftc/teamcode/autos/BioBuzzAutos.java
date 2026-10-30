@@ -12,10 +12,13 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.firstinspires.ftc.teamcode.tools.AutoToTeleOpStorage;
+import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 public class BioBuzzAutos extends StealthOpMode {
+
+    protected static final Pose FIELD_CENTER = new Pose(FieldConstants.FIELD_X_MAX / 2, FieldConstants.FIELD_Y_MAX / 2);
 
     public RobotSystem robot;
     public Follower follower;

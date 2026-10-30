@@ -13,13 +13,15 @@ import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 @Autonomous(name = "Other Near Red Auto")
 public class OtherNearRedAuto extends BioBuzzAutos
 {
-    private final PoseFactory poseFactory = PoseFactory.degrees();
+    private final PoseFactory poseFactory = PoseFactory.degrees()
+            //.rotateAround(FIELD_CENTER, 180)
+            ;
 
     private final Pose start = poseFactory.of(56.8844, FieldConstants.ROBOT_CENTER_Y, 270);
-    private final Pose moveUp = poseFactory.of(56.838, 12.3968, -89.3649);
+    private final Pose moveUp = poseFactory.of(56.838, 12.3968, 270);
     private final Pose alignFlower = poseFactory.of(29.6241, 47, 86.73);
     private final Pose alignFlowerControl1 = poseFactory.of(28.318, 24.1395, 0);
-    private final Pose harvest = poseFactory.of(14, 47, 180);
+    private final Pose harvest = poseFactory.of(12, 47, 180);
     private final Pose postHarvest = poseFactory.of(18, 47, 180);
     private final Pose goShootToo = poseFactory.of(32.626, 120.2039, 65.2955);
     private final Pose goShootTooControl1 = poseFactory.of(18.3434, 89.158, 0);
@@ -65,7 +67,7 @@ public class OtherNearRedAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequenceCmd(59),
+                shootSequenceCmd(58.5),
                 drive.followPathCmd(moveUp()),
                 drive.followPathCmd(alignFlower()),
                 robot.getHarvesterSubsystem().HarvDown(),

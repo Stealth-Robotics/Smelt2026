@@ -54,7 +54,7 @@ public class OtherNearRedAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequence(),
+                shootSequence(60),
                 drive.followPathCommand(alignFlower()),
                 robot.getHarvesterSubsystem().HarvDown(),
                 intake.startAutoIntakeCommand(true),

@@ -22,7 +22,7 @@ public class OtherNearRedAuto extends BioBuzzAutos
     private final Pose goShootToo = poseFactory.of(32.626, 120.2039, 65.2955);
     private final Pose goShootTooControl1 = poseFactory.of(18.3434, 89.158, 0);
     private final Pose aimforshootStart = poseFactory.of(32.626, 120.2039, 90);
-    private final Pose aimforshoot = poseFactory.of(40.3475, 126.177, 120);
+    private final Pose aimForShoot = poseFactory.of(40.3475, 126.177, 120);
     private final Pose parkIt = poseFactory.of(11.8202, 119.4826, -166.7936);
 
     public Path moveUp() {
@@ -46,11 +46,11 @@ public class OtherNearRedAuto extends BioBuzzAutos
     }
 
     public Path aimforshoot() {
-        return Paths.line(aimforshootStart, aimforshoot).linear(aimforshootStart, aimforshoot);
+        return Paths.line(aimforshootStart, aimForShoot).linear(aimforshootStart, aimForShoot);
     }
 
     public Path parkIt() {
-        return Paths.line(aimforshoot, parkIt).tangent();
+        return Paths.line(aimForShoot, parkIt).tangent();
     }
 
     @Override

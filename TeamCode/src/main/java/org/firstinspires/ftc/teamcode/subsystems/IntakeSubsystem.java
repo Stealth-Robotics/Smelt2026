@@ -14,9 +14,11 @@ public class IntakeSubsystem extends StealthSubsystem {
     private static final double POWER_THRESHOLD = 0.05;
 
     private static final double SHOOT_POWER = .9;
-    private static final String INTAKE_MOTOR_NAME = "intakeMotor";
+    private static final String INTAKE_MOTOR_LEFT_NAME = "leftIntakeMotor";
+    private static final String INTAKE_MOTOR_RIGHT_NAME = "rightIntakeMotor";
 
-    private final DcMotorEx intake;
+    private final DcMotorEx intakeLeft;
+    private final DcMotorEx intakeRight;
 
     public enum IntakeMode {
         OFF,
@@ -30,18 +32,25 @@ public class IntakeSubsystem extends StealthSubsystem {
     private IntakeMode currentMode = IntakeMode.OFF;
 
     public IntakeSubsystem(HardwareMap hardwareMap) {
-        intake = hardwareMap.get(DcMotorEx.class, INTAKE_MOTOR_NAME);
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
-        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeLeft = hardwareMap.get(DcMotorEx.class, INTAKE_MOTOR_LEFT_NAME);
+        intakeLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        intakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        intakeRight = hardwareMap.get(DcMotorEx.class, INTAKE_MOTOR_RIGHT_NAME);
+        intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        intakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void setManualPower(double p) {
         if (Math.abs(p) > POWER_THRESHOLD) {
-            intake.setPower(p);
+            intakeLeft.setPower(p);
+            intakeRight.setPower(p);
             currentMode = IntakeMode.MANUAL;
         } else if (!currentMode.isEqual(IntakeMode.AUTO)){
-            intake.setPower(0);
+            intakeLeft.setPower(0);
+            intakeRight.setPower(0);
             currentMode = IntakeMode.OFF;
         }
     }
@@ -63,9 +72,11 @@ public class IntakeSubsystem extends StealthSubsystem {
 
         currentMode = run ? IntakeMode.AUTO : IntakeMode.OFF;
         if (run) {
-            intake.setPower(SHOOT_POWER);
+            intakeLeft.setPower(SHOOT_POWER);
+            intakeRight.setPower(SHOOT_POWER);
         } else {
-            intake.setPower(0);
+            intakeLeft.setPower(0);
+            intakeRight.setPower(0);
         }
     }
 

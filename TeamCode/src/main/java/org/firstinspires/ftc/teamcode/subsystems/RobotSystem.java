@@ -25,8 +25,8 @@ public class RobotSystem extends StealthSubsystem {
     private final GamepadEx operator;
     private final IntakeSubsystem intakeSubsystem;
     private final DmShooterSubsystem shooter;
-    private final GateSubsystem gateSubsystem;
-    private final HarvesterSubsystem harvesterSubsystem;
+//    private final GateSubsystem gateSubsystem;
+//    private final HarvesterSubsystem harvesterSubsystem;
     private final DriveSubsystem drive;
     private final CameraSubsystem camera;
 
@@ -45,8 +45,8 @@ public class RobotSystem extends StealthSubsystem {
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
         shooter = new DmShooterSubsystem(hardwareMap, this);
         drive = new DriveSubsystem(hardwareMap, this);
-        gateSubsystem = new GateSubsystem(hardwareMap);
-        harvesterSubsystem = new HarvesterSubsystem(hardwareMap);
+//        gateSubsystem = new GateSubsystem(hardwareMap);
+//        harvesterSubsystem = new HarvesterSubsystem(hardwareMap);
 
         this.driver = driver;
         this.operator = operator;
@@ -96,7 +96,7 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(shooter.startShootCommand())
                 .whenReleased(shooter.stopShootCommand());
 
-        operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(harvesterSubsystem::toggle);
+//        operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(harvesterSubsystem::toggle);
 
 
     }
@@ -111,12 +111,12 @@ public class RobotSystem extends StealthSubsystem {
 //        telemetry.addData("Hold Mode", driveCmd.isHoldMode());
 
     }
-    public GateSubsystem getGateSubsystem(){
-        return gateSubsystem;
-    }
-    public HarvesterSubsystem getHarvesterSubsystem(){
-        return harvesterSubsystem;
-    }
+//    public GateSubsystem getGateSubsystem(){
+//        return gateSubsystem;
+//    }
+//    public HarvesterSubsystem getHarvesterSubsystem(){
+//        return harvesterSubsystem;
+//    }
 
     /** @return The drive subsystem */
     public DriveSubsystem getDrive() {

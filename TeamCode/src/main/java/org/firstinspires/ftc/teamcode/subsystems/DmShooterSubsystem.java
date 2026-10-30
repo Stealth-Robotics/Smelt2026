@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.util.InterpLUT;
@@ -29,9 +30,9 @@ import org.stealthrobotics.library.opmodes.StealthOpMode;
 public class DmShooterSubsystem extends StealthSubsystem {
 
     /** The motor that drives the shooter. */
-    private final DcMotorEx shooterMotor1;
+    private final DcMotorEx shooterMotor;
 
-    private final DcMotorEx shooterMotor2;
+    private final DcMotorEx transferMotor;
 
     /** Ticks per revolution for the motor. */
     private static final double MOTOR_TICKS_REV = 28;
@@ -51,6 +52,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
     /** Threshold for RPM changes to reset the PID controller. */
     private static final double VELOCITY_CHANGE_TOLERANCE = 50;
+    /** Transfer RPM */
+    public static final double TRANSFER_POWER = 1;
     /** Maximum allowable RPM. */
     public static final double MAX_RPM = 5400;
     /** Minimum allowable RPM (negative for reverse). */
@@ -124,18 +127,15 @@ public class DmShooterSubsystem extends StealthSubsystem {
         this.robot = robot;
         voltageSensor = map.voltageSensor.iterator().next();
         hood = new HoodSubsystem(map);
-        shooterMotor1 = map.get(DcMotorEx.class, "shooterMotor1");
-        shooterMotor2 = map.get(DcMotorEx.class, "shooterMotor2");
-        shooterMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
-        shooterMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, baseKf);
-        shooterMotor1.setPositionPIDFCoefficients(5.0);
-        shooterMotor1.setTargetPositionTolerance(20);
-        shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        shooterMotor2.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, baseKf);
-        shooterMotor2.setPositionPIDFCoefficients(5.0);
-        shooterMotor2.setTargetPositionTolerance(20);
+        shooterMotor = map.get(DcMotorEx.class, "shooterMotor");
+        transferMotor = map.get(DcMotorEx.class, "transferMotor");
+        shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooterMotor.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, baseKf);
+        shooterMotor.setPositionPIDFCoefficients(5.0);
+        shooterMotor.setTargetPositionTolerance(20);
+        transferMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        transferMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //shooterMotor1.pi
         intake = robot.getIntake();
         buildRangeTable();
@@ -164,8 +164,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
     @Override
     public void periodic() {
         CameraSubsystem camera = robot.getCamera();
-        telemetry.addData("Right Motor Ticks", shooterMotor2.getVelocity());
-        telemetry.addData("Left Motor Ticks", shooterMotor1.getVelocity());
+//        telemetry.addData("Right Motor Ticks", shooterMotor2.getVelocity());
+//        telemetry.addData("Left Motor Ticks", shooterMotor1.getVelocity());
 
 
         // Update distance to goal regardless of shoot state
@@ -210,7 +210,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
             // Handle automatic intake control based on shooting readiness
             if (isShootReady()) {
                 shootState = ShootState.SHOOTING;
-                robot.getGateSubsystem().openGate();
+                feedShooter();
                 setFeeding(true);
             } else {
                 shootState = ShootState.WAITING_TO_SHOOT;
@@ -218,7 +218,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         }
         else {
             setFeeding(false);
-            robot.getGateSubsystem().closeGate();
+            stopFeeding();
         }
     }
 
@@ -243,8 +243,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         if (currentVoltage > 8.0 && currentVoltage < NOMINAL_VOLTAGE) {
             double voltageDelta = (NOMINAL_VOLTAGE / currentVoltage) - 1.0;
             double compensatedKf = baseKf * (1.0 + (voltageDelta * kfScaler));
-            shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
-            shooterMotor2.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
+            shooterMotor.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
             telemetry.addData("Compensated KF", "%.4f", compensatedKf);
         }
     }
@@ -355,8 +354,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     public void stop() {
         shootState = ShootState.NOT_SHOOTING;
         customDistance = 0;
-        shooterMotor1.setPower(floatPower);
-        shooterMotor2.setPower(floatPower);
+        shooterMotor.setPower(floatPower);
         setFeeding(false);
     }
 
@@ -435,8 +433,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
 
     private void setVelocity(double velocity) {
-        shooterMotor1.setVelocity(velocity);
-        shooterMotor2.setVelocity(velocity);
+        shooterMotor.setVelocity(velocity);
     }
 
     /**
@@ -446,7 +443,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
     private double getVelocity() {
 
-        return (shooterMotor1.getVelocity() + shooterMotor2.getVelocity()) / 2;
+        return shooterMotor.getVelocity();
     }
 
     /**
@@ -615,5 +612,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
                 .andThen(stopShootCommand());
     }
 
-
+    public void feedShooter() {
+        transferMotor.setPower(TRANSFER_POWER);
+    }
+    public void stopFeeding() {
+        transferMotor.setPower(0);
+    }
 }

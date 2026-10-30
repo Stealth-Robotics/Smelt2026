@@ -152,7 +152,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         rangeToRpm.add(61.0, 3700);
         rangeToRpm.add(62.0, 3710);
         rangeToRpm.add(69.0, 4025);
-        rangeToRpm.add(MAX_DISTANCE + 0.1, 4100);
+        rangeToRpm.add(MAX_DISTANCE + 0.1, 4000);
         rangeToRpm.createLUT();
     }
 
@@ -188,7 +188,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
         // if we are shooting or waiting to shoot
         if (isActiveShot()) {
-            robot.getGateSubsystem().openGate();
+
             // Apply battery voltage compensation to feedforward (kF)
             updateVoltageCompensation(currentVoltage);
 
@@ -206,6 +206,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
             // Handle automatic intake control based on shooting readiness
             if (isShootReady()) {
                 shootState = ShootState.SHOOTING;
+                robot.getGateSubsystem().openGate();
                 setFeeding(true);
             } else {
                 shootState = ShootState.WAITING_TO_SHOOT;

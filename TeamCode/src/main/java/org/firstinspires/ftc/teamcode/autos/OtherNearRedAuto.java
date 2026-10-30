@@ -8,12 +8,14 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.tools.FieldConstants;
+
 @Autonomous(name = "Other Near Red Auto")
 public class OtherNearRedAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(56.8844, 8.2077, 90);
+    private final Pose start = poseFactory.of(56.8844, FieldConstants.ROBOT_CENTER_Y, 270);
     private final Pose moveUp = poseFactory.of(56.838, 12.3968, -89.3649);
     private final Pose alignFlower = poseFactory.of(29.6241, 47, 86.73);
     private final Pose alignFlowerControl1 = poseFactory.of(28.318, 24.1395, 0);
@@ -53,6 +55,7 @@ public class OtherNearRedAuto extends BioBuzzAutos
         return Paths.line(aimForShoot, parkIt).tangent();
     }
 
+
     @Override
         public void initialize(){
         super.initialize();
@@ -62,21 +65,21 @@ public class OtherNearRedAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequence(59),
-                drive.followPathCommand(moveUp()),
-                drive.followPathCommand(alignFlower()),
+                shootSequenceCmd(59),
+                drive.followPathCmd(moveUp()),
+                drive.followPathCmd(alignFlower()),
                 robot.getHarvesterSubsystem().HarvDown(),
                 intake.startAutoIntakeCommand(true),
-                drive.followPathCommand(harvest()),
-                waitFor(3000),
-                drive.followPathCommand(postHarvest()),
+                drive.followPathCmd(harvest()),
+                waitCmd(3000),
+                drive.followPathCmd(postHarvest()),
                 intake.setAutoIntakeCommand(false),
                 robot.getHarvesterSubsystem().HarvUp(),
                 intake.stopAutoIntakeCommand(),
-                drive.followPathCommand(goShootToo()),
-                drive.followPathCommand(aimforshoot()),
-                shootSequence(),
-                drive.followPathCommand(parkIt())
+                drive.followPathCmd(goShootToo()),
+                drive.followPathCmd(aimforshoot()),
+                shootSequenceCmd(),
+                drive.followPathCmd(parkIt())
         );
     }
 }

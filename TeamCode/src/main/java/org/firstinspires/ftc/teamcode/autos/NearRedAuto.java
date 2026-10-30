@@ -46,13 +46,13 @@ public class NearRedAuto extends BioBuzzAutos {
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                drive.followPathCommand(goShoot()),
-                shootSequence(),
-                drive.followPathCommand(goToIntake()),
+                drive.followPathCmd(goShoot()),
+                shootSequenceCmd(),
+                drive.followPathCmd(goToIntake()),
                 intake.startAutoIntakeCommand(true),
-                drive.followPathCommand(intake()),
+                drive.followPathCmd(intake()),
                 intake.stopAutoIntakeCommand(),
-                drive.followPathCommand(goShoot2())
+                drive.followPathCmd(goShoot2())
         );
     }
 }

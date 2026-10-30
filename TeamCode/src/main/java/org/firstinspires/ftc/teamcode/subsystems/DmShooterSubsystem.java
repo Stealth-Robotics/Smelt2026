@@ -162,9 +162,6 @@ public class DmShooterSubsystem extends StealthSubsystem {
     @Override
     public void periodic() {
         CameraSubsystem camera = robot.getCamera();
-        telemetry.addData("Right Motor Ticks", shooterMotor2.getVelocity());
-        telemetry.addData("Left Motor Ticks", shooterMotor1.getVelocity());
-
 
         // Update distance to goal regardless of shoot state
         LLResult result = camera.getLastResult();
@@ -179,11 +176,11 @@ public class DmShooterSubsystem extends StealthSubsystem {
         }
 
         double currentVoltage = getBatteryVoltage();
-        telemetry.addData("Battery Voltage", "%.2f V", currentVoltage);
-        telemetry.addData("Target RPM", targetRpm);
-        telemetry.addData("Current RPM", currentRpm);
-        telemetry.addData("Last Distance", lastDistance);
-        telemetry.addData("Hood Angle", hood.getHoodAngle());
+//        telemetry.addData("Battery Voltage", "%.2f V", currentVoltage);
+//        telemetry.addData("Target RPM", targetRpm);
+//        telemetry.addData("Current RPM", currentRpm);
+//        telemetry.addData("Last Distance", lastDistance);
+//        telemetry.addData("Hood Angle", hood.getHoodAngle());
 
 
         // if we are shooting or waiting to shoot
@@ -519,7 +516,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
      * @param distance The distance to the target.
      * @return A command that performs the shoot action.
      */
-    public Command shootCommand(double distance) {
+    public Command shootCmd(double distance) {
         return runOnce(() -> {
             customDistance = distance;
             setStartShoot(true);
@@ -540,7 +537,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
      * with override distance
      * @return A command that sets the start shoot flag to true.
      */
-    public Command startShootCommand(double overrideDistance) {
+    public Command startShootCmd(double overrideDistance) {
         return runOnce(() -> {
             this.setDistance(overrideDistance);
             setStartShoot(true);
@@ -552,8 +549,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
      *
      * @return A command that sets the start shoot flag to true.
      */
-    public Command startShootCommand() {
-        return startShootCommand(0);
+    public Command startShootCmd() {
+        return startShootCmd(0);
     }
 
 
@@ -562,7 +559,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
      *
      * @return A command that sets the start shoot flag to false.
      */
-    public Command stopShootCommand() {
+    public Command stopShootCmd() {
         return runOnce(() -> setStartShoot(false));
     }
 
@@ -572,7 +569,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
      * @param amount The amount to adjust.
      * @return A command that adjusts the boost RPM.
      */
-    public Command adjustBoostRpmCommand(double amount) {
+    public Command adjustBoostRpmCmd(double amount) {
         return runOnce(() -> adjustBoostRpm(amount));
     }
 
@@ -582,10 +579,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
      * @param durationMs The duration in milliseconds.
      * @return A command that shoots for the specified duration.
      */
-    public Command shootForTimeCommand(long durationMs) {
-        return startShootCommand(0)
+    public Command shootForTimeCmd(long durationMs) {
+        return startShootCmd(0)
                 .andThen(new WaitCommand(durationMs))
-                .andThen(stopShootCommand());
+                .andThen(stopShootCmd());
     }
 
     /**
@@ -594,7 +591,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
      * @param durationMs The duration in milliseconds to wait after becoming ready.
      * @return A command that shoots until ready and then waits.
      */
-    public Command shootWhenReadyCommand(long durationMs) {
+    public Command shootWhenReadyCmd(long durationMs) {
         return shootWhenReadyCmd(durationMs, 0);
     }
 
@@ -605,10 +602,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
      * @return A command that shoots until ready and then waits.
      */
     public Command shootWhenReadyCmd(long durationMs, double distanceOverride) {
-        return startShootCommand(distanceOverride)
+        return startShootCmd(distanceOverride)
                 .andThen(new WaitUntilCommand(this::isShootReady))
                 .andThen(new WaitCommand(durationMs))
-                .andThen(stopShootCommand());
+                .andThen(stopShootCmd());
     }
 
 

@@ -84,7 +84,7 @@ public class CameraSubsystem extends StealthSubsystem
 ////            telemetry.addData("Adjusted Tx", getAdjustedTx(result));
 ////            telemetry.addData("Ta Distance", calcGoalDistanceByTa(result));
 ////            telemetry.addData("Ty:", result.getTy());
-            telemetry.addData("Area:", result.getTa());
+//            telemetry.addData("Area:", result.getTa());
 ////            telemetry.addData("TY Distance", calcGoalDistanceByTy(result.getTy()));
         } else {
             areTagsVisible = false;

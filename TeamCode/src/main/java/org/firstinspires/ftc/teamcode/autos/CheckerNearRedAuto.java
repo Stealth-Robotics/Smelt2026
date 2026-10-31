@@ -89,7 +89,7 @@ public class CheckerNearRedAuto extends BioBuzzAutos
                 new IfCommand(this::getTagSeen,
                         // Tags Seen == TRUE
                         new SequentialCommandGroup(
-                                shooter.startShootCmd(61),
+                                shooter.startShootCmd(59),
                                 new SequentialCommandGroup()
                                 )),
 

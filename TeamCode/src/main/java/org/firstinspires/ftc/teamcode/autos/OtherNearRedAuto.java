@@ -53,7 +53,7 @@ public class OtherNearRedAuto extends BioBuzzAutos
         return Paths.line(aimforshootStart, aimForShoot).linear(aimforshootStart, aimForShoot);
     }
 
-    public Path parkIt() {
+    public Path parkIt()     {
         return Paths.line(aimForShoot, parkIt).tangent();
     }
 

@@ -8,6 +8,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.stealthrobotics.library.commands.IfCommand;
 
 @Autonomous(name = "Checker Near Red Auto")
@@ -15,10 +16,10 @@ public class CheckerNearRedAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(56.8844, 8.2077, 270);
-    private final Pose moveUp = poseFactory.of(53.307, 14.0585, 270);
-    private final Pose alignFlower = poseFactory.of(29.6241, 47, 155.9755);
-    private final Pose alignFlowerControl1 = poseFactory.of(42.2343, 41.3791, 0);
+    private final Pose start = poseFactory.of(56.8844, FieldConstants.ROBOT_CENTER_Y, 270);
+    private final Pose moveUp = poseFactory.of(56.838, 12.3968, 270);
+    private final Pose alignFlower = poseFactory.of(29.6241, 47, 86.73);
+    private final Pose alignFlowerControl1 = poseFactory.of(28.318, 24.1395, 0);
     private final Pose harvest = poseFactory.of(12, 47, 180);
     private final Pose postHarvest = poseFactory.of(18, 47, 180);
     private final Pose goShootToo = poseFactory.of(53.31, 10.3272, -46.0846);

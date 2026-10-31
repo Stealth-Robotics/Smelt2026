@@ -208,11 +208,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
             } else {
                 shootState = ShootState.WAITING_TO_SHOOT;
                 setFeeding(false);
-                robot.getGateSubsystem().closeGate();
                 }
             }
-
-
     }
 
     /**
@@ -350,6 +347,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         customDistance = 0;
         shooterMotor1.setPower(floatPower);
         shooterMotor2.setPower(floatPower);
+        robot.getGateSubsystem().closeGate();
         setFeeding(false);
     }
 
@@ -606,6 +604,18 @@ public class DmShooterSubsystem extends StealthSubsystem {
                 .andThen(new WaitUntilCommand(this::isShootReady))
                 .andThen(new WaitCommand(durationMs))
                 .andThen(stopShootCmd());
+    }
+
+    public void setReverse(boolean run) {
+        if (run) {
+            shooterMotor1.setPower(-1);
+            shooterMotor2.setPower(-1);
+        }
+        else {
+            shooterMotor1.setPower(0);
+            shooterMotor2.setPower(0);
+        }
+
     }
 
 

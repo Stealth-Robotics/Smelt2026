@@ -73,11 +73,12 @@ public class OtherNearRedAuto extends BioBuzzAutos
                 robot.getHarvesterSubsystem().HarvDown(),
                 intake.startAutoIntakeCommand(true),
                 drive.followPathCmd(harvest()),
-                waitCmd(3000),
+                waitCmd(2000),
                 drive.followPathCmd(postHarvest()),
                 intake.setAutoIntakeCommand(false),
                 robot.getHarvesterSubsystem().HarvUp(),
                 intake.stopAutoIntakeCommand(),
+
                 drive.followPathCmd(goShootToo()),
                 drive.followPathCmd(aimforshoot()),
                 shootSequenceCmd(),

@@ -71,13 +71,13 @@ public class CheckerNearRedAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequenceCmd(59),
+                shootSequenceCmd(58.5),
                 drive.followPathCmd(moveUp()),
                 drive.followPathCmd(alignFlower()),
                 robot.getHarvesterSubsystem().HarvDown(),
                 intake.startAutoIntakeCommand(true),
                 drive.followPathCmd(harvest()),
-                waitCmd(3000),
+                waitCmd(2000),
                 drive.followPathCmd(postHarvest()),
                 intake.setAutoIntakeCommand(false),
                 robot.getHarvesterSubsystem().HarvUp(),

@@ -13,7 +13,9 @@ import java.util.function.DoubleSupplier;
 public class IntakeSubsystem extends StealthSubsystem {
     private static final double POWER_THRESHOLD = 0.05;
 
-    private static final double SHOOT_POWER = .9;
+    private static final double SHOOT_POWER = 1.0;
+    private static final double UNJAM_POWER = -1.0;
+
     private static final String INTAKE_MOTOR_NAME = "intakeMotor";
 
     private final DcMotorEx intake;
@@ -85,5 +87,18 @@ public class IntakeSubsystem extends StealthSubsystem {
 
     public Command runIntakeCommand(DoubleSupplier powerSupplier) {
         return run(() -> setManualPower(powerSupplier.getAsDouble()));
+    }
+
+    public void setAutoOuttake(boolean run) {
+
+        currentMode = run ? IntakeMode.AUTO : IntakeMode.OFF;
+        if (run) {
+            intake.setPower(UNJAM_POWER);
+        } else {
+            intake.setPower(0);
+        }
+    }
+    public Command setAutoOuttakeCommand(boolean run) {
+        return runOnce(() -> setAutoOuttake(run));
     }
 }

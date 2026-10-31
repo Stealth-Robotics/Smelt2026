@@ -7,7 +7,7 @@ import org.stealthrobotics.library.StealthSubsystem;
 
 public class GateSubsystem extends StealthSubsystem {
     public final Servo servo;
-    public static final double GATE_CLOSED = .35;
+    public static final double GATE_CLOSED = .335;
     public static final double GATE_OPEN = 0.23;
     public GateSubsystem(HardwareMap map){
         servo = map.get(Servo.class, "gateServo");

@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.math.Pose;
@@ -96,6 +100,14 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(shooter.startShootCmd())
                 .whenReleased(shooter.stopShootCmd());
 
+        operator.getGamepadButton(GamepadKeys.Button.A)
+                .whenPressed(()->drive.setAutoAim(true)).whenReleased(() -> drive.setAutoAim(false));
+
+        operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenPressed(unjamGateCmd(true))
+                .whenReleased(unjamGateCmd(false));
+
+
         operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(harvesterSubsystem::toggle);
 
 
@@ -139,6 +151,20 @@ public class RobotSystem extends StealthSubsystem {
     /** @return The intake subsystem */
     public IntakeSubsystem getIntake() {
         return intakeSubsystem;
+    }
+
+    private Command unjamGateCmd(boolean unjam)  {
+        if (unjam) {
+            return new SequentialCommandGroup(
+                    new InstantCommand(() -> intakeSubsystem.setAutoOuttake(true)),
+                    new WaitCommand(500),
+                    new InstantCommand(() -> gateSubsystem.openGate()),
+                    new InstantCommand(() -> shooter.setReverse(true)));
+        }
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> gateSubsystem.closeGate()),
+                new InstantCommand(() -> intakeSubsystem.setAutoOuttake(false)),
+                new InstantCommand(() -> shooter.setReverse(false)));
     }
 
     /**

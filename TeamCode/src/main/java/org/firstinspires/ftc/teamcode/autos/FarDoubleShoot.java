@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.Command;
+
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
@@ -100,37 +102,38 @@ public class FarDoubleShoot extends BioBuzzAutos {
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
                 drive.followPathCmd(goShoot()),
-                waitForTagsCmd(9000),
+                waitForTagsCmd(8000),
                 // If we time out on tags do something different
                 new IfCommand(this::getTagSeen,
                     // Tags Seen == TRUE
                     new SequentialCommandGroup(
-                        shootSequenceCmd(55),
-                        drive.followPathCmd(afterFirstShot()),
-                        intake.startAutoIntakeCommand(true),
-                        drive.followPathCmd(collectFromFlower()),
-                        waitCmd(4000),
-                        intake.stopAutoIntakeCommand(),
-                        drive.followPathCmd(shootAgain()),
-                        shootSequenceCmd(58),
+                        //shootSequence(),
+                          shooter.startShootCmd(40),
+//                        drive.followPathCommand(afterFirstShot()),
+//                        intake.startAutoIntakeCommand(true),
+//                        drive.followPathCommand(collectFromFlower()),
+//                        waitFor(4000),
+//                        intake.stopAutoIntakeCommand(),
+//                        drive.followPathCommand(shootAgain()),
+//                        shootSequence(),
 //                    // tags seen == FALSE
                     new SequentialCommandGroup(
-                            drive.followPathCmd(noHive()),
-                            drive.followPathCmd(shootOtherSide()),
-                            shootSequenceCmd(55),
-                            drive.followPathCmd(goBackForPark())
+//                            drive.followPathCommand(noHive()),
+//                            drive.followPathCommand(shootOtherSide()),
+//                            shootSequence(),
+//                            drive.followPathCommand(goBackForPark())
                     )))
-                ,drive.followPathCmd(park(),true)
+                //,drive.followPathCommand(park())
         );
     }
-    //@Autonomous (name = "Red Far Double Shoot park", group = "RED")
+    @Autonomous (name = "Red Far Double Shoot park", group = "RED")
     public static class RedFarDoubleShoot extends FarDoubleShoot {
         public RedFarDoubleShoot() {
             super(false);
         }
     }
 
-    //@Autonomous (name = "Blue Far Double Shoot park", group = "BLUE")
+    @Autonomous (name = "Blue Far Double Shoot park", group = "BLUE")
     public static class BlueFarDoubleShoot extends FarDoubleShoot {
         public BlueFarDoubleShoot() {
             super(true);

@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.stealthrobotics.library.commands.IfCommand;
 
-@Autonomous(name = "Checker Near Red Auto", group = "RED")
+@Autonomous(name = "Checker Near Red Auto")
 public class CheckerNearRedAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees();
@@ -74,13 +74,13 @@ public class CheckerNearRedAuto extends BioBuzzAutos
                 shootSequenceCmd(58.5),
                 drive.followPathCmd(moveUp()),
                 drive.followPathCmd(alignFlower()),
-                robot.getHarvesterSubsystem().harvDownCmd(),
+                robot.getHarvesterSubsystem().HarvDown(),
                 intake.startAutoIntakeCommand(true),
                 drive.followPathCmd(harvest()),
                 waitCmd(2000),
                 drive.followPathCmd(postHarvest()),
                 intake.setAutoIntakeCommand(false),
-                robot.getHarvesterSubsystem().harvUpCmd(),
+                robot.getHarvesterSubsystem().HarvUp(),
                 intake.stopAutoIntakeCommand(),
                 drive.followPathCmd(goShootToo()),
                 drive.followPathCmd(checkTagAim()),

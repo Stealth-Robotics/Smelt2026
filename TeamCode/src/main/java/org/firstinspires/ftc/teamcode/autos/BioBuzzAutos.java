@@ -66,17 +66,13 @@ public class BioBuzzAutos extends StealthOpMode {
     }
 
     public Command shootSequenceCmd(){
-        return drive.aimAtTargetCmd(500)
-                .andThen(shooter.shootWhenReadyCmd(3000));
+        return drive.aimAtTargetCmd(1000)
+                .andThen(shooter.shootWhenReadyCmd(5000));
     }
 
     public Command shootSequenceCmd(double distance){
-        return shootSequenceCmd(distance, 500);
-    }
-
-    public Command shootSequenceCmd(double distance, long aimTimeMs) {
-        return drive.aimAtTargetCmd(aimTimeMs)
-                .andThen(shooter.shootWhenReadyCmd(3000, distance));
+        return drive.aimAtTargetCmd(100)
+                .andThen(shooter.shootWhenReadyCmd(3000, 64));
     }
 
     public Command waitCmd(long ms) {
@@ -92,18 +88,6 @@ public class BioBuzzAutos extends StealthOpMode {
             tagSeen = camera.areTagsVisible();
             return tagSeen;
         }).withTimeout(timeout);
-    }
-
-    public Command startHarvesterCmd(){
-        return robot.getHarvesterSubsystem().harvDownCmd().andThen(
-                intake.startAutoIntakeCommand(true)
-        );
-    }
-
-    public Command stopHarvesterCmd(){
-        return intake.stopAutoIntakeCommand().andThen(
-                robot.getHarvesterSubsystem().harvUpCmd()
-        );
     }
 
 }

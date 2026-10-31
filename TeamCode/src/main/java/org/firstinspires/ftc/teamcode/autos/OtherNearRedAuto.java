@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 
-@Autonomous(name = "Other Near Red Auto", group = "RED")
+@Autonomous(name = "Other Near Red Auto")
 public class OtherNearRedAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees()
@@ -70,13 +70,13 @@ public class OtherNearRedAuto extends BioBuzzAutos
                 shootSequenceCmd(58.5),
                 drive.followPathCmd(moveUp()),
                 drive.followPathCmd(alignFlower()),
-                robot.getHarvesterSubsystem().harvDownCmd(),
+                robot.getHarvesterSubsystem().HarvDown(),
                 intake.startAutoIntakeCommand(true),
                 drive.followPathCmd(harvest()),
                 waitCmd(2000),
                 drive.followPathCmd(postHarvest()),
                 intake.setAutoIntakeCommand(false),
-                robot.getHarvesterSubsystem().harvUpCmd(),
+                robot.getHarvesterSubsystem().HarvUp(),
                 intake.stopAutoIntakeCommand(),
 
                 drive.followPathCmd(goShootToo()),

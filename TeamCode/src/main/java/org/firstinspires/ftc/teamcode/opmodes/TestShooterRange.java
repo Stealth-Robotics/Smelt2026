@@ -21,10 +21,7 @@ public class TestShooterRange extends StealthOpMode {
     private double rpmboost = 0;
     private static final double[] hoodSteps = {0.1, 0.01, 0.001};
     private static final double[] rpmSteps = {500, 100, 50};
-    private static final double[] distanceSteps = {10, 5, 1};
     private int stepIndex = 1;
-
-    private double distanceOverride = 0;
 
     DmShooterSubsystem shooter;
 
@@ -98,28 +95,6 @@ public class TestShooterRange extends StealthOpMode {
             rpmboost -= rpmSteps[stepIndex];
             shooter.setBoostRpm(rpmboost);
         });
-
-        operator.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(() -> {
-            distanceOverride = 50;
-            shooter.setDistance(distanceOverride);
-        });
-
-        operator.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(() -> {
-            distanceOverride = 0;
-            shooter.setDistance(distanceOverride);
-        });
-
-        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(() -> {
-            distanceOverride += distanceSteps[stepIndex];
-            shooter.setDistance(distanceOverride);
-        });
-
-        operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(() -> {
-            distanceOverride -= distanceSteps[stepIndex];
-            shooter.setDistance(distanceOverride);
-        });
-
-
     }
 
     public Command printInfo() {
@@ -132,10 +107,6 @@ public class TestShooterRange extends StealthOpMode {
             telemetry.addData("Hood Angle", shooter.getHood().getHoodAngle());
             telemetry.addData("Step Value", "%.5f", hoodSteps[stepIndex]);
             telemetry.addData("Hood Angle Override ", hoodAngleAdd);
-            telemetry.addLine();
-            telemetry.addData("Distance Override", distanceOverride);
-            telemetry.addData("Step Value", "%.5f", distanceSteps[stepIndex]);
-
         });
     }
 }

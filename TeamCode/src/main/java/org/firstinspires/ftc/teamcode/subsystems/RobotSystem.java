@@ -57,6 +57,8 @@ public class RobotSystem extends StealthSubsystem {
 
     }
 
+    public double manShootDist = DmShooterSubsystem.DEFAULT_SHOOT_DISTANCE;
+
     /**
      * Configures gamepad bindings for both the driver and the operator.
      */
@@ -85,20 +87,23 @@ public class RobotSystem extends StealthSubsystem {
                 .whenReleased(drive.setAutoAimCmd(false));
 
         driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shooter.startShootCmd())
-                .whenReleased(shooter.stopShootCmd());
+                .whenPressed(()-> shooter.setStartShoot(true))
+                .whenReleased(()-> shooter.setStartShoot(false));
 
         driver.getGamepadButton(GamepadKeys.Button.X)
                 .whenPressed(shooter::toggleFloatPower);
 
+        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(()->shooter.setDistance(manShootDist));
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(shooter.adjustBoostRpmCmd(manShootDist += .5));
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(shooter.adjustBoostRpmCmd(manShootDist -= .5));
+
 
 
         // --- Operator Controls ---
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCmd(50));
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(shooter.adjustBoostRpmCmd(-50));
-//        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-//                .whenPressed(shooter.startShootCmd())
-//                .whenReleased(shooter.stopShootCmd());
+
+        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(shooter.startShootCmd())
+                .whenReleased(shooter.stopShootCmd());
 
         operator.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(()->drive.setAutoAim(true)).whenReleased(() -> drive.setAutoAim(false));
@@ -109,6 +114,8 @@ public class RobotSystem extends StealthSubsystem {
 
 
         operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(harvesterSubsystem::toggle);
+        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()->
+                manShootDist = DmShooterSubsystem.DEFAULT_SHOOT_DISTANCE);
 
 
     }

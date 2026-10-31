@@ -66,10 +66,12 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double lastDistance = 0;
 
     /** Default distance used when no distance is specified. */
-    private static final double DEFAULT_SHOOT_DISTANCE = 40;
+    private static final double DEFAULT_SHOOT_DISTANCE = 60;
 
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;
+
+    private final ElapsedTime distanceTimer = new ElapsedTime();
 
     private static final double FLOAT_DEFAULT_POWER = .4;
     /** Minimum distance for lookup tables. */
@@ -167,6 +169,11 @@ public class DmShooterSubsystem extends StealthSubsystem {
         LLResult result = camera.getLastResult();
         if (result != null && result.isValid()) {
             lastDistance = camera.calcGoalDistanceByTa(result);
+            if (lastDistance < 0) {
+                distanceTimer.reset();
+            } else if (distanceTimer.milliseconds() > 1000) {
+                lastDistance = 0;
+            }
         }
 
         if (customDistance != 0) {

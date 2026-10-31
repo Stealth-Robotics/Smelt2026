@@ -23,10 +23,10 @@ public class HarvesterSubsystem extends StealthSubsystem {
         }
     }
 
-    public void Up(){
+    public void setUp(){
         setPosition(HARVESTER_UP);
     }
-    public void Down(){
+    public void setDown(){
         setPosition(HARVESTER_DOWN);
     }
 
@@ -38,11 +38,11 @@ public class HarvesterSubsystem extends StealthSubsystem {
         position = Math.clamp(HARVESTER_DOWN, HARVESTER_UP, position);
         servo.setPosition(position); }
 
-    public Command HarvDown(){
-        return runOnce(this::Down);
+    public Command harvDownCmd(){
+        return runOnce(this::setDown);
     }
-    public Command HarvUp(){
-        return runOnce(this::Up);
+    public Command harvUpCmd(){
+        return runOnce(this::setUp);
     }
 }
 

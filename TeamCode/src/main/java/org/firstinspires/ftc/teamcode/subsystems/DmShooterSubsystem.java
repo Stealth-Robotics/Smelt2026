@@ -66,7 +66,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double lastDistance = 0;
 
     /** Default distance used when no distance is specified. */
-    private static final double DEFAULT_SHOOT_DISTANCE = 40;
+    public static final double DEFAULT_SHOOT_DISTANCE = 58;
 
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;
@@ -179,7 +179,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
 //        telemetry.addData("Battery Voltage", "%.2f V", currentVoltage);
 //        telemetry.addData("Target RPM", targetRpm);
 //        telemetry.addData("Current RPM", currentRpm);
-//        telemetry.addData("Last Distance", lastDistance);
+        telemetry.addData("Last Distance", lastDistance);
 //        telemetry.addData("Hood Angle", hood.getHoodAngle());
 
 

@@ -78,7 +78,7 @@ public class CheckerFarRedAuto extends BioBuzzAutos
                         // Tags Seen == TRUE
                         new SequentialCommandGroup
                                 (
-                                        shooter.startShootCmd(51),
+                                        shootSequenceCmd(51),
                                         robot.getHarvesterSubsystem().HarvDown(),
                                         drive.followPathCmd(harvest()),
                                         drive.followPathCmd(check()),

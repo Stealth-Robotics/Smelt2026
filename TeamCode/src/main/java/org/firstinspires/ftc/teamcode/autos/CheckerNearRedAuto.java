@@ -89,14 +89,15 @@ public class CheckerNearRedAuto extends BioBuzzAutos
                 new IfCommand(this::getTagSeen,
                         // Tags Seen == TRUE
                         new SequentialCommandGroup(
-                                shooter.startShootCmd(57),
+                                shootSequenceCmd(57),
                                 drive.followPathCmd(aimOtherSide())
 
                                 ),
                         // FALSE NO TAGS SEEN GO AND SHOOT OTHER SIDE
                         new SequentialCommandGroup(
                             drive.followPathCmd(aimOtherSide()),
-                            shootSequenceCmd())
+                            shootSequenceCmd(57)
+                        )
                         ),
 
                 drive.followPathCmd(parkIt())

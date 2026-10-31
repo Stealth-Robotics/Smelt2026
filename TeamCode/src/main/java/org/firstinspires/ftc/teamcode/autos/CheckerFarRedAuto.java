@@ -1,5 +1,3 @@
-//I LIED I LIED I LIED THIS DOESNT WORK
-
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.Command;
@@ -10,58 +8,58 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.stealthrobotics.library.commands.IfCommand;
 
-@Autonomous(name = "Checker Far Red Auto", group = "RED")
+@Autonomous(name = "Checker Far Red Auto", group = "BLUE")
 public class CheckerFarRedAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees()
-            .rotateAround(FIELD_CENTER,90);
+            .rotateAround(FIELD_CENTER,180);
 
-    private final Pose start = poseFactory.of(56.8844, FieldConstants.ROBOT_CENTER_Y, 270);
-    private final Pose moveUp = poseFactory.of(56.838, 12.3968, 270);
-    private final Pose alignFlower = poseFactory.of(29.6241, 47, 86.73);
-    private final Pose alignFlowerControl1 = poseFactory.of(28.318, 24.1395, 0);
-    private final Pose harvest = poseFactory.of(12, 47, 180);
-    private final Pose postHarvest = poseFactory.of(18, 47, 180);
-    private final Pose goShootToo = poseFactory.of(53.31, 10.3272, -46.0846);
-    private final Pose checkTagAim = poseFactory.of(53.31, 15.0612, -90);
-    private final Pose aimOtherSideStart = poseFactory.of(53.31, 15.0612, 90);
-    private final Pose aimOtherSide = poseFactory.of(40.3475, 126.177, 120);
-    private final Pose aimOtherSideControl1 = poseFactory.of(75.9662, 90.7934, 0);
-    private final Pose parkIt = poseFactory.of(11.8202, 119.4826, -166.7936);
+    private final Pose start = poseFactory.of(61.2425, 133.2425, 90);
+    private final Pose goShoot = poseFactory.of(46.8609, 120.5233, 110);
+    private final Pose goShootControl1 = poseFactory.of(62.406, 123.6543, 0);
+    private final Pose harvest = poseFactory.of(46.8796, 129.8951, 89.8855);
+    private final Pose checkStart = poseFactory.of(46.8796, 129.8951, 90);
+    private final Pose check = poseFactory.of(46.86, 120.52, 110);
+    private final Pose goParkForTrue = poseFactory.of(10.3175, 120.6879, -0.2633);
+    private final Pose irrelevantPath = poseFactory.of(46.86, 120.52, 179.7367);
+    private final Pose goShootOtherSide = poseFactory.of(46.7685, 15.7031, 62.07);
+    private final Pose goShootOtherSideControl1 = poseFactory.of(79.6566, 77.7392, 0);
+    private final Pose shootOtherSide = poseFactory.of(49.2259, 22.8459, -108.9849);
+    private final Pose goParkForFalse = poseFactory.of(12.1649, 92.1592, -90.1016);
+    private final Pose goParkForFalseControl1 = poseFactory.of(12.1079, 60.006, 0);
 
-    public Path moveUp() {
-        return Paths.line(start, moveUp).linear(start, moveUp);
-    }
-
-    public Path alignFlower() {
-        return Paths.curve(moveUp, alignFlowerControl1, alignFlower).tangent();
+    public Path goShoot() {
+        return Paths.curve(start, goShootControl1, goShoot).linear(start, goShoot);
     }
 
     public Path harvest() {
-        return Paths.line(alignFlower, harvest).tangent();
+        return Paths.line(goShoot, harvest).tangent();
     }
 
-    public Path postHarvest() {
-        return Paths.line(harvest, postHarvest).reverseTangent();
+    public Path check() {
+        return Paths.line(checkStart, check).linear(checkStart, check);
     }
 
-    public Path goShootToo() {
-        return Paths.line(postHarvest, goShootToo).tangent();
+    public Path goParkForTrue() {
+        return Paths.line(check, goParkForTrue).reverseTangent();
     }
 
-    public Path checkTagAim() {
-        return Paths.line(goShootToo, checkTagAim).reverseTangent();
+    public Path irrelevantPath() {
+        return Paths.line(goParkForTrue, irrelevantPath).reverseTangent();
     }
 
-    public Path aimOtherSide() {
-        return Paths.curve(aimOtherSideStart, aimOtherSideControl1, aimOtherSide).linear(aimOtherSideStart, aimOtherSide);
+    public Path goShootOtherSide() {
+        return Paths.curve(irrelevantPath, goShootOtherSideControl1, goShootOtherSide).reverseTangent();
     }
 
-    public Path parkIt() {
-        return Paths.line(aimOtherSide, parkIt).tangent();
+    public Path shootOtherSide() {
+        return Paths.line(goShootOtherSide, shootOtherSide).reverseTangent();
+    }
+
+    public Path goParkForFalse() {
+        return Paths.curve(shootOtherSide, goParkForFalseControl1, goParkForFalse).reverseTangent();
     }
 
 
@@ -74,35 +72,30 @@ public class CheckerFarRedAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequenceCmd(58.5),
-                drive.followPathCmd(moveUp()),
-                drive.followPathCmd(alignFlower()),
-                robot.getHarvesterSubsystem().harvDownCmd(),
-                intake.startAutoIntakeCommand(true),
-                drive.followPathCmd(harvest()),
-                waitCmd(2000),
-                drive.followPathCmd(postHarvest()),
-                intake.setAutoIntakeCommand(false),
-                robot.getHarvesterSubsystem().harvUpCmd(),
-                intake.stopAutoIntakeCommand(),
-                drive.followPathCmd(goShootToo()),
-                drive.followPathCmd(checkTagAim()),
-                waitForTagsCmd(1000),
-
+                drive.followPathCmd(goShoot()), //Path goShoot
+                waitCmd(10000),             //Wait 10 seconds
                 new IfCommand(this::getTagSeen,
                         // Tags Seen == TRUE
-                        new SequentialCommandGroup(
-                                shooter.startShootCmd(57),
-                                drive.followPathCmd(aimOtherSide())
+                        new SequentialCommandGroup
+                                (
+                                        shooter.startShootCmd(51),
+                                        robot.getHarvesterSubsystem().harvDownCmd(),
+                                        drive.followPathCmd(harvest()),
+                                        drive.followPathCmd(check()),
+                                        shootSequenceCmd(51),
+                                        robot.getHarvesterSubsystem().harvUpCmd(),
+                                        drive.followPathCmd(goParkForTrue())
+                                ),
+                        // Tags Seen == FALSE
+                        new SequentialCommandGroup
+                                (
+                                        drive.followPathCmd(goShootOtherSide()),
+                                        drive.followPathCmd(shootOtherSide()),
+                                        shootSequenceCmd(51),
+                                        drive.followPathCmd(goParkForFalse())
+                                )
+                )
 
-                        ),
-                        // FALSE NO TAGS SEEN GO AND SHOOT OTHER SIDE
-                        new SequentialCommandGroup(
-                                drive.followPathCmd(aimOtherSide()),
-                                shootSequenceCmd())
-                ),
-
-                drive.followPathCmd(parkIt(), true)
         );
     }
 }

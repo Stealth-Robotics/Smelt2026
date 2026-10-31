@@ -78,11 +78,11 @@ public class CheckerNearBlueAuto extends BioBuzzAutos
                         new SequentialCommandGroup
                                 (
                                 shooter.startShootCmd(51),
-                                robot.getHarvesterSubsystem().harvDownCmd(),
+                                robot.getHarvesterSubsystem().HarvDown(),
                                 drive.followPathCmd(harvest()),
                                 drive.followPathCmd(check()),
                                 shootSequenceCmd(51),
-                                robot.getHarvesterSubsystem().harvUpCmd(),
+                                robot.getHarvesterSubsystem().HarvUp(),
                                 drive.followPathCmd(goParkForTrue())
                                 ),
                                                 // Tags Seen == FALSE

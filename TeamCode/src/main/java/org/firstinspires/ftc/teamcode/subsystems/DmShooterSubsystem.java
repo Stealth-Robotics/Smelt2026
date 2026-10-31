@@ -606,10 +606,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
                 .andThen(stopShootCmd());
     }
 
-    public void setReverse(boolean run) {
+    public void setUnjam(boolean run) {
         if (run) {
-            shooterMotor1.setPower(-1);
-            shooterMotor2.setPower(-1);
+            shooterMotor1.setPower(1);
+            shooterMotor2.setPower(1);
         }
         else {
             shooterMotor1.setPower(0);

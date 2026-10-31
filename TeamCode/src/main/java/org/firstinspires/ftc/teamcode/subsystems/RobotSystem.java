@@ -159,12 +159,12 @@ public class RobotSystem extends StealthSubsystem {
                     new InstantCommand(() -> intakeSubsystem.setAutoOuttake(true)),
                     new WaitCommand(500),
                     new InstantCommand(() -> gateSubsystem.openGate()),
-                    new InstantCommand(() -> shooter.setReverse(true)));
+                    new InstantCommand(() -> shooter.setUnjam(true)));
         }
         return new SequentialCommandGroup(
                 new InstantCommand(() -> gateSubsystem.closeGate()),
                 new InstantCommand(() -> intakeSubsystem.setAutoOuttake(false)),
-                new InstantCommand(() -> shooter.setReverse(false)));
+                new InstantCommand(() -> shooter.setUnjam(false)));
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.pedropathing.follower.Follower;
@@ -72,7 +73,7 @@ public class BioBuzzAutos extends StealthOpMode {
 
     public Command shootSequenceCmd(double distance){
         return drive.aimAtTargetCmd(100)
-                .andThen(shooter.shootWhenReadyCmd(3000, 64));
+                .andThen(shooter.shootWhenReadyCmd(3000, distance));
     }
 
     public Command waitCmd(long ms) {
@@ -88,6 +89,16 @@ public class BioBuzzAutos extends StealthOpMode {
             tagSeen = camera.areTagsVisible();
             return tagSeen;
         }).withTimeout(timeout);
+    }
+
+    public Command startHarvestingCmd(){
+        return new SequentialCommandGroup(robot.getHarvesterSubsystem().harvDownCmd(),
+                intake.setAutoIntakeCommand(true));
+    }
+
+    public Command stopHarvestingCmd(){
+        return new SequentialCommandGroup(intake.setAutoIntakeCommand(false),
+                robot.getHarvesterSubsystem().harvUpCmd());
     }
 
 }

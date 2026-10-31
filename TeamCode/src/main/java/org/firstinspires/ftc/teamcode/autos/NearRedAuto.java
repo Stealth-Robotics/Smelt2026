@@ -9,7 +9,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous (name = "NearRedAuto")
+//@Autonomous (name = "NearRedAuto")
 public class NearRedAuto extends BioBuzzAutos {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();

@@ -33,7 +33,7 @@ public class RobotSystem extends StealthSubsystem {
     private final HarvesterSubsystem harvesterSubsystem;
     private final DriveSubsystem drive;
     private final CameraSubsystem camera;
-
+    public double manShootDist;
     /** Telemetry for robot status information */
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
@@ -51,13 +51,12 @@ public class RobotSystem extends StealthSubsystem {
         drive = new DriveSubsystem(hardwareMap, this);
         gateSubsystem = new GateSubsystem(hardwareMap);
         harvesterSubsystem = new HarvesterSubsystem(hardwareMap);
-
+        this.manShootDist= DmShooterSubsystem.DEFAULT_SHOOT_DISTANCE;
         this.driver = driver;
         this.operator = operator;
 
     }
 
-    public double manShootDist = DmShooterSubsystem.DEFAULT_SHOOT_DISTANCE;
 
     /**
      * Configures gamepad bindings for both the driver and the operator.
@@ -94,8 +93,16 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(shooter::toggleFloatPower);
 
         driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(()->shooter.setDistance(manShootDist));
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(shooter.adjustBoostRpmCmd(manShootDist += .5));
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(shooter.adjustBoostRpmCmd(manShootDist -= .5));
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
+                ()-> {
+                    this.manShootDist = this.manShootDist + 0.5;
+                } );
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
+                ()-> {
+                    this.manShootDist = this.manShootDist - 0.5;
+                } );
 
 
 
@@ -124,6 +131,7 @@ public class RobotSystem extends StealthSubsystem {
     @Override
     public void periodic(){
         updateCameraPipeline();
+        telemetry.addData("Man Distance", manShootDist);
 
 //        telemetry.addData("Alliance: ", Alliance.get());
 //        telemetry.addData("Slow Motion", drive.isSlowMo());

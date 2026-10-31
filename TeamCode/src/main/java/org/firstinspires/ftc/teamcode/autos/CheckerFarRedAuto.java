@@ -73,17 +73,17 @@ public class CheckerFarRedAuto extends BioBuzzAutos
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
                 drive.followPathCmd(goShoot()), //Path goShoot
-                waitCmd(10000),             //Wait 10 seconds
+                waitForTagsCmd(10000),             //Wait 10 seconds
                 new IfCommand(this::getTagSeen,
                         // Tags Seen == TRUE
                         new SequentialCommandGroup
                                 (
                                         shootSequenceCmd(51),
-                                        robot.getHarvesterSubsystem().HarvDown(),
+                                        startHarvestingCmd(),
                                         drive.followPathCmd(harvest()),
                                         drive.followPathCmd(check()),
                                         shootSequenceCmd(51),
-                                        robot.getHarvesterSubsystem().HarvUp(),
+                                        stopHarvestingCmd(),
                                         drive.followPathCmd(goParkForTrue())
                                 ),
                         // Tags Seen == FALSE

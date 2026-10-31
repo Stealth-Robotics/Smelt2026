@@ -8,8 +8,8 @@ import org.stealthrobotics.library.StealthSubsystem;
 
 public class HarvesterSubsystem extends StealthSubsystem {
     public final Servo servo;
-    public static final double HARVESTER_UP = 0;
-    public static final double HARVESTER_DOWN = 0.660;
+    public static final double HARVESTER_UP = 0.08;
+    public static final double HARVESTER_DOWN = 0.71;
     public HarvesterSubsystem(HardwareMap map){
         servo = map.get(Servo.class, "pollenServo");
         setPosition(HARVESTER_UP);
@@ -38,10 +38,10 @@ public class HarvesterSubsystem extends StealthSubsystem {
         position = Math.clamp(HARVESTER_DOWN, HARVESTER_UP, position);
         servo.setPosition(position); }
 
-    public Command HarvDown(){
+    public Command harvDownCmd(){
         return runOnce(this::Down);
     }
-    public Command HarvUp(){
+    public Command harvUpCmd(){
         return runOnce(this::Up);
     }
 

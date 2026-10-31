@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.util.InterpLUT;
@@ -15,6 +16,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
+
+import java.util.function.DoubleSupplier;
 
 /**
  * Subsystem that controls a single shooter motor using a PIDF controller.
@@ -88,7 +91,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double baseKp = 1.0;
     private double baseKi = 0.2;
     private double baseKd = 0.0;
-    private double baseKf = 12.16;
+    private double baseKf = 12.19;
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
     private double kfScaler = .8;
 
@@ -148,9 +151,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
         rangeToRpm.add(40.0, 3600);
         rangeToRpm.add(45.0, 3620);
         rangeToRpm.add(50.0, 3610);
-        rangeToRpm.add(55.0, 3675);
-        rangeToRpm.add(61.0, 3700);
-        rangeToRpm.add(62.0, 3710);
+        rangeToRpm.add(55.0, 3625);
+        rangeToRpm.add(59.0, 3650);
+        rangeToRpm.add(61.0, 3680);
+        rangeToRpm.add(62.0, 3700);
         rangeToRpm.add(69.0, 4025);
         rangeToRpm.add(MAX_DISTANCE + 0.1, 4000);
         rangeToRpm.createLUT();
@@ -180,6 +184,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
 //        telemetry.addData("Target RPM", targetRpm);
 //        telemetry.addData("Current RPM", currentRpm);
         telemetry.addData("Last Distance", lastDistance);
+        telemetry.addData("Custom Dist", customDistance);
 //        telemetry.addData("Hood Angle", hood.getHoodAngle());
 
 
@@ -235,7 +240,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
             double compensatedKf = baseKf * (1.0 + (voltageDelta * kfScaler));
             shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
             shooterMotor2.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
-            telemetry.addData("Compensated KF", "%.4f", compensatedKf);
+            //telemetry.addData("Compensated KF", "%.4f", compensatedKf);
         }
     }
 
@@ -368,6 +373,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
     public void setDistance(double distance) {
         customDistance = distance;
+    }
+
+    public Command supplyDistance(DoubleSupplier distanceSupplier){
+        return new InstantCommand(() -> customDistance = distanceSupplier.getAsDouble());
     }
 
     /**

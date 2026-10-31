@@ -109,6 +109,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
         SHOOTING,
     }
 
+    private double distanceBoost = 0;
+
     private ShootState shootState = ShootState.NOT_SHOOTING;
 
     // Allows for autonomous shooting overrides the distance calculation
@@ -182,12 +184,21 @@ public class DmShooterSubsystem extends StealthSubsystem {
             lastDistance = DEFAULT_SHOOT_DISTANCE;
         }
 
+        if (lastDistance != 0) {
+            lastDistance += distanceBoost;
+        }
+
         double currentVoltage = getBatteryVoltage();
 //        telemetry.addData("Battery Voltage", "%.2f V", currentVoltage);
 //        telemetry.addData("Target RPM", targetRpm);
 //        telemetry.addData("Current RPM", currentRpm);
 //        telemetry.addData("Last Distance", lastDistance);
 //        telemetry.addData("Hood Angle", hood.getHoodAngle());
+
+        telemetry.addData("Distance", "%.2f", lastDistance);
+        telemetry.addData("Distance Boost", "%.2f", distanceBoost);
+        telemetry.addData("Boost RPM", "%.2f", boostRpm);
+
 
 
         // if we are shooting or waiting to shoot
@@ -278,6 +289,12 @@ public class DmShooterSubsystem extends StealthSubsystem {
         return (currentRpm - targetRpm >= VELOCITY_TOLERANCE_LOW) && (currentRpm - targetRpm <= VELOCITY_TOLERANCE_HIGH)
                 ;//|| (curMs > MAX_SHOOT_TIME_MS);
     }
+
+    public void increaseDistanceBoost(double amount) {
+        distanceBoost += amount;
+    }
+
+
 
     /**
      * Updates and returns the current RPM.

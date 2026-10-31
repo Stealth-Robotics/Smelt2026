@@ -96,9 +96,9 @@ public class RobotSystem extends StealthSubsystem {
         // --- Operator Controls ---
         operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCmd(50));
         operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(shooter.adjustBoostRpmCmd(-50));
-        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shooter.startShootCmd())
-                .whenReleased(shooter.stopShootCmd());
+//        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+//                .whenPressed(shooter.startShootCmd())
+//                .whenReleased(shooter.stopShootCmd());
 
         operator.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(()->drive.setAutoAim(true)).whenReleased(() -> drive.setAutoAim(false));

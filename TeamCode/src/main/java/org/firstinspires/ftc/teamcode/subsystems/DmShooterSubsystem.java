@@ -66,7 +66,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double lastDistance = 0;
 
     /** Default distance used when no distance is specified. */
-    public static final double DEFAULT_SHOOT_DISTANCE = 58;
+    public static final double DEFAULT_SHOOT_DISTANCE = 59;
 
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;

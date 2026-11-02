@@ -116,7 +116,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double customDistance = 0;
 
     /**
-     * Constructs a new SingleShooterSubsystem.
+     * Constructs a new DmShooterSubsystem.
      *
      * @param map     The hardware map for accessing robot components.
      * @param robot   The main robot system instance.

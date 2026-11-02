@@ -32,7 +32,7 @@ public class DriveSubsystem extends StealthSubsystem
     private DoubleSupplier strafe = () -> 0;
     private DoubleSupplier rotate = () -> 0;
     private boolean robotCentric = false;
-    private boolean hold = false;
+    private boolean hold = true;
     private static final double SLOW_POWER = 0.3;
     private static final double MAX_POWER = 1.0;
     private boolean slowMo = false;
@@ -292,7 +292,7 @@ public class DriveSubsystem extends StealthSubsystem
      * @return Command to follow path
      */
     public Command followPathCmd(Path path){
-        return followPathCmd(path, false);
+        return followPathCmd(path, true);
     }
 
     public Command setStartPoseCmd(Pose pose){
@@ -318,9 +318,10 @@ public class DriveSubsystem extends StealthSubsystem
      * @param holdPoint true for hold at the end otherwise false
      */
     public Command followPathCmd(Path path, long timeout, boolean holdPoint){
-        long endtime = System.currentTimeMillis() + timeout;
         return runOnce(() -> follower.follow(path))
-                .andThen(new WaitUntilCommand(() -> (follower.atParametricEnd() || System.currentTimeMillis() > endtime)))
-                .whenFinished(() -> { if (holdPoint) follower.hold(path.endPose()); });
+                .andThen(new WaitUntilCommand(follower::atParametricEnd).withTimeout(timeout))
+                .whenFinished(() -> {
+                    if (holdPoint) follower.hold(path.endPose());
+                });
     }
 }

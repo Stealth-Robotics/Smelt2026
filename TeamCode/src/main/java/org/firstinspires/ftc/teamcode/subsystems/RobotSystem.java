@@ -120,10 +120,11 @@ public class RobotSystem extends StealthSubsystem {
                 .whenReleased(unjamGateCmd(false));
 
 
-        operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(harvesterSubsystem::toggle);
-        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()->
-                manShootDist = DmShooterSubsystem.DEFAULT_SHOOT_DISTANCE);
+        operator.getGamepadButton(GamepadKeys.Button.B)
+                .whenPressed(harvesterSubsystem.harvToggleCmd());
 
+        operator.getGamepadButton(GamepadKeys.Button.Y)
+                .whenPressed(()-> manShootDist = DmShooterSubsystem.DEFAULT_SHOOT_DISTANCE);
 
     }
 

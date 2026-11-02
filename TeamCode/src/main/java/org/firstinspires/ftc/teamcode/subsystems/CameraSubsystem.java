@@ -441,7 +441,7 @@ public class CameraSubsystem extends StealthSubsystem
         double hiveGroupOffset = getAimingOffsetDegrees(result);
         double physicalOffset = getPhysicalCameraOffsetDegrees(result);
 
-        return result.getTx() + hiveGroupOffset  + physicalOffset;
+        return result.getTx() + hiveGroupOffset + physicalOffset;
     }
 
 

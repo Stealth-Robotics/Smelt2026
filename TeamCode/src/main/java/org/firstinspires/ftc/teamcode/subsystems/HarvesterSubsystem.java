@@ -10,23 +10,28 @@ public class HarvesterSubsystem extends StealthSubsystem {
     public final Servo servo;
     public static final double HARVESTER_UP = 0.08;
     public static final double HARVESTER_DOWN = 0.71;
+
+    private double lastPosition = HARVESTER_UP;
     public HarvesterSubsystem(HardwareMap map){
         servo = map.get(Servo.class, "pollenServo");
         setPosition(HARVESTER_UP);
     }
+
     public void toggle(){
-        if (servo.getPosition() == HARVESTER_UP){
+        if (lastPosition == HARVESTER_UP){
             setPosition(HARVESTER_DOWN);
+            lastPosition = HARVESTER_DOWN;
         }
-        else {
+        else{
             setPosition(HARVESTER_UP);
+            lastPosition = HARVESTER_UP;
         }
     }
 
-    public void Up(){
+    public void setUp(){
         setPosition(HARVESTER_UP);
     }
-    public void Down(){
+    public void setDown(){
         setPosition(HARVESTER_DOWN);
     }
 
@@ -39,10 +44,13 @@ public class HarvesterSubsystem extends StealthSubsystem {
         servo.setPosition(position); }
 
     public Command harvDownCmd(){
-        return runOnce(this::Down);
+        return runOnce(this::setDown);
+    }
+    public Command harvToggleCmd(){
+        return runOnce(this::toggle);
     }
     public Command harvUpCmd(){
-        return runOnce(this::Up);
+        return runOnce(this::setUp);
     }
 
 

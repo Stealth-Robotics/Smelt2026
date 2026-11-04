@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.tools.AutoToTeleOpStorage;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
+import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
@@ -45,6 +46,13 @@ public class DriveSubsystem extends StealthSubsystem
             0.0015,
             0.0);
 
+    private final PIDFController fieldHeadingController = new PIDFController(
+            0.0,
+            0.0,
+            0.0,
+            0.0
+    );
+
     private double kiNear = 0.12;
     private double kiFar = 0.0001;
     private boolean kiSet = false;
@@ -53,6 +61,7 @@ public class DriveSubsystem extends StealthSubsystem
     public static final double MAX_ROTATION_POWER = 0.98;
     public static double AUTO_AIM_TOLERANCE = 0.5;
     public static double AUTO_AIM_CLOSE_TOLERANCE = 4.0;
+    public static double AUTO_AIM_BACKUP_TOLERANCE = 10.0; // in degrees
 
     private double lastTxDelta = 100;
 
@@ -130,7 +139,11 @@ public class DriveSubsystem extends StealthSubsystem
                 rotatePow = getScaledTxOutput(txDelta, AUTO_AIM_TOLERANCE);
             }
         } else {
-            lastTxDelta = 100;
+            double targetAngle = Targets.getAngleToTarget(getPose());
+            lastTxDelta = targetAngle; // Assuming tx scale roughly matches degrees
+            if (autoAim) {
+                rotatePow = getScaledPoseOutput(targetAngle - getPose().heading(), AUTO_AIM_BACKUP_TOLERANCE);
+            }
         }
 
         return robotCentric ?
@@ -178,6 +191,16 @@ public class DriveSubsystem extends StealthSubsystem
         return Math.clamp(pidOutput, -MAX_ROTATION_POWER, MAX_ROTATION_POWER);
     }
 
+    private double getScaledPoseOutput(double headingError, double tolerance) {
+        if(Math.abs(headingError) < tolerance) {
+            fieldHeadingController.clearTotalError();
+            return 0;
+        }
+        fieldHeadingController.setSetPoint(0);
+        double pidOutput = fieldHeadingController.calculate(headingError);
+        return Math.clamp(pidOutput, -MAX_ROTATION_POWER, MAX_ROTATION_POWER);
+    }
+
     public void setAimController(double kp, double kiFar, double kiNear, double kd, double kf) {
         this.kiNear = kiNear;
         this.kiSet = false;
@@ -191,6 +214,10 @@ public class DriveSubsystem extends StealthSubsystem
 
     public PIDFController getAimController() {
         return headingController;
+    }
+
+    public Pose getPose() {
+        return follower.pose();
     }
 
     public void setAutoAim(boolean autoAim) {
@@ -267,10 +294,6 @@ public class DriveSubsystem extends StealthSubsystem
 
     public Follower getFollower(){
         return follower;
-    }
-
-    public Pose getPose() {
-        return follower.pose();
     }
 
     public void resetHeading() {

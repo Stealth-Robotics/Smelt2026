@@ -56,6 +56,12 @@ public abstract class StealthOpMode extends LinearOpMode {
     }
 
     /**
+     * Do any commands that you want executed at the end of the OpMode.
+     * i.e. set the final Pose
+     */
+    public void opModeEnded() {}
+
+    /**
      * Schedules {@link com.arcrobotics.ftclib.command.Command} objects to the scheduler
      */
     public void schedule(Command... commands) {
@@ -69,11 +75,9 @@ public abstract class StealthOpMode extends LinearOpMode {
         CommandScheduler.getInstance().registerSubsystem(subsystems);
     }
 
-    public void bruh() {
-
-    }
-
     public void printTelemetry() {}
+
+    public void updateStorage(){}
 
     /**
      * This is a common {@link LinearOpMode#runOpMode()} for both auto and tele opmodes. It ensures
@@ -125,23 +129,27 @@ public abstract class StealthOpMode extends LinearOpMode {
         }
 
         schedule(getAutoCommand());
+        try {
+            while (!isStopRequested() && opModeIsActive()) {
+                printTelemetry();
+                updateStorage();
+                CommandScheduler.getInstance().run();
+                telemetry.update();
+                hubs.forEach(LynxModule::clearBulkCache);
+            }
 
-        while (!isStopRequested() && opModeIsActive()) {
-            printTelemetry();
-            CommandScheduler.getInstance().run();
-            telemetry.update();
-            hubs.forEach(LynxModule::clearBulkCache);
+        }finally {
+            opModeEnded();
         }
 
-        bruh();
 
         CommandScheduler.getInstance().reset();
 
         // You're free to save the final heading from a command, so don't redo that here. It turns
         // out this is a terrible place to ask for the final heading, since the IMU will always
         // return 0 after the opmode is over!
-        if (AutoToTeleStorage.finalAutoHeading == 0.0) {
-            AutoToTeleStorage.finalAutoHeading = getFinalHeading();
+        if (!AutoToTeleStorage.isHeadingValid()) {
+            AutoToTeleStorage.setHeading(getFinalHeading());
         }
     }
 }

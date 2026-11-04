@@ -8,8 +8,10 @@ import org.stealthrobotics.library.StealthSubsystem;
 
 public class HoodSubsystem extends StealthSubsystem {
     private final Servo hoodServo;
+
+    // TODO:determine 0 position
     private static final double MIN_POSITION = 0;
-    private static final double MAX_POSITION = 0.63;
+    private static final double MAX_POSITION = 0.63; // 34.5 degrees
 
     private InterpLUT rangeToHoodAngle;
     private static final double MIN_DISTANCE = 30;
@@ -25,6 +27,7 @@ public class HoodSubsystem extends StealthSubsystem {
 
     private void buildRangeTable() {
         // TODO: make these angles for easier readability
+
         rangeToHoodAngle = new InterpLUT();
         rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 0.23);
         rangeToHoodAngle.add(40, 0.26);

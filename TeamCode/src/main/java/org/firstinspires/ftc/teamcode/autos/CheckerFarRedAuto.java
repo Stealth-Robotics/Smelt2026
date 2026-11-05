@@ -80,7 +80,7 @@ public class CheckerFarRedAuto extends BioBuzzAutos
                                 (
                                         shootSequenceCmd(51),
                                         startHarvestingCmd(),
-                                        drive.followPathCmd(harvest()),
+                                        drive.followPathCmd(harvest(),3000),
                                         drive.followPathCmd(check()),
                                         shootSequenceCmd(51),
                                         stopHarvestingCmd(),

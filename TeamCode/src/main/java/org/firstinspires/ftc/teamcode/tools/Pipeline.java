@@ -14,17 +14,17 @@ public enum Pipeline {
     // ALL Blue Alliance tags
     BLUE_ALL(1),
 
-    // Red CELL – side of field opposite the audience
-    RED_FAR(2),
+    // Red CELL – Score table side of field opposite the audience
+    RED_SCORE(2),
 
     // Red CELL – audience side
-    RED_NEAR(3),
+    RED_AUDIENCE(3),
 
     // Blue CELL – audience side
-    BLUE_NEAR(4),
+    BLUE_AUDIENCE(4),
 
-    // Blue CELL – side of field opposite the audience
-    BLUE_FAR(5);
+    // Blue CELL – Score table side of field opposite the audience
+    BLUE_SCORE(5);
 
     public final int id;
 

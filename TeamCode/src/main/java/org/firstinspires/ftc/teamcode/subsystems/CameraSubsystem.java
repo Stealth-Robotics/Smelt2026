@@ -121,16 +121,16 @@ public class CameraSubsystem extends StealthSubsystem
                 setPipeline(BLUE_ALL);
                 break;
             case BLUE_ALL:
-                setPipeline(RED_FAR);
+                setPipeline(RED_SCORE);
                 break;
-            case RED_FAR:
-                setPipeline(RED_NEAR);
+            case RED_SCORE:
+                setPipeline(RED_AUDIENCE);
                 break;
-                case RED_NEAR:
-                    setPipeline(BLUE_NEAR);
+                case RED_AUDIENCE:
+                    setPipeline(BLUE_AUDIENCE);
                 break;
-            case BLUE_NEAR:
-                setPipeline(BLUE_FAR);
+            case BLUE_AUDIENCE:
+                setPipeline(BLUE_SCORE);
                 break;
             default:
                 setPipeline(RED_ALL);
@@ -262,9 +262,9 @@ public class CameraSubsystem extends StealthSubsystem
         -1.5,           // 8: {3} -> target center is 1.5 spacings left
         0.0,            // 9: {0,3}
         -0.5,           // 10: {1,3}
-        1.0 / 6.0,      // 11: {0,1,3}
+        0.25,              // 11: {0,1,3}
         -1.0,           // 12: {2,3}
-        -1.0 / 6.0,     // 13: {0,2,3}
+        -0.25,     // 13: {0,2,3}
         -0.5,           // 14: {1,2,3}
         0.0             // 15: {0,1,2,3}
     };
@@ -274,19 +274,19 @@ public class CameraSubsystem extends StealthSubsystem
      * of an AprilTag within its hive group.
      *
      * Subtracts the hive's base AprilTag ID:
-     * - RED_FAR:   IDs 30..33 -> base 30
-     * - RED_NEAR:  IDs 34..37 -> base 34
-     * - BLUE_NEAR: IDs 38..41 -> base 38
-     * - BLUE_FAR:  IDs 42..45 -> base 42
+     * - RED_SCORE:   IDs 30..33 -> base 30
+     * - RED_AUDIENCE:  IDs 34..37 -> base 34
+     * - BLUE_AUDIENCE: IDs 38..41 -> base 38
+     * - BLUE_SCORE:  IDs 42..45 -> base 42
      *
      * @param tagId The AprilTag ID.
      * @return Relative index 0..3, or -1 if not a hive tag.
      */
     public static int getRelativeTagIndex(int tagId) {
-        if (tagId >= 30 && tagId <= 33) return tagId - 30; // RED_FAR
-        if (tagId >= 34 && tagId <= 37) return tagId - 34; // RED_NEAR
-        if (tagId >= 38 && tagId <= 41) return tagId - 38; // BLUE_NEAR
-        if (tagId >= 42 && tagId <= 45) return tagId - 42; // BLUE_FAR
+        if (tagId >= 30 && tagId <= 33) return tagId - 30; // RED_SCORE
+        if (tagId >= 34 && tagId <= 37) return tagId - 34; // RED_AUDIENCE
+        if (tagId >= 38 && tagId <= 41) return tagId - 38; // BLUE_AUDIENCE
+        if (tagId >= 42 && tagId <= 45) return tagId - 42; // BLUE_SCORE
         return -1;
     }
 
@@ -336,20 +336,8 @@ public class CameraSubsystem extends StealthSubsystem
         return new HiveDetectionData(bitmask, minTag, maxTag, minIdx, maxIdx);
     }
 
-    private static class HiveDetectionData {
-        final int bitmask;
-        final LLResultTypes.FiducialResult minTag;
-        final LLResultTypes.FiducialResult maxTag;
-        final int minIdx;
-        final int maxIdx;
-
-        HiveDetectionData(int bitmask, LLResultTypes.FiducialResult minTag, LLResultTypes.FiducialResult maxTag, int minIdx, int maxIdx) {
-            this.bitmask = bitmask;
-            this.minTag = minTag;
-            this.maxTag = maxTag;
-            this.minIdx = minIdx;
-            this.maxIdx = maxIdx;
-        }
+    private record HiveDetectionData(int bitmask, LLResultTypes.FiducialResult minTag,
+                                     LLResultTypes.FiducialResult maxTag, int minIdx, int maxIdx) {
     }
 
     /**

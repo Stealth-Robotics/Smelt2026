@@ -5,7 +5,6 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.util.InterpLUT;
-import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -76,7 +75,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;
 
-    private static final double FLOAT_DEFAULT_POWER = .4;
+    private static final double FLOAT_DEFAULT_POWER = .5;
     /** Minimum distance for lookup tables. */
     private static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
@@ -157,7 +156,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         rangeToRpm.add(59.0, 3650);
         rangeToRpm.add(61.0, 3680);
         rangeToRpm.add(62.0, 3700);
-        rangeToRpm.add(69.0, 4025);
+        rangeToRpm.add(69.0, 3900);
         rangeToRpm.add(MAX_DISTANCE + 0.1, 4000);
         rangeToRpm.createLUT();
     }
@@ -173,14 +172,13 @@ public class DmShooterSubsystem extends StealthSubsystem {
         LLResult result = camera.getLastResult();
         double lastDistanceFromCamera = 0.0;
         double lastDistanceFromTarget = Targets.getDistanceToTarget(robot.getDrive().getPose());
-        boolean pickCameraDistance = true;
         if (result != null && result.isValid()) {
             lastDistanceFromCamera = camera.calcGoalDistanceByTa(result);
             lastDistance = lastDistanceFromCamera;
         } else {
             lastDistance = lastDistanceFromTarget;
-            pickCameraDistance = false;
         }
+
         double diffBetweenCameraAndTarget = lastDistanceFromCamera - lastDistanceFromTarget;
 
         if (customDistance != 0) {
@@ -191,15 +189,15 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
         double currentVoltage = getBatteryVoltage();
 //        telemetry.addData("Battery Voltage", "%.2f V", currentVoltage);
-//        telemetry.addData("Target RPM", targetRpm);
-//        telemetry.addData("Current RPM", currentRpm);
+        telemetry.addData("Camera Distance", "%.2f", lastDistanceFromCamera);
+        telemetry.addData("Position Distance", "%.2f", lastDistanceFromTarget);
         telemetry.addData("Difference of distances", diffBetweenCameraAndTarget);
-        telemetry.addData("Use camera distance", pickCameraDistance);
         telemetry.addData("Last Distance", lastDistance);
         telemetry.addData("Custom Dist", customDistance);
         telemetry.addData("Hood Angle", hood.getAngle());
-        telemetry.addData("Shooter RPM", getCurrentRpm());
-//        telemetry.addData("Hood Angle", hood.getHoodAngle());
+        telemetry.addData("Target RPM", getTargetRpm());
+        telemetry.addData("Current RPM", getCurrentRpm());
+        telemetry.addData("Hood Position", hood.getPosition());
 
 
         // if we are shooting or waiting to shoot
@@ -278,7 +276,6 @@ public class DmShooterSubsystem extends StealthSubsystem {
         }
 
         currentRpm = getCurrentRpm();
-        double difference = Math.abs(currentRpm - targetRpm);
         double curMs = shootTimer.milliseconds();
 
         // Prevent immediate "ready" status by requiring a minimum runtime

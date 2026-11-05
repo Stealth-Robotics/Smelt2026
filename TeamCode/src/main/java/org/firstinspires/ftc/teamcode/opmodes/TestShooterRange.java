@@ -104,7 +104,7 @@ public class TestShooterRange extends StealthOpMode {
             telemetry.addData("Step Value", "%.5f", rpmSteps[stepIndex]);
             telemetry.addData("RPM Override", rpmboost);
             telemetry.addLine();
-            telemetry.addData("Hood Angle", shooter.getHood().getHoodAngle());
+            telemetry.addData("Hood Angle", shooter.getHood().getAngle());
             telemetry.addData("Step Value", "%.5f", hoodSteps[stepIndex]);
             telemetry.addData("Hood Angle Override ", hoodAngleAdd);
         });

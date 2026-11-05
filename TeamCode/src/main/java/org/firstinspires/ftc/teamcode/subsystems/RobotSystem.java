@@ -174,11 +174,11 @@ public class RobotSystem extends StealthSubsystem {
             return new SequentialCommandGroup(
                     new InstantCommand(() -> intakeSubsystem.setAutoOuttake(true)),
                     new WaitCommand(500),
-                    new InstantCommand(() -> gateSubsystem.openGate()),
+                    new InstantCommand(gateSubsystem::openGate),
                     new InstantCommand(() -> shooter.setUnjam(true)));
         }
         return new SequentialCommandGroup(
-                new InstantCommand(() -> gateSubsystem.closeGate()),
+                new InstantCommand(gateSubsystem::closeGate),
                 new InstantCommand(() -> intakeSubsystem.setAutoOuttake(false)),
                 new InstantCommand(() -> shooter.setUnjam(false)));
     }
@@ -192,10 +192,10 @@ public class RobotSystem extends StealthSubsystem {
         Pose cuPose = drive.getFollower().pose();
         camera.updateRobotOrientation(cuPose.heading());
 
-        boolean isNear = cuPose.y() < FieldConstants.FIELD_Y_MAX / 2.0;
+        boolean isAudienceSide = cuPose.y() < FieldConstants.FIELD_Y_CENTER;
         Pipeline pipeline = Alliance.isBlue()
-                ? (isNear ? Pipeline.BLUE_NEAR : Pipeline.BLUE_FAR)
-                : (isNear ? Pipeline.RED_NEAR : Pipeline.RED_FAR);
+                ? (isAudienceSide ? Pipeline.BLUE_AUDIENCE : Pipeline.BLUE_SCORE)
+                : (isAudienceSide ? Pipeline.RED_AUDIENCE : Pipeline.RED_SCORE);
 
         camera.setPipeline(pipeline);
     }

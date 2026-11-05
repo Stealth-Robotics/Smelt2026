@@ -6,17 +6,17 @@ import org.stealthrobotics.library.Alliance;
 
 public class Targets {
 
-    // Hive cell target poses
-    private static final Pose BLUE_RIGHT_CELL = new Pose(84,80);
-    private static final Pose BLUE_LEFT_CELL = new Pose(84, 61.5);
-    private static final Pose RED_RIGHT_CELL = new Pose(57.8,61.5);
-    private static final Pose RED_LEFT_CELL = new Pose(57.8, 80);
-    private static final double HEIGHT = 40.0;
+    // Hive cell target poses audience
+    private static final Pose BLUE_SCORE_CELL = new Pose(84,80);
+    private static final Pose BLUE_AUDIENCE_CELL = new Pose(84, 61.5);
+    private static final Pose RED_AUDIENCE_CELL = new Pose(57.8,61.5);
+    private static final Pose RED_SCORE_CELL = new Pose(57.8, 80);
+    private static final double HEIGHT = 50.0;
 
     private static Pose getTarget(Pose robotPose) {
         return Alliance.isRed() ?
-                (robotPose.y() > FieldConstants.FIELD_Y_CENTER ? RED_LEFT_CELL : RED_RIGHT_CELL) :
-                (robotPose.y() < FieldConstants.FIELD_Y_CENTER ? BLUE_LEFT_CELL : BLUE_RIGHT_CELL);
+                (robotPose.y() > FieldConstants.FIELD_Y_CENTER ? RED_SCORE_CELL : RED_AUDIENCE_CELL) :
+                (robotPose.y() < FieldConstants.FIELD_Y_CENTER ? BLUE_AUDIENCE_CELL : BLUE_SCORE_CELL);
     }
 
     public static double getDistanceToTarget(Pose drivePosition) {

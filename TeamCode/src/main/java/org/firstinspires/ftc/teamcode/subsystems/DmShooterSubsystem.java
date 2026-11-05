@@ -197,6 +197,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
         telemetry.addData("Use camera distance", pickCameraDistance);
         telemetry.addData("Last Distance", lastDistance);
         telemetry.addData("Custom Dist", customDistance);
+        telemetry.addData("Hood Angle", hood.getAngle());
+        telemetry.addData("Shooter RPM", getCurrentRpm());
 //        telemetry.addData("Hood Angle", hood.getHoodAngle());
 
 

@@ -4,11 +4,13 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystems.GateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.HarvesterSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.HoodSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -35,7 +37,8 @@ public class TestServo extends StealthOpMode {
                 driver,
                 operator);
         // Change Servo here to test different servos
-        servo = new HarvesterSubsystem(hardwareMap).getServo();
+        //servo = new HarvesterSubsystem(hardwareMap).getServo();
+        servo = new HoodSubsystem(hardwareMap).getServo();
         robotSystem.getDrive().setDriver(driver);
         servo.setPosition(position);
         configBindings();

@@ -11,7 +11,7 @@ public class Targets {
     private static final Pose BLUE_LEFT_CELL = new Pose(84, 61.5);
     private static final Pose RED_RIGHT_CELL = new Pose(57.8,61.5);
     private static final Pose RED_LEFT_CELL = new Pose(57.8, 80);
-    private static final double HEIGHT = 60.0;
+    private static final double HEIGHT = 40.0;
 
     private static Pose getTarget(Pose robotPose) {
         return Alliance.isRed() ?

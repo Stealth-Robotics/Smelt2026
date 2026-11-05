@@ -44,12 +44,13 @@ public class DriveSubsystem extends StealthSubsystem
             0.02,
             0.0001,
             0.0015,
-            0.0);
+            0.0
+    );
 
     private final PIDFController fieldHeadingController = new PIDFController(
-            0.0,
-            0.0,
-            0.0,
+            0.02,
+            0.0001,
+            0.0015,
             0.0
     );
 

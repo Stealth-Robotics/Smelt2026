@@ -34,8 +34,8 @@ public class SimpleAuto extends BioBuzzAutos{
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                //shootSequence(45),
-                drive.followPathCmd(path1()),
-                drive.followPathCmd(path2()));
+            //shootSequence(45),
+            drive.followPathCmd(path1()),
+            drive.followPathCmd(path2()));
     }
 }

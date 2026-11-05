@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.tools;
 public class FieldConstants {
     public static final double FIELD_X_MAX = 141.5;
     public static final double FIELD_Y_MAX = 141.5;
+    public static final double FIELD_X_CENTER = FIELD_X_MAX / 2;
+    public static final double FIELD_Y_CENTER = FIELD_Y_MAX / 2;
 
     public static final double ROBOT_CENTER_Y = 17.99 / 2;
     public static final double ROBOT_CENTER_X = 16.95 / 2;

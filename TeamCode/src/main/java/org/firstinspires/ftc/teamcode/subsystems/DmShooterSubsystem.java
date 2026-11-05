@@ -171,11 +171,17 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
         // Update distance to goal regardless of shoot state
         LLResult result = camera.getLastResult();
+        double lastDistanceFromCamera = 0.0;
+        double lastDistanceFromTarget = Targets.getDistanceToTarget(robot.getDrive().getPose());
+        boolean pickCameraDistance = true;
         if (result != null && result.isValid()) {
-            lastDistance = camera.calcGoalDistanceByTa(result);
+            lastDistanceFromCamera = camera.calcGoalDistanceByTa(result);
+            lastDistance = lastDistanceFromCamera;
         } else {
-            lastDistance = Targets.getDistanceToTarget(robot.getDrive().getPose());
+            lastDistance = lastDistanceFromTarget;
+            pickCameraDistance = false;
         }
+        double diffBetweenCameraAndTarget = lastDistanceFromCamera - lastDistanceFromTarget;
 
         if (customDistance != 0) {
             lastDistance = customDistance;
@@ -187,6 +193,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
 //        telemetry.addData("Battery Voltage", "%.2f V", currentVoltage);
 //        telemetry.addData("Target RPM", targetRpm);
 //        telemetry.addData("Current RPM", currentRpm);
+        telemetry.addData("Difference of distances", diffBetweenCameraAndTarget);
+        telemetry.addData("Use camera distance", pickCameraDistance);
         telemetry.addData("Last Distance", lastDistance);
         telemetry.addData("Custom Dist", customDistance);
 //        telemetry.addData("Hood Angle", hood.getHoodAngle());

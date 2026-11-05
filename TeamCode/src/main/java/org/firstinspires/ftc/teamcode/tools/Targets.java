@@ -15,8 +15,8 @@ public class Targets {
 
     private static Pose getTarget(Pose robotPose) {
         return Alliance.isRed() ?
-                (robotPose.y() > 72 ? RED_LEFT_CELL : RED_RIGHT_CELL) :
-                (robotPose.y() < 72 ? BLUE_LEFT_CELL : BLUE_RIGHT_CELL);
+                (robotPose.y() > FieldConstants.FIELD_Y_CENTER ? RED_LEFT_CELL : RED_RIGHT_CELL) :
+                (robotPose.y() < FieldConstants.FIELD_Y_CENTER ? BLUE_LEFT_CELL : BLUE_RIGHT_CELL);
     }
 
     public static double getDistanceToTarget(Pose drivePosition) {

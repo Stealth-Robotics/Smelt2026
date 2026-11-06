@@ -48,13 +48,13 @@ public class TestShooterRange extends StealthOpMode {
                 () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
 
         driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetHeadingCmd());
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()-> drive.resetPosition(false));
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()-> drive.resetPosition(true));
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(drive.resetPositionCmd(false));
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(drive.resetPositionCmd(true));
 
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(drive.setSlowMoCmd(true))
                 .whenReleased(drive.setSlowMoCmd(false));
-        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(drive.toggleHoldModeCmd());
+        driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(drive.toggleHoldModeCmd());
 
         driver.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(drive.setAutoAimCmd(true))

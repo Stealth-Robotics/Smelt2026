@@ -10,13 +10,15 @@ public class HoodSubsystem extends StealthSubsystem {
     private final Servo hoodServo;
 
     // TODO:determine 0 position
-    private static final double MIN_POSITION = 0.03;
+    private static final double MIN_POSITION = 0.058;
     //noted numbers
-    // 0.24 - is something
-    // 0.25 - 12.4
-    // 0.505 - 25.4 - max down
-    // 0.03 - zero degree position
-    private static final double MAX_POSITION = 0.509; // 34.5 degrees
+    // 0.1 - 2.2
+    // 0.2 - 8.0
+    // 0.3 - 13.4
+    // 0.4 - 18.4
+    // 0.5 - 24.4
+    // 0.542 - 28.8
+    private static final double MAX_POSITION = 0.542; // 28.8
 
     private InterpLUT rangeToHoodAngle;
     private static final double MIN_DISTANCE = 30;
@@ -30,12 +32,12 @@ public class HoodSubsystem extends StealthSubsystem {
         buildRangeTable();
     }
     public double getAngle (){
-        double curvePosition = hoodServo.getPosition();
-        return -1.763559 + 59.21483 * curvePosition - 10.75805 * Math.pow(curvePosition, 2);
+        double x = hoodServo.getPosition();
+        return -1.743168 + 14.06975 * x + 341.4512 * Math.pow(x, 2) - 1031.662 * Math.pow(x, 3) + 1005.784 * Math.pow(x, 4);
     }
 
-    public double degreesToPosition (double degrees){
-        return 0.02995639 + 0.01690777 * degrees + 0.00007075189 * Math.pow(degrees, 2);
+    public double degreesToPosition (double x){
+        return 0.05841016 + 0.01935597 * x - 0.0004159367 * Math.pow(x, 2) + 0.00003531975 * Math.pow(x, 3) - 8.326964e-7 * Math.pow(x, 4);
     }
 
     private void buildRangeTable() {

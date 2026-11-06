@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.teamcode.tools.FieldConstants.BLUE_AUDIENCE_POSE;
+import static org.firstinspires.ftc.teamcode.tools.FieldConstants.BLUE_SCORE_POSE;
+import static org.firstinspires.ftc.teamcode.tools.FieldConstants.RED_AUDIENCE_POSE;
+import static org.firstinspires.ftc.teamcode.tools.FieldConstants.RED_SCORE_POSE;
+
 import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -60,37 +64,12 @@ public class DriveSubsystem extends StealthSubsystem
 
     /** The maximum rotational power applied during auto-aim. */
     public static final double MAX_ROTATION_POWER = 0.98;
-    public static double AUTO_AIM_TOLERANCE = 0.5;
+    public static double AUTO_AIM_TOLERANCE = 2.0;
     public static double AUTO_AIM_CLOSE_TOLERANCE = 4.0;
-    public static double AUTO_AIM_BACKUP_TOLERANCE = 10.0; // in degrees
+    public static double AUTO_AIM_BACKUP_TOLERANCE = 5.0; // in degrees
 
     private double lastTxDelta = 100;
 
-    // Rests to the Scoring table side Blue wall intake facing away from driver
-    private static final Pose blueFarPose = new Pose(
-            FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X,
-            FieldConstants.FIELD_Y_MAX -
-                    FieldConstants.ROBOT_CENTER_Y,
-            FieldConstants.ROBOT_BLUE_HEADING);
-
-    // Rests to the Audience side Blue wall intake facing away from driver
-    private static final Pose blueNearPose = new Pose(
-            FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X,
-            FieldConstants.ROBOT_CENTER_Y,
-            FieldConstants.ROBOT_BLUE_HEADING);
-
-    // Resets to the Audience side Red wall intake facing away from driver
-    private static final Pose redNearPose = new Pose(
-            FieldConstants.ROBOT_CENTER_X,
-            FieldConstants.ROBOT_CENTER_Y,
-            FieldConstants.ROBOT_RED_HEADING);
-
-    // Resets to the scoring table side red wall
-    private static final Pose redFarPose = new Pose(
-            FieldConstants.ROBOT_CENTER_X,
-            FieldConstants.FIELD_Y_MAX -
-                    FieldConstants.ROBOT_CENTER_Y,
-            FieldConstants.ROBOT_RED_HEADING);
 
     public DriveSubsystem(HardwareMap map, RobotSystem robot){
 
@@ -100,7 +79,7 @@ public class DriveSubsystem extends StealthSubsystem
         if (AutoToTeleOpStorage.isPoseValid()) {
             follower.setPose(AutoToTeleOpStorage.getPose());
         }else {
-            follower.setPose(Alliance.isBlue() ? blueNearPose : redNearPose);
+            follower.setPose(Alliance.isBlue() ? BLUE_AUDIENCE_POSE : RED_AUDIENCE_POSE);
         }
 
         //follower.localizer.reset();
@@ -132,6 +111,10 @@ public class DriveSubsystem extends StealthSubsystem
         double strafePow = strafe.getAsDouble() * currentPower * invert;
         double rotatePow = rotate.getAsDouble() * currentPower;
 
+        Pose pose = getPose();
+        double targetError = Targets.getAngleErrorToTarget(pose);
+        telemetry.addData("Angle Error To Target", "%.2f", Targets.getAngleErrorToTarget(pose));
+
         LLResult result = camera.getLastResult();
         if (result != null && result.isValid()) {
             double txDelta = camera.getAdjustedTx(result);
@@ -140,10 +123,10 @@ public class DriveSubsystem extends StealthSubsystem
                 rotatePow = getScaledTxOutput(txDelta, AUTO_AIM_TOLERANCE);
             }
         } else {
-            double targetAngle = Targets.getAngleToTarget(getPose());
-            lastTxDelta = targetAngle; // Assuming tx scale roughly matches degrees
+
+            lastTxDelta = targetError; // Assuming tx scale roughly matches degrees
             if (autoAim) {
-                rotatePow = getScaledPoseOutput(targetAngle - getPose().heading(), AUTO_AIM_BACKUP_TOLERANCE);
+                rotatePow = getScaledPoseOutput(targetError, AUTO_AIM_BACKUP_TOLERANCE);
             }
         }
 
@@ -255,6 +238,10 @@ public class DriveSubsystem extends StealthSubsystem
         return hold;
     }
 
+    public void setHoldMode(boolean hold) {
+        this.hold = hold;
+    }
+
     public void setSlowMo(boolean pressed) {
         slowMo = pressed;
     }
@@ -264,7 +251,7 @@ public class DriveSubsystem extends StealthSubsystem
     }
 
     public Command setAutoAimCmd(boolean autoAim) {
-        return new InstantCommand(() -> setAutoAim(autoAim), this);
+        return runOnce(() -> setAutoAim(autoAim));
     }
 
     public Command aimAtTargetCmd(long timeoutMs) {
@@ -274,19 +261,19 @@ public class DriveSubsystem extends StealthSubsystem
     }
 
     public Command toggleSlowMoCmd() {
-        return new InstantCommand(this::toggleSlowMo, this);
+        return runOnce(this::toggleSlowMo);
     }
 
     public Command setSlowMoCmd(boolean slowMo) {
-        return new InstantCommand(() -> setSlowMo(slowMo), this);
+        return runOnce(() -> setSlowMo(slowMo));
     }
 
     public Command toggleRobotCentricCommand() {
-        return new InstantCommand(this::toggleRobotCentric, this);
+        return runOnce(this::toggleRobotCentric);
     }
 
     public Command toggleHoldModeCmd() {
-        return new InstantCommand(this::toggleHoldMode, this);
+        return runOnce(this::toggleHoldMode);
     }
 
     public void Drive(double forward, double strafe, double rotate){
@@ -297,18 +284,34 @@ public class DriveSubsystem extends StealthSubsystem
         return follower;
     }
 
-    public void resetHeading() {
-        follower.setHeading(Alliance.isBlue() ? FieldConstants.ROBOT_BLUE_HEADING : FieldConstants.ROBOT_RED_HEADING);
-    }
-
+    /**
+     * Resets the robots heading only and prevents movement of robot when hold is active
+     * @return Command to reset heading
+     */
     public Command resetHeadingCmd() {
-        return runOnce(this::resetHeading);
+        boolean oldHold = isHoldMode();
+        return runOnce(()-> setHoldMode(false))
+                .andThen(runOnce(follower::update))
+                .andThen(runOnce(this::resetHeading))
+                .andThen(runOnce(follower::update))
+                .andThen(runOnce(() -> setHoldMode(oldHold)));
     }
 
-    public void resetPosition(boolean near) {
-        Pose pose = near ? (Alliance.isBlue() ? blueNearPose : redNearPose) : (Alliance.isBlue() ? blueFarPose : redFarPose);
-        follower.setPose(pose);
+    /**
+     * Resets robot position to scoring side corner wall or audience side corner wall
+     * turns off hold mode to prevent robot movement during reset
+     * @param audience true for audience otherwise false
+     * @return Command to reset position
+     */
+    public Command resetPositionCmd(boolean audience) {
+        boolean oldHold = isHoldMode();
+        return runOnce(()-> setHoldMode(false))
+                .andThen(runOnce(follower::update))
+                .andThen(runOnce(() -> resetPosition(audience))
+                .andThen(runOnce(follower::update))
+                .andThen(runOnce(() -> setHoldMode(oldHold))));
     }
+
 
     /**
      * Follows a path with no timeout and no hold
@@ -348,4 +351,21 @@ public class DriveSubsystem extends StealthSubsystem
                     if (holdPoint) follower.hold(path.endPose());
                 });
     }
+
+    /**
+     * Resets the robot to the scoring side corner wall or audience side corner wall
+     * @param audience true for audience otherwise false
+     */
+    private void resetPosition(boolean audience) {
+        Pose pose = audience ? (Alliance.isBlue() ? BLUE_AUDIENCE_POSE : RED_AUDIENCE_POSE) : (Alliance.isBlue() ? BLUE_SCORE_POSE : RED_SCORE_POSE);
+        follower.setPose(pose);
+    }
+
+    /**
+     * Resets the robots heading based on alliance
+     */
+    private void resetHeading() {
+        follower.setHeading(Alliance.isBlue() ? FieldConstants.ROBOT_BLUE_HEADING : FieldConstants.ROBOT_RED_HEADING);
+    }
+
 }

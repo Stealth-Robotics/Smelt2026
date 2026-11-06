@@ -188,16 +188,17 @@ public class DmShooterSubsystem extends StealthSubsystem {
         }
 
         double currentVoltage = getBatteryVoltage();
-//        telemetry.addData("Battery Voltage", "%.2f V", currentVoltage);
+////        telemetry.addData("Battery Voltage", "%.2f V", currentVoltage);
+//
         telemetry.addData("Camera Distance", "%.2f", lastDistanceFromCamera);
         telemetry.addData("Position Distance", "%.2f", lastDistanceFromTarget);
-        telemetry.addData("Difference of distances", diffBetweenCameraAndTarget);
-        telemetry.addData("Last Distance", lastDistance);
-        telemetry.addData("Custom Dist", customDistance);
-        telemetry.addData("Hood Angle", hood.getAngle());
-        telemetry.addData("Target RPM", getTargetRpm());
-        telemetry.addData("Current RPM", getCurrentRpm());
-        telemetry.addData("Hood Position", hood.getPosition());
+//        telemetry.addData("Difference of distances", diffBetweenCameraAndTarget);
+//        telemetry.addData("Last Distance", lastDistance);
+//        telemetry.addData("Custom Dist", customDistance);
+//        telemetry.addData("Hood Angle", hood.getAngle());
+//        telemetry.addData("Target RPM", getTargetRpm());
+//        telemetry.addData("Current RPM", getCurrentRpm());
+//        telemetry.addData("Hood Position", hood.getPosition());
 
 
         // if we are shooting or waiting to shoot

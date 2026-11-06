@@ -72,10 +72,12 @@ public class RobotSystem extends StealthSubsystem {
         // Reset the heading only
         driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(drive.resetHeadingCmd());
 
+        driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(drive.toggleHoldModeCmd());
+
         // Reset the position to the Scoring side corner wall
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(() -> drive.resetPosition(false));
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(drive.resetPositionCmd(false));
         // Reset the position to the audience side corner wall
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(() -> drive.resetPosition(true));
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(drive.resetPositionCmd(true) );
 
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(drive.setSlowMoCmd(true))
@@ -137,7 +139,7 @@ public class RobotSystem extends StealthSubsystem {
 //        telemetry.addData("Alliance: ", Alliance.get());
 //        telemetry.addData("Slow Motion", drive.isSlowMo());
 //        telemetry.addData("Robot Centric", drive.isRobotCentric());
-//        telemetry.addData("Hold Mode", driveCmd.isHoldMode());
+        telemetry.addData("Hold Mode", drive.isHoldMode());
         Pose pose = drive.getFollower().pose();
         telemetry.addData("Current Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
 

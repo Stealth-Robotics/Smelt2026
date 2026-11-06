@@ -24,6 +24,7 @@ import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class CameraSubsystem extends StealthSubsystem
 {
@@ -336,9 +337,71 @@ public class CameraSubsystem extends StealthSubsystem
         return new HiveDetectionData(bitmask, minTag, maxTag, minIdx, maxIdx);
     }
 
-    private record HiveDetectionData(int bitmask, LLResultTypes.FiducialResult minTag,
-                                     LLResultTypes.FiducialResult maxTag, int minIdx, int maxIdx) {
-    }
+    // Sloth does not support records :(
+    private static final class HiveDetectionData {
+        private final int bitmask;
+        private final LLResultTypes.FiducialResult minTag;
+        private final LLResultTypes.FiducialResult maxTag;
+        private final int minIdx;
+        private final int maxIdx;
+
+        private HiveDetectionData(int bitmask, LLResultTypes.FiducialResult minTag,
+                                  LLResultTypes.FiducialResult maxTag, int minIdx, int maxIdx) {
+            this.bitmask = bitmask;
+            this.minTag = minTag;
+            this.maxTag = maxTag;
+            this.minIdx = minIdx;
+            this.maxIdx = maxIdx;
+        }
+
+        public int bitmask() {
+            return bitmask;
+        }
+
+        public LLResultTypes.FiducialResult minTag() {
+            return minTag;
+        }
+
+        public LLResultTypes.FiducialResult maxTag() {
+            return maxTag;
+        }
+
+        public int minIdx() {
+            return minIdx;
+        }
+
+        public int maxIdx() {
+            return maxIdx;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (HiveDetectionData) obj;
+            return this.bitmask == that.bitmask &&
+                    Objects.equals(this.minTag, that.minTag) &&
+                    Objects.equals(this.maxTag, that.maxTag) &&
+                    this.minIdx == that.minIdx &&
+                    this.maxIdx == that.maxIdx;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(bitmask, minTag, maxTag, minIdx, maxIdx);
+        }
+
+        @Override
+        public String toString() {
+            return "HiveDetectionData[" +
+                    "bitmask=" + bitmask + ", " +
+                    "minTag=" + minTag + ", " +
+                    "maxTag=" + maxTag + ", " +
+                    "minIdx=" + minIdx + ", " +
+                    "maxIdx=" + maxIdx + ']';
+        }
+
+        }
 
     /**
      * Calculates the offset as a percentage/fraction of the visible tag span using the lookup table.

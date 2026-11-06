@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.tools.Pipeline.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -83,10 +82,13 @@ public class CameraSubsystem extends StealthSubsystem
             telemetry.addData("Tags:", getTagIds(result));
 ////            telemetry.addData("Tx:", result.getTx());
 ////            telemetry.addData("Adjusted Tx", getAdjustedTx(result));
-////            telemetry.addData("Ta Distance", calcGoalDistanceByTa(result));
-////            telemetry.addData("Ty:", result.getTy());
+//            telemetry.addData("Ta Distance", calcGoalDistanceByTa(result));
+//            telemetry.addData("Ty:", result.getTy());
 //            telemetry.addData("Area:", result.getTa());
 ////            telemetry.addData("TY Distance", calcGoalDistanceByTy(result.getTy()));
+            telemetry.addData("Ta: ", result.getTa());
+            Pose pose = limelightToPedroPose(result.getBotpose());
+            telemetry.addData("Camera Pose: ","X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(),Math.toDegrees(pose.heading()));
         } else {
             areTagsVisible = false;
             telemetry.addData("Tags:", "None");

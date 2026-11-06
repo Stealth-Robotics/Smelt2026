@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.os.Trace;
+
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitCommand;
@@ -15,6 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.tools.Targets;
+import org.firstinspires.ftc.teamcode.tools.Trajectories;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -77,9 +80,9 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
     private static final double FLOAT_DEFAULT_POWER = .5;
     /** Minimum distance for lookup tables. */
-    private static final double MIN_DISTANCE = 35;
+    public static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
-    private static final double MAX_DISTANCE = 75;
+    public static final double MAX_DISTANCE = 75;
 
     /** Additional RPM added to the target during shooting. */
     private double boostRpm = 0;
@@ -140,27 +143,12 @@ public class DmShooterSubsystem extends StealthSubsystem {
         shooterMotor2.setTargetPositionTolerance(20);
         //shooterMotor1.pi
         intake = robot.getIntake();
-        buildRangeTable();
+        rangeToRpm = Trajectories.createShooterTable();
     }
 
     /**
      * Initializes the interpolation tables for distance-based lookups.
      */
-    public void buildRangeTable() {
-        // TODO: Move this to a tools class Trajectories or something
-        rangeToRpm = new InterpLUT();
-        rangeToRpm.add(MIN_DISTANCE - 0.1, 3550);
-        rangeToRpm.add(40.0, 3600);
-        rangeToRpm.add(45.0, 3620);
-        rangeToRpm.add(50.0, 3610);
-        rangeToRpm.add(55.0, 3625);
-        rangeToRpm.add(59.0, 3650);
-        rangeToRpm.add(61.0, 3680);
-        rangeToRpm.add(62.0, 3700);
-        rangeToRpm.add(69.0, 3900);
-        rangeToRpm.add(MAX_DISTANCE + 0.1, 4000);
-        rangeToRpm.createLUT();
-    }
 
     /**
      * Periodic update for the subsystem. Handles PID control and state transitions.

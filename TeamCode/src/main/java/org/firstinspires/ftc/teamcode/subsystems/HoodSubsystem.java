@@ -4,13 +4,14 @@ import com.arcrobotics.ftclib.util.InterpLUT;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.tools.Trajectories;
 import org.stealthrobotics.library.StealthSubsystem;
 
 public class HoodSubsystem extends StealthSubsystem {
     private final Servo hoodServo;
 
     // TODO:determine 0 position
-    private static final double MIN_POSITION = 0.058;
+    public static final double MIN_POSITION = 0.058;
     //noted numbers
     // 0.1 - 2.2
     // 0.2 - 8.0
@@ -18,18 +19,18 @@ public class HoodSubsystem extends StealthSubsystem {
     // 0.4 - 18.4
     // 0.5 - 24.4
     // 0.542 - 28.8
-    private static final double MAX_POSITION = 0.542; // 28.8
+    public static final double MAX_POSITION = 0.542; // 28.8
 
     private InterpLUT rangeToHoodAngle;
-    private static final double MIN_DISTANCE = 30;
-    private static final double MAX_DISTANCE = 70;
+    public static final double MIN_DISTANCE = 30;
+    public static final double MAX_DISTANCE = 70;
     public double angleOverride = 0;
     private static final double DEFAULT_POSITION = 0.5;
 
     public HoodSubsystem(HardwareMap map) {
         hoodServo = map.get(Servo.class, "hoodServo");
         hoodServo.setPosition(DEFAULT_POSITION);
-        buildRangeTable();
+        rangeToHoodAngle= Trajectories.createHoodTable();
     }
 
     /**
@@ -48,23 +49,6 @@ public class HoodSubsystem extends StealthSubsystem {
      */
     public double degreesToPosition (double x){
         return 0.05841016 + 0.01935597 * x - 0.0004159367 * Math.pow(x, 2) + 0.00003531975 * Math.pow(x, 3) - 8.326964e-7 * Math.pow(x, 4);
-    }
-
-    private void buildRangeTable() {
-        // TODO: make these angles for easier readability and move this to a tools class Trajectories or something
-
-        rangeToHoodAngle = new InterpLUT();
-        rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 0.23);
-        rangeToHoodAngle.add(40, 0.26);
-        rangeToHoodAngle.add(48, 0.39);
-        rangeToHoodAngle.add(50, .392);
-        rangeToHoodAngle.add(55, .41);
-        rangeToHoodAngle.add(57,0.45);
-        rangeToHoodAngle.add(60, .49);
-        rangeToHoodAngle.add(62, 0.500);
-        rangeToHoodAngle.add(MAX_DISTANCE + 0.1, MAX_POSITION);
-
-        rangeToHoodAngle.createLUT();
     }
 
     public void setPosition(double pos) {

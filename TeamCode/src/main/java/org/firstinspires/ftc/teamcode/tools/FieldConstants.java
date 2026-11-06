@@ -10,8 +10,8 @@ public class FieldConstants {
 
     public static final double FIELD_Y_CENTER = FIELD_Y_MAX / 2;
 
-    public static final double ROBOT_CENTER_Y = 17.99 / 2;
-    public static final double ROBOT_CENTER_X = 16.95 / 2;
+    public static final double ROBOT_CENTER_Y = 16.95 / 2;
+    public static final double ROBOT_CENTER_X = 17.99 / 2;
 
     public static final double ROBOT_BLUE_HEADING = Math.toRadians(180);
     public static final double ROBOT_RED_HEADING = Math.toRadians(0);

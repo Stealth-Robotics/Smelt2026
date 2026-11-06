@@ -500,7 +500,7 @@ public class CameraSubsystem extends StealthSubsystem
     public static Pose limelightToPedroPose(@NonNull Pose3D botPose) {
 
         double llYaw = botPose.getOrientation().getYaw(AngleUnit.DEGREES);
-        // Rotoate the limlight by LL_ANGLE_DELTA to get the robot's heading
+        // Rotate the limelight by LL_ANGLE_DELTA to get the robot's heading
         double imuAngle = (llYaw < 0) ? (360 + llYaw - LL_ANGLE_DELTA) : (llYaw - LL_ANGLE_DELTA);
 
         // Ensure heading is within the 0-360 degree range
@@ -512,8 +512,8 @@ public class CameraSubsystem extends StealthSubsystem
 
         // Note: X and Y are swapped and adjusted for the different origins.
         return new Pose(
-                (FieldConstants.FIELD_Y_MAX / 2.0) - (-position.y),
-                -position.x + (FieldConstants.FIELD_X_MAX / 2.0),
+                (FieldConstants.FIELD_Y_CENTER) - (-position.y),
+                -position.x + FieldConstants.FIELD_X_CENTER,
                 Math.toRadians(imuAngle));
     }
 

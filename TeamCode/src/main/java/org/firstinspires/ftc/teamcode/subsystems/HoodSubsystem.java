@@ -31,17 +31,27 @@ public class HoodSubsystem extends StealthSubsystem {
         hoodServo.setPosition(DEFAULT_POSITION);
         buildRangeTable();
     }
+
+    /**
+     * Gets the current angle of the hood by converting the servo position to an angle.
+     * @return The current angle of the hood in degrees.
+     */
     public double getAngle (){
         double x = hoodServo.getPosition();
         return -1.743168 + 14.06975 * x + 341.4512 * Math.pow(x, 2) - 1031.662 * Math.pow(x, 3) + 1005.784 * Math.pow(x, 4);
     }
 
+    /**
+     * Gets the position of the hood by converting the angle to a servo position.
+     * @param x The angle of the hood in degrees.
+     * @return The position of the hood as a servo position.
+     */
     public double degreesToPosition (double x){
         return 0.05841016 + 0.01935597 * x - 0.0004159367 * Math.pow(x, 2) + 0.00003531975 * Math.pow(x, 3) - 8.326964e-7 * Math.pow(x, 4);
     }
 
     private void buildRangeTable() {
-        // TODO: make these angles for easier readability
+        // TODO: make these angles for easier readability and move this to a tools class Trajectories or something
 
         rangeToHoodAngle = new InterpLUT();
         rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 0.23);

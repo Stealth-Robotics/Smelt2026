@@ -147,6 +147,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
      * Initializes the interpolation tables for distance-based lookups.
      */
     public void buildRangeTable() {
+        // TODO: Move this to a tools class Trajectories or something
         rangeToRpm = new InterpLUT();
         rangeToRpm.add(MIN_DISTANCE - 0.1, 3550);
         rangeToRpm.add(40.0, 3600);

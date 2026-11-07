@@ -121,6 +121,7 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(unjamGateCmd(true))
                 .whenReleased(unjamGateCmd(false));
 
+        operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(shooter::toggleFloatPower);
 
         operator.getGamepadButton(GamepadKeys.Button.B)
                 .whenPressed(harvesterSubsystem.harvToggleCmd());

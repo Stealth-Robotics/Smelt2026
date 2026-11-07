@@ -11,7 +11,7 @@ public class Targets {
     private static final Pose BLUE_AUDIENCE_CELL = new Pose(83.3, 52.5);
     private static final Pose RED_AUDIENCE_CELL = new Pose(57.8,52.5);
     private static final Pose RED_SCORE_CELL = new Pose(57.8, 89);
-    private static final double HEIGHT = 40.0;
+    private static final double HEIGHT = 42.5;
 
     /**
      * Gets the distance to the target in inches. Calculates for height of target

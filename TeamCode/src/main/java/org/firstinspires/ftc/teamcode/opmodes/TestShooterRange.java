@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-@TeleOp(name = "Test Shooter Range Map", group = "Tests")
+@TeleOp(name = "Test Shooter Range Map BLUE", group = "Tests")
 public class TestShooterRange extends StealthOpMode {
     private GamepadEx driver;
     private GamepadEx operator;
@@ -105,6 +105,7 @@ public class TestShooterRange extends StealthOpMode {
             telemetry.addData("RPM Override", rpmboost);
             telemetry.addLine();
             telemetry.addData("Hood Angle", shooter.getHood().getAngle());
+            telemetry.addData("Hood Position", shooter.getHood().getPosition());
             telemetry.addData("Step Value", "%.5f", hoodSteps[stepIndex]);
             telemetry.addData("Hood Angle Override ", hoodAngleAdd);
         });

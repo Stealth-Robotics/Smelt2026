@@ -86,7 +86,7 @@ public class CameraSubsystem extends StealthSubsystem
 //            telemetry.addData("Ty:", result.getTy());
 //            telemetry.addData("Area:", result.getTa());
 ////            telemetry.addData("TY Distance", calcGoalDistanceByTy(result.getTy()));
-            telemetry.addData("Ta: ", result.getTa());
+            telemetry.addData("Avg Ta: ", getAverageTa(result));
             Pose pose = limelightToPedroPose(result.getBotpose());
             telemetry.addData("Camera Pose: ","X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(),Math.toDegrees(pose.heading()));
         } else {
@@ -164,7 +164,7 @@ public class CameraSubsystem extends StealthSubsystem
     public double calcGoalDistanceByTa(LLResult result) {
         double ta = getAverageTa(result);
 
-        double distance = 141.857 - 42948.86 * ta + 7811325.0  * Math.pow(ta, 2) - 746920500.0  * Math.pow(ta, 3) + 29360910000.0  * Math.pow(ta, 4);
+        double distance = 112.8561 - 29484.76 * ta + 5687858.0 * Math.pow(ta, 2) - 582954800.0 * Math.pow(ta, 3) + 24568860000.0 * Math.pow(ta, 4);
         return Math.round(distance * 10) / 10.0; // round to 1 decimal places)
     }
 

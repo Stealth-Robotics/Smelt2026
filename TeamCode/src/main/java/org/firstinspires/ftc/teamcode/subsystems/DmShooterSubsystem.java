@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import android.os.Trace;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -62,7 +61,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     public static final double MIN_RPM = -4000;
 
     /** Minimum time the shooter must run before it's considered ready. */
-    private static final double MIN_SHOOT_TIME_MS = 200;
+    private static final double MIN_SHOOT_TIME_MS = 500;
     /** Maximum time the shooter can run before it's considered timed out. */
     private static final double MAX_SHOOT_TIME_MS = 2000;
     /** The current target RPM. */
@@ -78,7 +77,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;
 
-    private static final double FLOAT_DEFAULT_POWER = .5;
+    private static final double FLOAT_DEFAULT_POWER = .55;
     /** Minimum distance for lookup tables. */
     public static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
@@ -97,7 +96,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double baseKd = 0.0;
     private double baseKf = 12.19;
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
-    private double kfScaler = .8;
+    private double kfScaler = .95;
 
     private InterpLUT rangeToRpm;
 
@@ -162,13 +161,13 @@ public class DmShooterSubsystem extends StealthSubsystem {
         double lastDistanceFromCamera = 0.0;
         double lastDistanceFromTarget = Targets.getDistanceToTarget(robot.getDrive().getPose());
         if (result != null && result.isValid()) {
-            lastDistanceFromCamera = camera.calcGoalDistanceByTa(result);
-            lastDistance = lastDistanceFromCamera;
+            if (shootState == ShootState.NOT_SHOOTING) {
+                lastDistanceFromCamera = camera.calcGoalDistanceByTa(result);
+                lastDistance = lastDistanceFromCamera;
+            }
         } else {
             lastDistance = lastDistanceFromTarget;
         }
-
-        double diffBetweenCameraAndTarget = lastDistanceFromCamera - lastDistanceFromTarget;
 
         if (customDistance != 0) {
             lastDistance = customDistance;
@@ -398,9 +397,9 @@ public class DmShooterSubsystem extends StealthSubsystem {
         rpm = Math.clamp(rpm, MIN_RPM, MAX_RPM);
 
         // prevents constant resets of the RPM controller
-        if (Math.abs(targetRpm - rpm) >= VELOCITY_CHANGE_TOLERANCE) {
-            shootTimer.reset();
-        }
+//        if (Math.abs(targetRpm - rpm) >= VELOCITY_CHANGE_TOLERANCE) {
+//            shootTimer.reset();
+//        }
 
         targetRpm = rpm;
         setVelocity(rpmToTps(targetRpm));

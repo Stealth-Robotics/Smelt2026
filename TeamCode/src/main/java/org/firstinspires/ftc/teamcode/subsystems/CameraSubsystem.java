@@ -1,12 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.tools.Pipeline.BLUE_ALL;
-import static org.firstinspires.ftc.teamcode.tools.Pipeline.BLUE_AUDIENCE;
-import static org.firstinspires.ftc.teamcode.tools.Pipeline.BLUE_SCORE;
-import static org.firstinspires.ftc.teamcode.tools.Pipeline.RED_ALL;
-import static org.firstinspires.ftc.teamcode.tools.Pipeline.RED_AUDIENCE;
-import static org.firstinspires.ftc.teamcode.tools.Pipeline.RED_SCORE;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -38,7 +31,7 @@ public class CameraSubsystem extends StealthSubsystem
     /** The length of time to keep LLResults in the queue before removing them, in milliseconds. */
     private static final long QUEUE_DEFAULT_TIMEOUT_MS = 500;
 
-    /** Rotational difference in degrees between the Limelight's yaw and the robot's IMU yaw. */
+    /** Rotational difference in degrees between the Limelight's yaw and Pedro's IMU yaw. */
     private static final double LL_ANGLE_DELTA = 90;
 
     /** How many degrees back the Limelight is rotated from perfectly vertical. */
@@ -93,8 +86,13 @@ public class CameraSubsystem extends StealthSubsystem
         limelight.start();
     }
 
+    /**
+     * Gets the last valid result received from the Limelight within that last 40ms
+     * @return The last valid result received from the Limelight or null
+     */
     @Nullable
     public LLResult getLastResult() {
+        // TODO: Do we want to add averaging and standard deviation?
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
             this.lastResult = result;
@@ -112,7 +110,9 @@ public class CameraSubsystem extends StealthSubsystem
 
             telemetry.addData("Tags:", getTagIds(result));
             Pose pose = limelightToPedroPose(result.getBotpose());
-            telemetry.addData("Camera Pose: ","X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(),Math.toDegrees(pose.heading()));
+            telemetry.addData("Camera BOT Pose: ",  "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
+            pose = limelightToPedroPose(result.getBotpose_MT2());
+            telemetry.addData("Camera getBotpose_MT2","X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
 
         } else {
             areTagsVisible = false;
@@ -124,12 +124,20 @@ public class CameraSubsystem extends StealthSubsystem
         return limelight;
     }
 
+    /**
+     * Determine if any tags are visible
+     * @return true if any tags are visible otherwise false
+     */
     public boolean areTagsVisible() {
         return areTagsVisible;
     }
 
+    /**
+     * updates limelight MT2 orientation based on Pedro heading
+     * @param pedroHeading RADIAN heading from Pedro
+     */
     public void updateRobotOrientation(double pedroHeading){
-        double yaw = getCorrectedYaw(Math.toDegrees(pedroHeading));
+        double yaw = getCorrectedYaw(pedroHeading);
         limelight.updateRobotOrientation(yaw);
     }
 
@@ -140,30 +148,6 @@ public class CameraSubsystem extends StealthSubsystem
      */
     public Pipeline getCurrentPipeline() {
         return Pipeline.values()[limelight.getStatus().getPipelineIndex()];
-    }
-
-    public void toggleAllTagsPipeline() {
-        Pipeline cur = getCurrentPipeline();
-        switch (cur) {
-            case RED_ALL:
-                setPipeline(BLUE_ALL);
-                break;
-            case BLUE_ALL:
-                setPipeline(RED_SCORE);
-                break;
-            case RED_SCORE:
-                setPipeline(RED_AUDIENCE);
-                break;
-                case RED_AUDIENCE:
-                    setPipeline(BLUE_AUDIENCE);
-                break;
-            case BLUE_AUDIENCE:
-                setPipeline(BLUE_SCORE);
-                break;
-            default:
-                setPipeline(RED_ALL);
-                break;
-        }
     }
 
     /**
@@ -193,8 +177,49 @@ public class CameraSubsystem extends StealthSubsystem
         return Math.round(distance * 10) / 10.0; // round to 1 decimal places)
     }
 
+
+    /**
+     * Gets the adjusted tx angle in degrees aimed directly from the shooter
+     * to the center of the hive target, compensating for both:
+     * 1) Imbalanced AprilTag grouping (hive center offset)
+     * 2) Physical camera offset (4.5 inches left of shooter)
+     *
+     * @param result The LLResult from Limelight.
+     * @return The corrected tx angle for the shooter.
+     */
+    public double getAdjustedTx(@Nullable LLResult result) {
+        if (result == null || !result.isValid()) {
+            return 0.0;
+        }
+
+        double hiveGroupOffset = getAimingOffsetDegrees(result);
+        // telemetry.addData("Hive Group Offset", hiveGroupOffset);
+        double physicalOffset = getPhysicalCameraOffsetDegrees(result);
+
+        return result.getTx() + hiveGroupOffset + physicalOffset;
+    }
+
+    /**
+     * Converts the limelight coordinate system to the pedro coordinate system.
+     * @param botPose The pose of the bot in the limelight coordinate system.
+     * @return The pose of the bot in the Pedro coordinate system.
+     */
+    @NonNull
+    public static Pose limelightToPedroPose(@NonNull Pose3D botPose) {
+
+        Position p = botPose.getPosition().toUnit(DistanceUnit.INCH);
+        double llYawRad = botPose.getOrientation().getYaw(AngleUnit.RADIANS);
+
+        // Limelight uses a center field 0,0 and x and y are swapped. Yaw is also rotated by 90 degrees
+        return new Pose(
+                FieldConstants.FIELD_X_CENTER + p.y, // intentional field center is swapped with x and y
+                FieldConstants.FIELD_Y_CENTER - p.x,    // intentional field center is swapped with x and y
+                AngleUnit.normalizeRadians(llYawRad - Math.toRadians(LL_ANGLE_DELTA)));
+    }
+
     /**
      * Calculates distance to a goal by using the cameras Ty value
+     * NOTE: Not useful for BioBuzz
      * @param ty The Ty value from the camera
      *
      * @return The distance to the goal in inches
@@ -215,7 +240,12 @@ public class CameraSubsystem extends StealthSubsystem
         return heightDifference / Math.tan(totalAngleRadians);
     }
 
-    public double getAverageTa(@Nullable LLResult result) {
+    /**
+     * Gets the average Ta value from a LLResult
+     * @param result The LLResult
+     * @return The average Ta value
+     */
+    private double getAverageTa(@Nullable LLResult result) {
         if (result == null || !result.isValid()) {
             return 0.0;
         }
@@ -267,7 +297,7 @@ public class CameraSubsystem extends StealthSubsystem
      * @param tagId The AprilTag ID.
      * @return Relative index 0..3, or -1 if not a hive tag.
      */
-    public static int getRelativeTagIndex(int tagId) {
+    private static int getRelativeTagIndex(int tagId) {
         if (tagId >= 30 && tagId <= 33) return tagId - 30; // RED_SCORE
         if (tagId >= 34 && tagId <= 37) return tagId - 34; // RED_AUDIENCE
         if (tagId >= 38 && tagId <= 41) return tagId - 38; // BLUE_AUDIENCE
@@ -276,19 +306,11 @@ public class CameraSubsystem extends StealthSubsystem
     }
 
     /**
-     * Helper method that calculates the tag visibility bitmask (0..15) and
-     * locates the leftmost/rightmost detected tags for a given LLResult.
-     *
-     * @param result The LLResult.
-     * @return An integer array containing [bitmask, minIdx, maxIdx], or [0, -1, -1] if invalid.
-     */
-    /**
      * Helper method that calculates the tag visibility bitmask (0..15) for a given LLResult.
      *
      * @param result The LLResult.
      * @return The bitmask of detected tags.
      */
-    @NonNull
     private int getHiveBitmask(@Nullable LLResult result) {
         if (result == null || !result.isValid()) {
             return 0;
@@ -317,7 +339,7 @@ public class CameraSubsystem extends StealthSubsystem
      * @param distanceScale Default degrees per tag spacing to use if only 1 tag is detected.
      * @return The offset in degrees to add to result.getTx().
      */
-    public double getAimingOffsetDegrees(@Nullable LLResult result, double distanceScale) {
+    private double getAimingOffsetDegrees(@Nullable LLResult result, double distanceScale) {
         int bitmask = getHiveBitmask(result);
         if (bitmask == 0) {
             return 0.0;
@@ -332,7 +354,7 @@ public class CameraSubsystem extends StealthSubsystem
      * @param result The LLResult from Limelight.
      * @return The offset in degrees to add to result.getTx().
      */
-    public double getAimingOffsetDegrees(@Nullable LLResult result) {
+    private double getAimingOffsetDegrees(@Nullable LLResult result) {
         if (result == null || !result.isValid()) {
             return 0.0;
         }
@@ -345,14 +367,13 @@ public class CameraSubsystem extends StealthSubsystem
 
     /**
      * Calculates the angular correction in degrees needed to compensate for the Limelight's
-     * physical offset relative to the shooter centerline (4.5 inches to the left).
-     *
-     * Uses distance calculated from ty (calcGoalDistanceByTy).
+     * physical offset relative to the shooter centerline.
+     * Uses distance calculated from calcGoalDistanceByTa.
      *
      * @param result The LLResult from Limelight.
      * @return The angular offset in degrees to add to tx.
      */
-    public double getPhysicalCameraOffsetDegrees(@Nullable LLResult result) {
+    private double getPhysicalCameraOffsetDegrees(@Nullable LLResult result) {
         if (result == null || !result.isValid() || LIMELIGHT_Y_OFFSET_INCHES == 0) {
             return 0.0;
         }
@@ -370,64 +391,15 @@ public class CameraSubsystem extends StealthSubsystem
     }
 
     /**
-     * Gets the adjusted tx angle in degrees aimed directly from the shooter
-     * to the center of the hive target, compensating for both:
-     * 1) Imbalanced AprilTag grouping (hive center offset)
-     * 2) Physical camera offset (4.5 inches left of shooter)
-     *
-     * @param result The LLResult from Limelight.
-     * @return The corrected tx angle for the shooter.
-     */
-    public double getAdjustedTx(@Nullable LLResult result) {
-        if (result == null || !result.isValid()) {
-            return 0.0;
-        }
-
-        double hiveGroupOffset = getAimingOffsetDegrees(result);
-        // telemetry.addData("Hive Group Offset", hiveGroupOffset);
-        double physicalOffset = getPhysicalCameraOffsetDegrees(result);
-
-        return result.getTx() + hiveGroupOffset + physicalOffset;
-    }
-
-    /**
-     * Converts the limelight coordinate system to the pedro coordinate system.
-     * @param botPose The pose of the bot in the limelight coordinate system.
-     * @return The pose of the bot in the pedro coordinate system.
-     */
-    @NonNull
-    public static Pose limelightToPedroPose(@NonNull Pose3D botPose) {
-
-        double llYaw = botPose.getOrientation().getYaw(AngleUnit.DEGREES);
-        // Rotate the limelight by LL_ANGLE_DELTA to get the robot's heading
-        double imuAngle = (llYaw < 0) ? (360 + llYaw - LL_ANGLE_DELTA) : (llYaw - LL_ANGLE_DELTA);
-
-        // Ensure heading is within the 0-360 degree range
-        imuAngle %= 360;
-
-        // Convert position from Limelight's coordinate system (meters, field center)
-        // to the path follower's system (inches, red alliance corner).
-        Position position = botPose.getPosition().toUnit(DistanceUnit.INCH);
-
-        // Note: X and Y are swapped and adjusted for the different origins.
-        return new Pose(
-                (FieldConstants.FIELD_Y_CENTER) - (-position.y),
-                -position.x + FieldConstants.FIELD_X_CENTER,
-                Math.toRadians(imuAngle));
-    }
-
-    /**
      * Extracts the robot's yaw angle corrected for Limelight mounting offset.
      * This is the yaw value suitable for robot localizer updates.
      *
-     * @param pedroYaw The base yaw (in degrees) from the Pedro system/IMU.
+     * @param pedroYaw The base yaw (in radians) from the Pedro system/IMU.
      * @return The corrected yaw in degrees (0-360).
      */
-    public double getCorrectedYaw(double pedroYaw) {
-        // Rotate the limelight by LL_ANGLE_DELTA to get the robot's heading
-        double correctedYaw = (pedroYaw < 0) ? (360 + pedroYaw - LL_ANGLE_DELTA) : (pedroYaw - LL_ANGLE_DELTA);
-        // Ensure heading is within the 0-360 degree range
-        return correctedYaw % 360;
+    private double getCorrectedYaw(double pedroYaw) {
+        return Math.toDegrees(
+                AngleUnit.normalizeRadians(pedroYaw + Math.toRadians(LL_ANGLE_DELTA)));
     }
 
     /**

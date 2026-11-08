@@ -193,7 +193,7 @@ public class RobotSystem extends StealthSubsystem {
     public void updateCameraPipeline() {
 
         Pose cuPose = drive.getFollower().pose();
-        //camera.updateRobotOrientation(cuPose.heading());
+        camera.updateRobotOrientation(cuPose.heading());
 
         boolean isAudienceSide = cuPose.y() < FieldConstants.FIELD_Y_CENTER;
         Pipeline pipeline = Alliance.isBlue()

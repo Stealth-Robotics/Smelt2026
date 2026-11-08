@@ -6,6 +6,11 @@ import org.firstinspires.ftc.teamcode.subsystems.DmShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.HoodSubsystem;
 
 public class Trajectories {
+
+    /**
+     * Creates a new Hood interpolation table
+     * @return The hood table
+     */
     public static InterpLUT createHoodTable() {
         final double MIN_DISTANCE = HoodSubsystem.MIN_DISTANCE;
         final double MAX_DISTANCE = HoodSubsystem.MAX_DISTANCE;
@@ -24,12 +29,17 @@ public class Trajectories {
         rangeToHoodAngle.createLUT();
         return rangeToHoodAngle;
     }
+
+    /**
+     * Creates a new shooter interpolation table
+     * @return The shooter table
+     */
     public static InterpLUT createShooterTable() {
         final double MIN_DISTANCE = DmShooterSubsystem.MIN_DISTANCE;
         final double MAX_DISTANCE = DmShooterSubsystem.MAX_DISTANCE;
         InterpLUT rangeToRpm = new InterpLUT();
         rangeToRpm.add(MIN_DISTANCE - 0.1, 3100);
-        rangeToRpm.add(40.0, 3100);
+        rangeToRpm.add(40.0, 3110);
         rangeToRpm.add(45.0, 3140);
         rangeToRpm.add(50.0, 3144);
         rangeToRpm.add(55.0, 3146);

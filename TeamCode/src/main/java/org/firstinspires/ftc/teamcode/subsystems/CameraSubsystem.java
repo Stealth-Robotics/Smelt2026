@@ -1,9 +1,15 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.tools.Pipeline.*;
+import static org.firstinspires.ftc.teamcode.tools.Pipeline.BLUE_ALL;
+import static org.firstinspires.ftc.teamcode.tools.Pipeline.BLUE_AUDIENCE;
+import static org.firstinspires.ftc.teamcode.tools.Pipeline.BLUE_SCORE;
+import static org.firstinspires.ftc.teamcode.tools.Pipeline.RED_ALL;
+import static org.firstinspires.ftc.teamcode.tools.Pipeline.RED_AUDIENCE;
+import static org.firstinspires.ftc.teamcode.tools.Pipeline.RED_SCORE;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -17,13 +23,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.firstinspires.ftc.teamcode.tools.Pipeline;
-
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class CameraSubsystem extends StealthSubsystem
 {
@@ -55,6 +59,33 @@ public class CameraSubsystem extends StealthSubsystem
 
     private boolean areTagsVisible = false;
 
+    /**
+     * Lookup table mapping tag visibility bitmask (0 to 15) to offset in tag-spacing units.
+     * This is for limelight "smart" grouping of AprilTags as the aimpoint will shift base on tags seen
+     */
+    private static final double[] SPACING_OFFSET_LOOKUP = {
+            0.0,            // 0: None
+            7.4,            // 1: {0} -> target center is 1.5 spacings right
+            2.5,            // 2: {1} -> target center is 0.5 spacings right
+            5.6,            // 3: {0,1}
+            -2.5,           // 4: {2} -> target center is 0.5 spacings left
+            3.5,            // 5: {0,2}
+            0.0,            // 6: {1,2}
+            2.2,            // 7: {0,1,2}
+            -7.4,           // 8: {3} -> target center is 1.5 spacings left
+            0.0,            // 9: {0,3}
+            -2.5,           // 10: {1,3}
+            0.0,           // 11: {0,1,3}
+            -5.5,           // 12: {2,3}
+            -0.0,          // 13: {0,2,3}
+            -2.2,           // 14: {1,2,3}
+            0.0             // 15: {0,1,2,3}
+    };
+
+    // Used to compute per tag spacing offsets based on distance to target
+    private static final double TUNING_TA = 0.0058;
+    private static final double TUNING_SCALE = 0.45;
+
     public CameraSubsystem (HardwareMap hardwareMap){
         limelight = hardwareMap.get(Limelight3A.class, NAME);
         // setPollRate must be called before start
@@ -78,17 +109,11 @@ public class CameraSubsystem extends StealthSubsystem
         telemetry.addData("Pipeline:", getCurrentPipeline());
         if (result != null && result.isValid()) {
             areTagsVisible = true;
-////            telemetry.addData("Latency ms", result.getStaleness());
+
             telemetry.addData("Tags:", getTagIds(result));
-////            telemetry.addData("Tx:", result.getTx());
-////            telemetry.addData("Adjusted Tx", getAdjustedTx(result));
-//            telemetry.addData("Ta Distance", calcGoalDistanceByTa(result));
-//            telemetry.addData("Ty:", result.getTy());
-//            telemetry.addData("Area:", result.getTa());
-////            telemetry.addData("TY Distance", calcGoalDistanceByTy(result.getTy()));
-            telemetry.addData("Avg Ta: ", getAverageTa(result));
             Pose pose = limelightToPedroPose(result.getBotpose());
             telemetry.addData("Camera Pose: ","X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(),Math.toDegrees(pose.heading()));
+
         } else {
             areTagsVisible = false;
             telemetry.addData("Tags:", "None");
@@ -210,6 +235,11 @@ public class CameraSubsystem extends StealthSubsystem
         return calculateAverage(areas);
     }
 
+    /**
+     * Gets the tag IDs from a LLResult
+     * @param result The LLResult
+     * @return List of tag IDs
+     */
     private List<Integer> getTagIds(LLResult result ) {
         List<Integer> tags = new ArrayList<>();
         if (result == null || !result.isValid()) {
@@ -226,56 +256,8 @@ public class CameraSubsystem extends StealthSubsystem
     }
 
     /**
-     * Lookup table mapping tag visibility bitmask (0 to 15) to percentage offset of visible tag span.
-     * Bit 0 = leftmost tag (rel index 0), Bit 1 = middle-left (rel 1), Bit 2 = middle-right (rel 2), Bit 3 = rightmost (rel 3).
-     * Positive shifts right, negative shifts left.
-     */
-    private static final double[] PERCENT_OFFSET_LOOKUP = {
-        0.0,            // 0: None
-        0.0,            // 1: {0} (single tag)
-        0.0,            // 2: {1} (single tag)
-        1.0,            // 3: {0,1} -> shift right +100% of visible span
-        0.0,            // 4: {2} (single tag)
-        0.25,           // 5: {0,2} -> shift right +25% of visible span
-        0.0,            // 6: {1,2} -> balanced middle tags (0%)
-        0.25,           // 7: {0,1,2} -> shift right +25% of visible span
-        0.0,            // 8: {3} (single tag)
-        0.0,            // 9: {0,3} -> balanced outer tags (0%)
-        -0.25,          // 10: {1,3} -> shift left -25% of visible span
-        1.0 / 18.0,     // 11: {0,1,3} -> shift right +5.56% of visible span
-        -1.0,           // 12: {2,3} -> shift left -100% of visible span
-        -1.0 / 18.0,    // 13: {0,2,3} -> shift left -5.56% of visible span
-        -0.25,          // 14: {1,2,3} -> shift left -25% of visible span
-        0.0             // 15: {0,1,2,3} -> balanced all 4 tags (0%)
-    };
-
-    /**
-     * Lookup table mapping tag visibility bitmask (0 to 15) to offset in tag-spacing units.
-     * Used for single-tag fallbacks or spacing-based calculations.
-     */
-    private static final double[] SPACING_OFFSET_LOOKUP = {
-        0.0,            // 0: None
-        1.5,            // 1: {0} -> target center is 1.5 spacings right
-        0.5,            // 2: {1} -> target center is 0.5 spacings right
-        1.0,            // 3: {0,1}
-        -0.5,           // 4: {2} -> target center is 0.5 spacings left
-        0.5,            // 5: {0,2}
-        0.0,            // 6: {1,2}
-        0.5,            // 7: {0,1,2}
-        -1.5,           // 8: {3} -> target center is 1.5 spacings left
-        0.0,            // 9: {0,3}
-        -0.5,           // 10: {1,3}
-        0.25,              // 11: {0,1,3}
-        -1.0,           // 12: {2,3}
-        -0.25,     // 13: {0,2,3}
-        -0.5,           // 14: {1,2,3}
-        0.0             // 15: {0,1,2,3}
-    };
-
-    /**
      * Returns the relative index (0 to 3, from left to right facing the hive)
      * of an AprilTag within its hive group.
-     *
      * Subtracts the hive's base AprilTag ID:
      * - RED_SCORE:   IDs 30..33 -> base 30
      * - RED_AUDIENCE:  IDs 34..37 -> base 34
@@ -300,145 +282,48 @@ public class CameraSubsystem extends StealthSubsystem
      * @param result The LLResult.
      * @return An integer array containing [bitmask, minIdx, maxIdx], or [0, -1, -1] if invalid.
      */
+    /**
+     * Helper method that calculates the tag visibility bitmask (0..15) for a given LLResult.
+     *
+     * @param result The LLResult.
+     * @return The bitmask of detected tags.
+     */
     @NonNull
-    private HiveDetectionData processHiveDetections(@Nullable LLResult result) {
+    private int getHiveBitmask(@Nullable LLResult result) {
         if (result == null || !result.isValid()) {
-            return new HiveDetectionData(0, null, null, -1, -1);
+            return 0;
         }
 
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         if (fiducials == null || fiducials.isEmpty()) {
-            return new HiveDetectionData(0, null, null, -1, -1);
+            return 0;
         }
 
         int bitmask = 0;
-        LLResultTypes.FiducialResult minTag = null;
-        LLResultTypes.FiducialResult maxTag = null;
-        int minIdx = 4;
-        int maxIdx = -1;
-
         for (LLResultTypes.FiducialResult fr : fiducials) {
             int relIdx = getRelativeTagIndex(fr.getFiducialId());
             if (relIdx >= 0 && relIdx <= 3) {
                 bitmask |= (1 << relIdx);
-                if (relIdx < minIdx) {
-                    minIdx = relIdx;
-                    minTag = fr;
-                }
-                if (relIdx > maxIdx) {
-                    maxIdx = relIdx;
-                    maxTag = fr;
-                }
             }
         }
 
-        if (maxIdx == -1) {
-            return new HiveDetectionData(0, null, null, -1, -1);
-        }
-
-        return new HiveDetectionData(bitmask, minTag, maxTag, minIdx, maxIdx);
-    }
-
-    // Sloth does not support records :(
-    private static final class HiveDetectionData {
-        private final int bitmask;
-        private final LLResultTypes.FiducialResult minTag;
-        private final LLResultTypes.FiducialResult maxTag;
-        private final int minIdx;
-        private final int maxIdx;
-
-        private HiveDetectionData(int bitmask, LLResultTypes.FiducialResult minTag,
-                                  LLResultTypes.FiducialResult maxTag, int minIdx, int maxIdx) {
-            this.bitmask = bitmask;
-            this.minTag = minTag;
-            this.maxTag = maxTag;
-            this.minIdx = minIdx;
-            this.maxIdx = maxIdx;
-        }
-
-        public int bitmask() {
-            return bitmask;
-        }
-
-        public LLResultTypes.FiducialResult minTag() {
-            return minTag;
-        }
-
-        public LLResultTypes.FiducialResult maxTag() {
-            return maxTag;
-        }
-
-        public int minIdx() {
-            return minIdx;
-        }
-
-        public int maxIdx() {
-            return maxIdx;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (obj == null || obj.getClass() != this.getClass()) return false;
-            var that = (HiveDetectionData) obj;
-            return this.bitmask == that.bitmask &&
-                    Objects.equals(this.minTag, that.minTag) &&
-                    Objects.equals(this.maxTag, that.maxTag) &&
-                    this.minIdx == that.minIdx &&
-                    this.maxIdx == that.maxIdx;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(bitmask, minTag, maxTag, minIdx, maxIdx);
-        }
-
-        @Override
-        public String toString() {
-            return "HiveDetectionData[" +
-                    "bitmask=" + bitmask + ", " +
-                    "minTag=" + minTag + ", " +
-                    "maxTag=" + maxTag + ", " +
-                    "minIdx=" + minIdx + ", " +
-                    "maxIdx=" + maxIdx + ']';
-        }
-
-        }
-
-    /**
-     * Calculates the offset as a percentage/fraction of the visible tag span using the lookup table.
-     * For example, if left two tags are seen (bitmask 3), returns +1.0 (+100% shift right).
-     *
-     * @param result The LLResult from Limelight.
-     * @return The percentage offset from the lookup table (-1.0 to +1.0).
-     */
-    public double getAimingOffsetPercentage(@Nullable LLResult result) {
-        HiveDetectionData data = processHiveDetections(result);
-        return PERCENT_OFFSET_LOOKUP[data.bitmask];
+        return bitmask;
     }
 
     /**
      * Calculates the aiming offset in degrees using the lookup table.
      *
      * @param result The LLResult from Limelight.
-     * @param fallbackDegreesPerSpacing Default degrees per tag spacing to use if only 1 tag is detected.
+     * @param distanceScale Default degrees per tag spacing to use if only 1 tag is detected.
      * @return The offset in degrees to add to result.getTx().
      */
-    public double getAimingOffsetDegrees(@Nullable LLResult result, double fallbackDegreesPerSpacing) {
-        HiveDetectionData data = processHiveDetections(result);
-
-        if (data.bitmask == 0) {
+    public double getAimingOffsetDegrees(@Nullable LLResult result, double distanceScale) {
+        int bitmask = getHiveBitmask(result);
+        if (bitmask == 0) {
             return 0.0;
         }
 
-        // If 2 or more tags visible, compute degrees per spacing from the detected outer tags
-        if (data.maxIdx > data.minIdx && data.minTag != null && data.maxTag != null) {
-            double angleSpan = data.maxTag.getTargetXDegrees() - data.minTag.getTargetXDegrees();
-            return PERCENT_OFFSET_LOOKUP[data.bitmask] * angleSpan;
-        } else {
-            // Single tag visible - use spacing lookup table and fallback conversion factor
-            return SPACING_OFFSET_LOOKUP[data.bitmask] * fallbackDegreesPerSpacing;
-        }
+        return SPACING_OFFSET_LOOKUP[bitmask] * distanceScale;
     }
 
     /**
@@ -448,7 +333,14 @@ public class CameraSubsystem extends StealthSubsystem
      * @return The offset in degrees to add to result.getTx().
      */
     public double getAimingOffsetDegrees(@Nullable LLResult result) {
-        return getAimingOffsetDegrees(result, 0.0);
+        if (result == null || !result.isValid()) {
+            return 0.0;
+        }
+
+        double avgTa = getAverageTa(result);
+        double scale = Math.pow(avgTa / TUNING_TA, TUNING_SCALE);
+
+        return getAimingOffsetDegrees(result, scale);
     }
 
     /**
@@ -492,12 +384,17 @@ public class CameraSubsystem extends StealthSubsystem
         }
 
         double hiveGroupOffset = getAimingOffsetDegrees(result);
+        // telemetry.addData("Hive Group Offset", hiveGroupOffset);
         double physicalOffset = getPhysicalCameraOffsetDegrees(result);
 
         return result.getTx() + hiveGroupOffset + physicalOffset;
     }
 
-
+    /**
+     * Converts the limelight coordinate system to the pedro coordinate system.
+     * @param botPose The pose of the bot in the limelight coordinate system.
+     * @return The pose of the bot in the pedro coordinate system.
+     */
     @NonNull
     public static Pose limelightToPedroPose(@NonNull Pose3D botPose) {
 

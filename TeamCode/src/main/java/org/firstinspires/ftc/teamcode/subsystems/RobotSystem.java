@@ -47,9 +47,9 @@ public class RobotSystem extends StealthSubsystem {
     public RobotSystem(HardwareMap hardwareMap, GamepadEx driver, GamepadEx operator) {
         camera = new CameraSubsystem(hardwareMap);
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
+        gateSubsystem = new GateSubsystem(hardwareMap);
         shooter = new DmShooterSubsystem(hardwareMap, this);
         drive = new DriveSubsystem(hardwareMap, this);
-        gateSubsystem = new GateSubsystem(hardwareMap);
         harvesterSubsystem = new HarvesterSubsystem(hardwareMap);
         this.manShootDist= DmShooterSubsystem.DEFAULT_SHOOT_DISTANCE;
         this.driver = driver;
@@ -135,12 +135,12 @@ public class RobotSystem extends StealthSubsystem {
     @Override
     public void periodic(){
         updateCameraPipeline();
-        telemetry.addData("Man Distance", manShootDist);
+//        telemetry.addData("Man Distance", manShootDist);
 
 //        telemetry.addData("Alliance: ", Alliance.get());
 //        telemetry.addData("Slow Motion", drive.isSlowMo());
 //        telemetry.addData("Robot Centric", drive.isRobotCentric());
-        telemetry.addData("Hold Mode", drive.isHoldMode());
+//        telemetry.addData("Hold Mode", drive.isHoldMode());
         Pose pose = drive.getFollower().pose();
         telemetry.addData("Current Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
 
@@ -177,11 +177,11 @@ public class RobotSystem extends StealthSubsystem {
             return new SequentialCommandGroup(
                     new InstantCommand(() -> intakeSubsystem.setAutoOuttake(true)),
                     new WaitCommand(500),
-                    new InstantCommand(gateSubsystem::openGate),
+                    new InstantCommand(gateSubsystem::open),
                     new InstantCommand(() -> shooter.setUnjam(true)));
         }
         return new SequentialCommandGroup(
-                new InstantCommand(gateSubsystem::closeGate),
+                new InstantCommand(gateSubsystem::close),
                 new InstantCommand(() -> intakeSubsystem.setAutoOuttake(false)),
                 new InstantCommand(() -> shooter.setUnjam(false)));
     }
@@ -193,7 +193,7 @@ public class RobotSystem extends StealthSubsystem {
     public void updateCameraPipeline() {
 
         Pose cuPose = drive.getFollower().pose();
-        camera.updateRobotOrientation(cuPose.heading());
+        //camera.updateRobotOrientation(cuPose.heading());
 
         boolean isAudienceSide = cuPose.y() < FieldConstants.FIELD_Y_CENTER;
         Pipeline pipeline = Alliance.isBlue()

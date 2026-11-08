@@ -111,24 +111,17 @@ public class DriveSubsystem extends StealthSubsystem
         double strafePow = strafe.getAsDouble() * currentPower * invert;
         double rotatePow = rotate.getAsDouble() * currentPower;
 
-        Pose pose = getPose();
-        double targetError = Targets.getAngleErrorToTarget(pose);
-        telemetry.addData("Angle Error To Target", "%.2f", Targets.getAngleErrorToTarget(pose));
+        lastTxDelta = Targets.getAngleErrorToTarget( getPose());
 
         LLResult result = camera.getLastResult();
         if (result != null && result.isValid()) {
-            double txDelta = camera.getAdjustedTx(result);
-            lastTxDelta = txDelta;
-            if (autoAim) {
-                rotatePow = getScaledTxOutput(txDelta, AUTO_AIM_TOLERANCE);
-            }
-        } else {
-
-            lastTxDelta = targetError; // Assuming tx scale roughly matches degrees
-            if (autoAim) {
-                rotatePow = getScaledPoseOutput(targetError, AUTO_AIM_BACKUP_TOLERANCE);
-            }
+            lastTxDelta = camera.getAdjustedTx(result);
         }
+
+        if (autoAim) {
+            rotatePow = getScaledTxOutput(lastTxDelta, AUTO_AIM_TOLERANCE);
+        }
+
 
         return robotCentric ?
                 new DrivePowers(forwardPow, strafePow, rotatePow) :

@@ -40,7 +40,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** Ticks per revolution for the motor. */
     private static final double MOTOR_TICKS_REV = 28;
     /** The gear ratio between the motor and the shooter. */
-    private static final double GEAR_RATIO = 1;
+    private static final double GEAR_RATIO = 1.125;
     /** Telemetry used for debugging and robot feedback. */
     private final Telemetry telemetry = StealthOpMode.telemetry;
     /** Timer to track how long the shooter has been active. */
@@ -66,8 +66,6 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private static final double MAX_SHOOT_TIME_MS = 2000;
     /** The current target RPM. */
     private double targetRpm = 0;
-    /** The current measured RPM. */
-    private double currentRpm = 0;
     /** Last known distance, used to resume shooting if no distance is provided. */
     private double lastDistance = 0;
 
@@ -98,7 +96,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
     private double kfScaler = .95;
 
-    private InterpLUT rangeToRpm;
+    private final InterpLUT rangeToRpm;
 
     /** The robot system instance containing other subsystems. */
     private final RobotSystem robot;
@@ -106,6 +104,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private final HoodSubsystem hood;
 
     private final IntakeSubsystem intake;
+
+    private final GateSubsystem gate;
 
     public enum ShootState {
         NOT_SHOOTING,
@@ -140,8 +140,9 @@ public class DmShooterSubsystem extends StealthSubsystem {
         shooterMotor2.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, baseKf);
         shooterMotor2.setPositionPIDFCoefficients(5.0);
         shooterMotor2.setTargetPositionTolerance(20);
-        //shooterMotor1.pi
+
         intake = robot.getIntake();
+        gate = robot.getGateSubsystem();
         rangeToRpm = Trajectories.createShooterTable();
     }
 
@@ -154,19 +155,54 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
     @Override
     public void periodic() {
+        // Apply battery voltage compensation to feedforward (kF)
+        updateVoltageCompensation();
+        // Update the distance
+        updateDistance();
+
+        // if we are shooting or waiting to shoot
+        if (isActiveShot()) {
+
+            // Do not run the intake/transfer until the shooter is ready
+            if (shootState == ShootState.WAITING_TO_SHOOT) {
+                setFeeding(false);
+            }
+
+            // We've hit target RPM, let them fly
+            if (isShootReady() || shootState == ShootState.SHOOTING) {
+                shootState = ShootState.SHOOTING;
+                gate.open();
+                // wait for the gate to open before feeding
+                if (gate.isOpen()) {
+                    setFeeding(true);
+                }
+            } else {
+                shootState = ShootState.WAITING_TO_SHOOT;
+
+                // only update the hood and RPM while we are waiting to shoot
+                // this keeps jitter from happening when we are shooting
+                hood.setHoodAngle(lastDistance);
+                setRpmFromRange(lastDistance);
+                setFeeding(false);
+            }
+        }
+    }
+    /**
+     * Updates the distance to the goal based on the camera's results, the robot's pose, or a custom distance.
+     */
+    private void updateDistance() {
         CameraSubsystem camera = robot.getCamera();
 
-        // Update distance to goal regardless of shoot state
         LLResult result = camera.getLastResult();
-        double lastDistanceFromCamera = 0.0;
-        double lastDistanceFromTarget = Targets.getDistanceToTarget(robot.getDrive().getPose());
+        double lastCameraDistance = 0.0;
+        double lastBotPoseDistance = Targets.getDistanceToTarget(robot.getDrive().getPose());
+
         if (result != null && result.isValid()) {
-            if (shootState == ShootState.NOT_SHOOTING) {
-                lastDistanceFromCamera = camera.calcGoalDistanceByTa(result);
-                lastDistance = lastDistanceFromCamera;
-            }
+            // we have a valid limelight result
+            lastCameraDistance = camera.calcGoalDistanceByTa(result);
+            lastDistance = lastCameraDistance;
         } else {
-            lastDistance = lastDistanceFromTarget;
+            lastDistance = lastBotPoseDistance;
         }
 
         if (customDistance != 0) {
@@ -175,47 +211,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
             lastDistance = DEFAULT_SHOOT_DISTANCE;
         }
 
-        double currentVoltage = getBatteryVoltage();
-////        telemetry.addData("Battery Voltage", "%.2f V", currentVoltage);
-//
-        telemetry.addData("Camera Distance", "%.2f", lastDistanceFromCamera);
-        telemetry.addData("Position Distance", "%.2f", lastDistanceFromTarget);
-//        telemetry.addData("Difference of distances", diffBetweenCameraAndTarget);
-//        telemetry.addData("Last Distance", lastDistance);
-//        telemetry.addData("Custom Dist", customDistance);
-//        telemetry.addData("Hood Angle", hood.getAngle());
-//        telemetry.addData("Target RPM", getTargetRpm());
-//        telemetry.addData("Current RPM", getCurrentRpm());
-//        telemetry.addData("Hood Position", hood.getPosition());
-
-
-        // if we are shooting or waiting to shoot
-        if (isActiveShot()) {
-
-            // Apply battery voltage compensation to feedforward (kF)
-            updateVoltageCompensation(currentVoltage);
-
-            // set the hood angle to the distance
-            hood.setHoodAngle(lastDistance);
-
-            // set the target RPMs for the distance
-            setRpmFromRange(lastDistance);
-
-            // Do not run the intake/transfer until the shooter is ready
-            if (shootState == ShootState.WAITING_TO_SHOOT) {
-                setFeeding(false);
-            }
-
-            // Handle automatic intake control based on shooting readiness
-            if (isShootReady()) {
-                shootState = ShootState.SHOOTING;
-                robot.getGateSubsystem().openGate();
-                setFeeding(true);
-            } else {
-                shootState = ShootState.WAITING_TO_SHOOT;
-                setFeeding(false);
-                }
-            }
+//        telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
+//        telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
+//        telemetry.addData("Using Distance", "%.2f", lastDistance);
+//        telemetry.addData("Target RPM", "%.2f", getRpmFromRange(lastDistance));
     }
 
     /**
@@ -233,15 +232,14 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /**
      * Updates the motor PIDF coefficients with voltage-compensated feedforward (kF).
      *
-     * @param currentVoltage Current measured battery voltage.
      */
-    private void updateVoltageCompensation(double currentVoltage) {
+    private void updateVoltageCompensation() {
+        double currentVoltage = getBatteryVoltage();
         if (currentVoltage > 8.0 && currentVoltage < NOMINAL_VOLTAGE) {
             double voltageDelta = (NOMINAL_VOLTAGE / currentVoltage) - 1.0;
             double compensatedKf = baseKf * (1.0 + (voltageDelta * kfScaler));
             shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
             shooterMotor2.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
-            //telemetry.addData("Compensated KF", "%.4f", compensatedKf);
         }
     }
 
@@ -264,15 +262,15 @@ public class DmShooterSubsystem extends StealthSubsystem {
             return false;
         }
 
-        currentRpm = getCurrentRpm();
-        double curMs = shootTimer.milliseconds();
-
-        // Prevent immediate "ready" status by requiring a minimum runtime
-        if (curMs < MIN_SHOOT_TIME_MS) {
-            return false;
-        }
+//        double curMs = shootTimer.milliseconds();
+//
+//        // Prevent immediate "ready" status by requiring a minimum runtime
+//        if (curMs < MIN_SHOOT_TIME_MS) {
+//            return false;
+//        }
 
         // Ready if RPM is within tolerance
+        double currentRpm = getCurrentRpm();
         return (currentRpm - targetRpm >= VELOCITY_TOLERANCE_LOW) && (currentRpm - targetRpm <= VELOCITY_TOLERANCE_HIGH)
                 ;//|| (curMs > MAX_SHOOT_TIME_MS);
     }
@@ -308,7 +306,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         baseKi = ki;
         baseKd = kd;
         baseKf = kf;
-        updateVoltageCompensation(getBatteryVoltage());
+        updateVoltageCompensation();
     }
 
     /**
@@ -327,7 +325,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
     public void setKfScaler(double kfScaler) {
         this.kfScaler = kfScaler;
-        updateVoltageCompensation(getBatteryVoltage());
+        updateVoltageCompensation();
     }
 
     /**
@@ -352,7 +350,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         customDistance = 0;
         shooterMotor1.setPower(floatPower);
         shooterMotor2.setPower(floatPower);
-        robot.getGateSubsystem().closeGate();
+        gate.close();
         setFeeding(false);
     }
 
@@ -395,11 +393,6 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
         // Clamp the RPM to the allowable min/max range to prevent motor damage or unexpected behavior.
         rpm = Math.clamp(rpm, MIN_RPM, MAX_RPM);
-
-        // prevents constant resets of the RPM controller
-//        if (Math.abs(targetRpm - rpm) >= VELOCITY_CHANGE_TOLERANCE) {
-//            shootTimer.reset();
-//        }
 
         targetRpm = rpm;
         setVelocity(rpmToTps(targetRpm));

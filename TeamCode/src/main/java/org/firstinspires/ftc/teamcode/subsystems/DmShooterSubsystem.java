@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 
 import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.util.InterpLUT;
@@ -19,8 +18,6 @@ import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.firstinspires.ftc.teamcode.tools.Trajectories;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
-
-import java.util.function.DoubleSupplier;
 
 /**
  * Subsystem that controls a single shooter motor using a PIDF controller.
@@ -52,9 +49,6 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** RPM tolerance for considering the target reached. */
     private static final double VELOCITY_TOLERANCE_LOW = -50;
 
-
-    /** Threshold for RPM changes to reset the PID controller. */
-    private static final double VELOCITY_CHANGE_TOLERANCE = 50;
     /** Maximum allowable RPM. */
     public static final double MAX_RPM = 5400;
     /** Minimum allowable RPM (negative for reverse). */
@@ -75,7 +69,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;
 
-    private static final double FLOAT_DEFAULT_POWER = .55;
+    private static final double FLOAT_DEFAULT_POWER = .6;
     /** Minimum distance for lookup tables. */
     public static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
@@ -116,7 +110,9 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private ShootState shootState = ShootState.NOT_SHOOTING;
 
     // Allows for autonomous shooting overrides the distance calculation
-    private double customDistance = 0;
+    private double customDistance = DEFAULT_SHOOT_DISTANCE;
+
+    private  boolean useCustomDistance = false;
 
     /**
      * Constructs a new DmShooterSubsystem.
@@ -145,10 +141,6 @@ public class DmShooterSubsystem extends StealthSubsystem {
         gate = robot.getGateSubsystem();
         rangeToRpm = Trajectories.createShooterTable();
     }
-
-    /**
-     * Initializes the interpolation tables for distance-based lookups.
-     */
 
     /**
      * Periodic update for the subsystem. Handles PID control and state transitions.
@@ -185,8 +177,11 @@ public class DmShooterSubsystem extends StealthSubsystem {
                 setRpmFromRange(lastDistance);
                 setFeeding(false);
             }
+        } else {
+            setFloatPower(floatPower);
         }
     }
+
     /**
      * Updates the distance to the goal based on the camera's results, the robot's pose, or a custom distance.
      */
@@ -205,10 +200,15 @@ public class DmShooterSubsystem extends StealthSubsystem {
             lastDistance = lastBotPoseDistance;
         }
 
-        if (customDistance != 0) {
+        if (customDistance != 0 && useCustomDistance) {
             lastDistance = customDistance;
+            telemetry.addData("Using Custom Distance", "%.2f", lastDistance);
         }else if (lastDistance == 0) {
             lastDistance = DEFAULT_SHOOT_DISTANCE;
+        }
+
+        if (boostRpm != 0) {
+            telemetry.addData("Boost RPM", "%.2f", boostRpm);
         }
 
 //        telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
@@ -226,6 +226,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         if (voltageSensor != null) {
             return voltageSensor.getVoltage();
         }
+
         return NOMINAL_VOLTAGE;
     }
 
@@ -243,6 +244,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
         }
     }
 
+    public void setUseCustomDistance(boolean useIt) {
+        this.useCustomDistance = useIt;
+    }
+
     public HoodSubsystem getHood(){
         return hood;
     }
@@ -250,6 +255,14 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private void setFeeding(boolean feed) {
         intake.setAutoIntake(feed);
         // TODO: add the stopper servo
+    }
+
+    public void adjustCustomDistance(double increment) {
+        this.customDistance += increment;
+    }
+
+    public void resetCustomDistance() {
+        this.customDistance = DEFAULT_SHOOT_DISTANCE;
     }
 
     /**
@@ -347,11 +360,15 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
     public void stop() {
         shootState = ShootState.NOT_SHOOTING;
-        customDistance = 0;
-        shooterMotor1.setPower(floatPower);
-        shooterMotor2.setPower(floatPower);
+        useCustomDistance = false;
+        setFloat();
         gate.close();
         setFeeding(false);
+    }
+
+    public void setFloat() {
+        shooterMotor1.setPower(floatPower);
+        shooterMotor2.setPower(floatPower);
     }
 
     /**
@@ -371,10 +388,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
     public void setDistance(double distance) {
         customDistance = distance;
-    }
-
-    public Command supplyDistance(DoubleSupplier distanceSupplier){
-        return new InstantCommand(() -> customDistance = distanceSupplier.getAsDouble());
+        useCustomDistance = true;
     }
 
     /**
@@ -405,11 +419,12 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
     public void setFloatPower(double power) {
         floatPower = power;
+        setFloat();
     }
 
     public void toggleFloatPower(){
         floatPower = floatPower > 0 ? 0 : FLOAT_DEFAULT_POWER;
-        stop();
+        setFloat();
     }
 
     /**
@@ -510,18 +525,6 @@ public class DmShooterSubsystem extends StealthSubsystem {
         }
     }
 
-    /**
-     * Returns a command that shoots at a specific distance.
-     *
-     * @param distance The distance to the target.
-     * @return A command that performs the shoot action.
-     */
-    public Command shootCmd(double distance) {
-        return runOnce(() -> {
-            customDistance = distance;
-            setStartShoot(true);
-        });
-    }
 
     /**
      * Returns a command that resets the boost RPM.
@@ -606,6 +609,14 @@ public class DmShooterSubsystem extends StealthSubsystem {
                 .andThen(new WaitUntilCommand(this::isShootReady))
                 .andThen(new WaitCommand(durationMs))
                 .andThen(stopShootCmd());
+    }
+
+    public Command startFloatCmd() {
+        return runOnce(()-> setFloatPower(FLOAT_DEFAULT_POWER));
+    }
+
+    public Command stopFloatCmd() {
+        return runOnce(()-> setFloatPower(0));
     }
 
     public void setUnjam(boolean run) {

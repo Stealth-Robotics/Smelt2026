@@ -1,16 +1,13 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.Command;
-
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.stealthrobotics.library.commands.IfCommand;
 
 // This show how to build a conditional path auto.
@@ -37,7 +34,7 @@ public class FarDoubleShoot extends BioBuzzAutos {
         super();
         PoseFactory poseFactory;
         if (mirror) {
-            poseFactory = PoseFactory.degrees().mirrorX(FieldConstants.FIELD_X_MAX / 2);
+            poseFactory = PoseFactory.degrees().rotateAround(FIELD_CENTER,180);
         } else {
             poseFactory = PoseFactory.degrees();
         }
@@ -126,16 +123,16 @@ public class FarDoubleShoot extends BioBuzzAutos {
                 //,drive.followPathCommand(park())
         );
     }
-    @Autonomous (name = "Red Far Double Shoot park", group = "RED")
+    //@Autonomous (name = "Red ScoreTable Double Shoot park", group = "RED")
     public static class RedFarDoubleShoot extends FarDoubleShoot {
         public RedFarDoubleShoot() {
             super(false);
         }
     }
 
-    @Autonomous (name = "Blue Far Double Shoot park", group = "BLUE")
-    public static class BlueFarDoubleShoot extends FarDoubleShoot {
-        public BlueFarDoubleShoot() {
+    //@Autonomous (name = "Blue Audience Double Shoot park", group = "BLUE")
+    public static class BlueAudience2ShootPark extends FarDoubleShoot {
+        public BlueAudience2ShootPark() {
             super(true);
         }
     }

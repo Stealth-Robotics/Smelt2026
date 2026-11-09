@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.stealthrobotics.library.commands.IfCommand;
 
-@Autonomous(name = "Checker Far Blue Auto")
+@Autonomous(name = "Checker Far Blue Auto", group = "BLUE")
 public class CheckerFarBlueAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees()

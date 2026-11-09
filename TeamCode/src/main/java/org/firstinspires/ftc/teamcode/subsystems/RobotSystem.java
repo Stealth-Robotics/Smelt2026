@@ -33,7 +33,7 @@ public class RobotSystem extends StealthSubsystem {
     private final HarvesterSubsystem harvesterSubsystem;
     private final DriveSubsystem drive;
     private final CameraSubsystem camera;
-    public double manShootDist;
+
     /** Telemetry for robot status information */
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
@@ -51,7 +51,6 @@ public class RobotSystem extends StealthSubsystem {
         shooter = new DmShooterSubsystem(hardwareMap, this);
         drive = new DriveSubsystem(hardwareMap, this);
         harvesterSubsystem = new HarvesterSubsystem(hardwareMap);
-        this.manShootDist= DmShooterSubsystem.DEFAULT_SHOOT_DISTANCE;
         this.driver = driver;
         this.operator = operator;
 
@@ -94,25 +93,19 @@ public class RobotSystem extends StealthSubsystem {
         driver.getGamepadButton(GamepadKeys.Button.X)
                 .whenPressed(shooter::toggleFloatPower);
 
-        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(()->shooter.setDistance(manShootDist));
-
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
-                ()-> {
-                    this.manShootDist = this.manShootDist + 0.5;
-                } );
-
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
-                ()-> {
-                    this.manShootDist = this.manShootDist - 0.5;
-                } );
-
-
+        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(()->shooter.setUseCustomDistance(true));
 
         // --- Operator Controls ---
 
 //        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
 //                .whenPressed(shooter.startShootCmd())
 //                .whenReleased(shooter.stopShootCmd());
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
+                ()-> shooter.adjustCustomDistance(0.5));
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
+                ()-> shooter.adjustCustomDistance(-0.5));
 
         operator.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(()->drive.setAutoAim(true)).whenReleased(() -> drive.setAutoAim(false));
@@ -127,7 +120,10 @@ public class RobotSystem extends StealthSubsystem {
                 .whenPressed(harvesterSubsystem.harvToggleCmd());
 
         operator.getGamepadButton(GamepadKeys.Button.Y)
-                .whenPressed(()-> manShootDist = DmShooterSubsystem.DEFAULT_SHOOT_DISTANCE);
+                .whenPressed(shooter::resetCustomDistance);
+
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()->shooter.setBoostRpm(100));
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->shooter.setBoostRpm(0));
 
     }
 
@@ -141,7 +137,7 @@ public class RobotSystem extends StealthSubsystem {
 //        telemetry.addData("Slow Motion", drive.isSlowMo());
 //        telemetry.addData("Robot Centric", drive.isRobotCentric());
 //        telemetry.addData("Hold Mode", drive.isHoldMode());
-        Pose pose = drive.getFollower().pose();
+        Pose pose = drive.getPose();
         telemetry.addData("Current Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
 
     }

@@ -63,7 +63,13 @@ public class IntakeSubsystem extends StealthSubsystem {
             return;
         }
 
-        currentMode = run ? IntakeMode.AUTO : IntakeMode.OFF;
+        IntakeMode newMode = run ? IntakeMode.AUTO : IntakeMode.OFF;
+        if (currentMode.isEqual(newMode)) {
+            return;
+        }
+
+        currentMode = newMode;
+
         if (run) {
             intake.setPower(SHOOT_POWER);
         } else {
@@ -75,13 +81,11 @@ public class IntakeSubsystem extends StealthSubsystem {
         return runOnce(() -> setAutoIntake(run));
     }
 
-    public Command startAutoIntakeCommand(boolean deployPollenWedge) {
-        // TODO: build this out with servo and pollen wedge
+    public Command startAutoIntakeCommand() {
         return setAutoIntakeCommand(true);
     }
 
     public Command stopAutoIntakeCommand() {
-        // TODO: Retract pollen wedge if out
         return setAutoIntakeCommand(false);
     }
 

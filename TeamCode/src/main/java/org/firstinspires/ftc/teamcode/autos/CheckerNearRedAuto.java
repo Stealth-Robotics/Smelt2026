@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.stealthrobotics.library.commands.IfCommand;
 
-@Autonomous(name = "Checker Near Red Auto")
+@Autonomous(name = "Checker Near Red Auto", group = "RED")
 public class CheckerNearRedAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees();

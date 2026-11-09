@@ -327,7 +327,7 @@ public class DriveSubsystem extends StealthSubsystem
      */
     public Command followPathCmd(Path path, boolean holdPoint){
         return runOnce(() -> follower.follow(path))
-                .andThen(new WaitUntilCommand(follower::atParametricEnd)
+                .andThen(new WaitUntilCommand(() -> !follower.following())
                         .whenFinished(() -> { if (holdPoint) follower.hold(path.endPose()); }));
     }
 
@@ -339,7 +339,7 @@ public class DriveSubsystem extends StealthSubsystem
      */
     public Command followPathCmd(Path path, long timeout, boolean holdPoint){
         return runOnce(() -> follower.follow(path))
-                .andThen(new WaitUntilCommand(follower::atParametricEnd).withTimeout(timeout))
+                .andThen(new WaitUntilCommand(() -> !follower.following()).withTimeout(timeout))
                 .whenFinished(() -> {
                     if (holdPoint) follower.hold(path.endPose());
                 });

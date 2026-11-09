@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.stealthrobotics.library.commands.IfCommand;
 
-@Autonomous(name = "Checker Far Red Auto", group = "BLUE")
+@Autonomous(name = "Checker Far Red Auto", group = "RED")
 public class CheckerFarRedAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees()
@@ -69,6 +69,8 @@ public class CheckerFarRedAuto extends BioBuzzAutos
         follower.setPose(start);
     }
 
+    public double defaultDistance = 51;
+
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
@@ -78,11 +80,11 @@ public class CheckerFarRedAuto extends BioBuzzAutos
                         // Tags Seen == TRUE
                         new SequentialCommandGroup
                                 (
-                                        shootSequenceCmd(51),
+                                        shootSequenceCmd(defaultDistance),
                                         startHarvestingCmd(),
                                         drive.followPathCmd(harvest()),
                                         drive.followPathCmd(check()),
-                                        shootSequenceCmd(51),
+                                        shootSequenceCmd(defaultDistance),
                                         stopHarvestingCmd(),
                                         drive.followPathCmd(goParkForTrue())
                                 ),
@@ -91,7 +93,7 @@ public class CheckerFarRedAuto extends BioBuzzAutos
                                 (
                                         drive.followPathCmd(goShootOtherSide()),
                                         drive.followPathCmd(shootOtherSide()),
-                                        shootSequenceCmd(51),
+                                        shootSequenceCmd(defaultDistance),
                                         drive.followPathCmd(goParkForFalse())
                                 )
                 )

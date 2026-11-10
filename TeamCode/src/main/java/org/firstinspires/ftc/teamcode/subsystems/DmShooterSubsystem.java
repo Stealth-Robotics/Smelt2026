@@ -611,6 +611,16 @@ public class DmShooterSubsystem extends StealthSubsystem {
                 .andThen(stopShootCmd());
     }
 
+    public Command shootSlow() {
+        return runOnce(()-> setBoostRpm(-100))
+                .andThen(runOnce(()->setStartShoot(true)));
+    }
+    //makes us shoot more precise. meant for when we have a few balls, 1 or 2
+    public Command stopShootSlow() {
+        return runOnce(()-> setBoostRpm(0))
+                .andThen(runOnce(()->setStartShoot(false)));
+    }
+    //STOPS the shoot more precise/shootSlow command.
     public Command startFloatCmd() {
         return runOnce(()-> setFloatPower(FLOAT_DEFAULT_POWER));
     }

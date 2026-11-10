@@ -79,8 +79,8 @@ public class RobotSystem extends StealthSubsystem {
         driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(drive.resetPositionCmd(true) );
 
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(drive.setSlowMoCmd(true))
-                .whenReleased(drive.setSlowMoCmd(false));
+                .whenPressed(shooter.shootSlow())
+                .whenReleased(shooter.stopShootSlow());
 
         driver.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(drive.setAutoAimCmd(true))

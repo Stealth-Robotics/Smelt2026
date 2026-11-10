@@ -318,7 +318,9 @@ public class DriveSubsystem extends StealthSubsystem
     public Command setStartPoseCmd(Pose pose){
         return runOnce(() -> follower.setPose(pose));
     }
-
+    public Command followPathCmd(Path path, long timeout){
+        return runOnce(()-> followPathCmd(path,timeout,false));
+    }
     /**
      * Follows a path with then optionally holds at the end point
      * @param path to follow path

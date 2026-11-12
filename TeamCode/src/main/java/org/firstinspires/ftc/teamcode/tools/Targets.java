@@ -15,7 +15,7 @@ public class Targets {
     private static final Pose RED_SCORE_CELL = new Pose(58, 83.63);
 
     // Height from camera to April tag center (in inches)
-    private static final double HEIGHT = 42.5;
+    private static final double HEIGHT = 38;
 
     /**
      * Gets the distance to the target in inches. Calculates for height of target

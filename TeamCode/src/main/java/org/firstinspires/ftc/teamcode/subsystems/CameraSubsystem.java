@@ -84,6 +84,7 @@ public class CameraSubsystem extends StealthSubsystem
         // setPollRate must be called before start
         limelight.setPollRateHz(250);
         limelight.start();
+        limelight.pipelineSwitch(Pipeline.RED_AUDIENCE.id);
     }
 
     /**

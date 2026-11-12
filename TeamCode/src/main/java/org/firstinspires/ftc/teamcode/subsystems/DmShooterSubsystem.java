@@ -211,8 +211,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
             telemetry.addData("Boost RPM", "%.2f", boostRpm);
         }
 
-//        telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
-//        telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
+        telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
+        telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
 //        telemetry.addData("Using Distance", "%.2f", lastDistance);
 //        telemetry.addData("Target RPM", "%.2f", getRpmFromRange(lastDistance));
     }

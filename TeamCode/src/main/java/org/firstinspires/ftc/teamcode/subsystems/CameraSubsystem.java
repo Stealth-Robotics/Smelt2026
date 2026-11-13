@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.firstinspires.ftc.teamcode.tools.Pipeline;
 import org.firstinspires.ftc.teamcode.tools.Targets;
+import org.firstinspires.ftc.teamcode.tools.Trajectories;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -102,7 +103,19 @@ public class CameraSubsystem extends StealthSubsystem
 
         return this.lastResult != null && lastResult.getStaleness() < 40 ? lastResult : null;
     }
-
+    public boolean canUpdate (LLResult result, Pose pose) {
+        if (result != null && result.isValid()) {
+            if (result.getFiducialResults().size() > 3) {
+                Pose camPose = limelightToPedroPose(result.getBotpose());
+                double taDistance = getAverageTa(result);
+                double camDistance = Targets.getDistanceToTarget(camPose);
+                if (Math.abs(taDistance - camDistance) < 1 && taDistance < 62 && taDistance > 40) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     @Override
     public void periodic(){
         LLResult result = getLastResult();

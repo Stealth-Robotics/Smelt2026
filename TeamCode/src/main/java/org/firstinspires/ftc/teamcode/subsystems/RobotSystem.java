@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.math.Pose;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -131,6 +132,7 @@ public class RobotSystem extends StealthSubsystem {
     @Override
     public void periodic(){
         updateCameraPipeline();
+
 //        telemetry.addData("Man Distance", manShootDist);
 
 //        telemetry.addData("Alliance: ", Alliance.get());
@@ -187,8 +189,14 @@ public class RobotSystem extends StealthSubsystem {
      * Assumes the drive subsystem's follower is initialized.
      */
     public void updateCameraPipeline() {
-
         Pose cuPose = drive.getFollower().pose();
+        LLResult result = camera.getLastResult();
+        if (result != null && result.isValid()){
+            if (camera.canUpdate(result, cuPose)){
+                drive.getFollower().setPose(camera.limelightToPedroPose(result.getBotpose_MT2()));
+            }
+        }
+
         camera.updateRobotOrientation(cuPose.heading());
 
         boolean isAudienceSide = cuPose.y() < FieldConstants.FIELD_Y_CENTER;

@@ -9,10 +9,10 @@ public class Targets {
     // Hive cell target poses (in inches) center of the April tags to align with vision data
     // X from red alliance to blue alliance 0 - 141.5
     // Y is from audience to scoring side 0 - 141.5
-    private static final Pose BLUE_SCORE_CELL = new Pose(83.5,83.63);
-    private static final Pose BLUE_AUDIENCE_CELL = new Pose(83.5, 57.87);
-    private static final Pose RED_AUDIENCE_CELL = new Pose(58,57.87);
-    private static final Pose RED_SCORE_CELL = new Pose(58, 83.63);
+    private static final Pose BLUE_SCORE_TAGS = new Pose(83.5,83.63);
+    private static final Pose BLUE_AUDIENCE_TAGS = new Pose(83.5, 57.87);
+    private static final Pose RED_AUDIENCE_TAGS = new Pose(58,57.87);
+    private static final Pose RED_SCORE_TAGS = new Pose(58, 83.63);
 
     // Height from camera to April tag center (in inches)
     private static final double HEIGHT = 38;
@@ -61,7 +61,7 @@ public class Targets {
      */
     public static Pose getTarget(Pose robotPose) {
         return Alliance.isRed() ?
-                (robotPose.y() > FieldConstants.FIELD_Y_CENTER ? RED_SCORE_CELL : RED_AUDIENCE_CELL) :
-                (robotPose.y() < FieldConstants.FIELD_Y_CENTER ? BLUE_AUDIENCE_CELL : BLUE_SCORE_CELL);
+                (robotPose.y() > FieldConstants.FIELD_Y_CENTER ? RED_SCORE_TAGS : RED_AUDIENCE_TAGS) :
+                (robotPose.y() < FieldConstants.FIELD_Y_CENTER ? BLUE_AUDIENCE_TAGS : BLUE_SCORE_TAGS);
     }
 }

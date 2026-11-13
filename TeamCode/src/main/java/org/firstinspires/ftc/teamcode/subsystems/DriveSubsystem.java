@@ -51,13 +51,6 @@ public class DriveSubsystem extends StealthSubsystem
             0.0
     );
 
-    private final PIDFController fieldHeadingController = new PIDFController(
-            0.02,
-            0.0001,
-            0.0015,
-            0.0
-    );
-
     private double kiNear = 0.12;
     private double kiFar = 0.0001;
     private boolean kiSet = false;
@@ -104,6 +97,11 @@ public class DriveSubsystem extends StealthSubsystem
         }
     }
 
+
+    /**
+     * Calculates the drive powers based on the gamepad inputs and auto aim powers.
+     * @return The drive powers to be applied to the robot.
+     */
     private DrivePowers calculateDrivePowers() {
         double invert = Alliance.isBlue() && !robotCentric ? -1 : 1;
         double currentPower = isSlowMo() ? SLOW_POWER : MAX_POWER;
@@ -114,6 +112,7 @@ public class DriveSubsystem extends StealthSubsystem
         lastTxDelta = Targets.getAngleErrorToTarget( getPose());
 
         LLResult result = camera.getLastResult();
+        // TODO:create algorithm to override camera distance to bot pose distance
         if (result != null && result.isValid()) {
             lastTxDelta = camera.getAdjustedTx(result);
         }
@@ -128,6 +127,10 @@ public class DriveSubsystem extends StealthSubsystem
                 ManualDrive.fieldCentric(forwardPow, strafePow, rotatePow, follower.pose().heading());
     }
 
+    /**
+     * Applies the drive powers to the robot.
+     * @param powers The drive powers to be applied to the robot.
+     */
     private void drive(DrivePowers powers) {
 
         if (hold) {
@@ -137,6 +140,12 @@ public class DriveSubsystem extends StealthSubsystem
         }
     }
 
+    /**
+     * Gets the scaled Tx power for Auto-aim based on the current Tx delta.
+     * @param txDelta The current Tx delta.
+     * @param tolerance Tolerance in degrees to consider the robot aimed.
+     * @return The scaled Tx power.
+     */
     private double getScaledTxOutput(double txDelta, double tolerance) {
 
         if (Math.abs(txDelta) < tolerance) {
@@ -165,16 +174,6 @@ public class DriveSubsystem extends StealthSubsystem
         // Setpoint is 0 degrees offset; calculate error using current txDelta measurement.
         headingController.setSetPoint(0);
         double pidOutput = headingController.calculate(txDelta);
-        return Math.clamp(pidOutput, -MAX_ROTATION_POWER, MAX_ROTATION_POWER);
-    }
-
-    private double getScaledPoseOutput(double headingError, double tolerance) {
-        if(Math.abs(headingError) < tolerance) {
-            fieldHeadingController.clearTotalError();
-            return 0;
-        }
-        fieldHeadingController.setSetPoint(0);
-        double pidOutput = fieldHeadingController.calculate(headingError);
         return Math.clamp(pidOutput, -MAX_ROTATION_POWER, MAX_ROTATION_POWER);
     }
 
@@ -318,8 +317,15 @@ public class DriveSubsystem extends StealthSubsystem
     public Command setStartPoseCmd(Pose pose){
         return runOnce(() -> follower.setPose(pose));
     }
+
+    /**
+     * Follows a path with a timeout and no hold
+     * @param path Pedro path to follow
+     * @param timeout number of milliseconds to wait for path to finish
+     * @return Command to follow path
+     */
     public Command followPathCmd(Path path, long timeout){
-        return runOnce(()-> followPathCmd(path,timeout,false));
+        return followPathCmd(path, timeout,false);
     }
     /**
      * Follows a path with then optionally holds at the end point
@@ -330,7 +336,14 @@ public class DriveSubsystem extends StealthSubsystem
     public Command followPathCmd(Path path, boolean holdPoint){
         return runOnce(() -> follower.follow(path))
                 .andThen(new WaitUntilCommand(() -> !follower.following())
-                        .whenFinished(() -> { if (holdPoint) follower.hold(path.endPose()); }));
+                        .whenFinished(() -> {
+                            setHoldMode(holdPoint);
+                            if (holdPoint) {
+                                follower.hold(path.endPose());
+                            }
+                            setAutoAim(false);
+                            follower.update();
+                        }));
     }
 
     /**
@@ -343,7 +356,13 @@ public class DriveSubsystem extends StealthSubsystem
         return runOnce(() -> follower.follow(path))
                 .andThen(new WaitUntilCommand(() -> !follower.following()).withTimeout(timeout))
                 .whenFinished(() -> {
-                    if (holdPoint) follower.hold(path.endPose());
+                    setHoldMode(holdPoint);
+                    if (holdPoint) {
+                        follower.hold(path.endPose());
+                    }
+
+                    setAutoAim(false);
+                    follower.update();
                 });
     }
 

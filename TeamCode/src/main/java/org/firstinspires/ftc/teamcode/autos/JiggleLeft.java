@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.autos;
 
-import static com.pedropathing.api.Paths.*;
 import com.pedropathing.api.Paths;
-
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
@@ -10,16 +8,15 @@ import com.pedropathing.paths.Path;
 public class JiggleLeft{
     public JiggleLeft(PoseFactory poseFactory) {
         this.poseFactory = poseFactory;
-        start = poseFactory.of(13.1, 47, 0);
-        jiggle1 = poseFactory.of(14.5, 47.5, 0);
-        jiggle2Start = poseFactory.of(14.5, 47.5, 0);
-        jiggle2 = poseFactory.of(14, 46.5, 0);
-        jiggle3Start = poseFactory.of(14, 46.5, 0);
+        start = poseFactory.of(12, 47, 180);
+        jiggle1 = poseFactory.of(13, 47, 180);
+        jiggle2 = poseFactory.of(13, 46, 180);
+        jiggle3Start = poseFactory.of(13, 46, 180);
     }
     private final PoseFactory poseFactory;
     private final Pose start;
     private final Pose jiggle1;
-    private final Pose jiggle2Start;
+
     private final Pose jiggle2;
     private final Pose jiggle3Start;
 
@@ -28,7 +25,7 @@ public class JiggleLeft{
     }
 
     public Path jiggle2() {
-        return Paths.line(jiggle2Start, jiggle2).linear(jiggle2Start, jiggle2);
+        return Paths.line(jiggle1, jiggle2).linear(jiggle1, jiggle2);
     }
 
     public Path jiggle3() {

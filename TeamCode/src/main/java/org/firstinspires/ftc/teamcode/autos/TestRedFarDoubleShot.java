@@ -9,6 +9,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.interpolator.Interpolator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.stealthrobotics.library.commands.IfCommand;
@@ -18,9 +19,9 @@ public class TestRedFarDoubleShot extends BioBuzzAutos{
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(59.9032, FieldConstants.FIELD_Y_MAX - FieldConstants.ROBOT_CENTER_Y, 90);
+    private final Pose start = poseFactory.of(60, FieldConstants.FIELD_Y_MAX - FieldConstants.ROBOT_CENTER_Y, 90);
     private final Pose readyShoot = poseFactory.of(46.75, 118.75, 90);
-    private final Pose readyShootControl1 = poseFactory.of(61.7869, 118.5712, 0);
+    private final Pose readyShootControl1 = poseFactory.of(61.78, 118.57, 0);
     private final Pose harvest = poseFactory.of(46.75, 129, 90);
     private final Pose shootToo = poseFactory.of(46.75, 118.75, 110);
     private final Pose shootTooSegment1Heading = poseFactory.of(46.75, 118.75, 90);
@@ -48,7 +49,7 @@ public class TestRedFarDoubleShot extends BioBuzzAutos{
     }
 
     public Path parkIt() {
-        return Paths.line(shootToo, parkIt).tangent();
+        return Paths.line(shootToo, parkIt).tangent().with(Constants.foresightConfig.holdPointTranslationalScaling.at(0.0) );
     }
 
     public void initialize() {
@@ -59,30 +60,33 @@ public class TestRedFarDoubleShot extends BioBuzzAutos{
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shooter.startFloatCmd(), // TODO: move to below a 4 or so second wait
                 drive.followPathCmd(readyShoot()),
                 harvester.harvDownCmd(),
-                waitForTagsCmd(10000),
+                waitCmd(2000), // Might as well wait a little
+                shooter.startFloatCmd(),
+                waitForTagsCmd(8000),
                 new IfCommand(this::getTagSeen,
                         // Tags Seen == TRUE
                         new SequentialCommandGroup(
                                 shootSequenceCmd(),
                                 shooter.stopFloatCmd(),
                                 startHarvestingCmd(),
-                                drive.followPathCmd(harvest()),
+                                drive.followPathCmd(harvest(), 2000),
                                 waitCmd(2000),
                                 shooter.startFloatCmd(),
                                 drive.followPathCmd(shootToo()),
                                 stopHarvestingCmd(),
                                 shootSequenceCmd(),
-                                shooter.stopFloatCmd(),
-                                drive.followPathCmd(parkIt())
+                                shooter.stopFloatCmd()
                         ),
                         // FALSE NO TAGS SEEN GO AND SHOOT OTHER SIDE
                         // TODO:finish this
                         new SequentialCommandGroup(
-                                drive.followPathCmd(parkIt())
-                        ))
+                                stopHarvestingCmd(),
+                                shooter.stopFloatCmd()
+                        )),
+                // Outside the if statement
+                drive.followPathCmd(parkIt(), false)
                 );
     }
 }

@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.firstinspires.ftc.teamcode.tools.Pipeline;
+import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -111,9 +112,10 @@ public class CameraSubsystem extends StealthSubsystem
 
             telemetry.addData("Tags:", getTagIds(result));
             Pose pose = limelightToPedroPose(result.getBotpose());
-            telemetry.addData("Camera BOT Pose: ",  "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
+            telemetry.addData("Camera Pose: ",  "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
             pose = limelightToPedroPose(result.getBotpose_MT2());
-            telemetry.addData("Camera getBotpose_MT2","X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
+            telemetry.addData("Camera MT2 Pose","X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
+            telemetry.addData("MT2 Distance to Target", "%.2f", Targets.getDistanceToTarget(pose));
 
         } else {
             areTagsVisible = false;

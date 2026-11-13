@@ -44,10 +44,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private final ElapsedTime shootTimer = new ElapsedTime();
 
     /** RPM tolerance for considering the target reached. */
-    private static final double VELOCITY_TOLERANCE_HIGH = 150;
+    private static final double VELOCITY_TOLERANCE_HIGH = 75;
 
     /** RPM tolerance for considering the target reached. */
-    private static final double VELOCITY_TOLERANCE_LOW = -50;
+    private static final double VELOCITY_TOLERANCE_LOW = -25;
 
     /** Maximum allowable RPM. */
     public static final double MAX_RPM = 5400;
@@ -64,12 +64,12 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double lastDistance = 0;
 
     /** Default distance used when no distance is specified. */
-    public static final double DEFAULT_SHOOT_DISTANCE = 59;
+    public static final double DEFAULT_SHOOT_DISTANCE = 60;
 
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;
 
-    private static final double FLOAT_DEFAULT_POWER = .6;
+    private static final double FLOAT_DEFAULT_POWER = 0.67;
     /** Minimum distance for lookup tables. */
     public static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
@@ -83,10 +83,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** Nominal voltage for feedforward calculation (12V baseline). */
     private final double NOMINAL_VOLTAGE = 13.1;
 
-    private double baseKp = 1.0;
+    private double baseKp = 2.0; // 1.0; // 1.0 for white transfer 2.0 for black
     private double baseKi = 0.2;
     private double baseKd = 0.0;
-    private double baseKf = 12.19;
+    private double baseKf = 12.78; // 12.19; for white 12.35 for black
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
     private double kfScaler = .95;
 

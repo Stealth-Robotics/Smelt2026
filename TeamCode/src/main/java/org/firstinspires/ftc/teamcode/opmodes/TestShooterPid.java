@@ -16,10 +16,10 @@ public class TestShooterPid extends StealthOpMode {
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    private double kf = 12.16; //12.16  2.0
-    private double kp = 0.7; //0.7 5.8
+    private double kf = 12.35; //12.16  2.0
+    private double kp = 2.0; //0.7 5.8
 
-    private double ki = 0.0;
+    private double ki = 0.2;
 
     private  double rpm = 3400;
 
@@ -114,6 +114,8 @@ public class TestShooterPid extends StealthOpMode {
            telemetry.addData("KP","%.6f", kp);
            telemetry.addData("KF","%.6f", kf);
            telemetry.addData("KI","%.6f", ki);
+           telemetry.addData("TargetRPM", robotSystem.getShooter().getTargetRpm());
+           telemetry.addData("CurrentRPM", robotSystem.getShooter().getCurrentRpm());
         });
     }
 }

@@ -20,12 +20,12 @@ public class TestRedFarDoubleShot extends BioBuzzAutos{
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
     private final Pose start = poseFactory.of(60, FieldConstants.FIELD_Y_MAX - FieldConstants.ROBOT_CENTER_Y, 90);
-    private final Pose readyShoot = poseFactory.of(46.75, 118.75, 90);
-    private final Pose readyShootControl1 = poseFactory.of(61.78, 118.57, 0);
+    private final Pose readyShoot = poseFactory.of(46.75, 120, 90);
+    private final Pose readyShootControl1 = poseFactory.of(61.78, 120, 0);
     private final Pose harvest = poseFactory.of(46.75, 129, 90);
-    private final Pose shootToo = poseFactory.of(46.75, 118.75, 110);
-    private final Pose shootTooSegment1Heading = poseFactory.of(46.75, 118.75, 90);
-    private final Pose parkIt = poseFactory.of(13.75, 118.75, 180);
+    private final Pose shootToo = poseFactory.of(46.75, 120, 110);
+    private final Pose shootTooSegment1Heading = poseFactory.of(46.75, 120, 90);
+    private final Pose parkIt = poseFactory.of(13.75, 120, 180);
 
 
 

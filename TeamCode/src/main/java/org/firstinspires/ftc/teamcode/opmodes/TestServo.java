@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.HoodSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-@TeleOp(name = "TestServo Gate", group = "Tests")
+@TeleOp(name = "TestServo Hood", group = "Tests")
 public class TestServo extends StealthOpMode {
     private GamepadEx driver;
     private GamepadEx operator;
@@ -39,13 +39,14 @@ public class TestServo extends StealthOpMode {
         // Change Servo here to test different servos
         //servo = new HarvesterSubsystem(hardwareMap).getServo();
         servo = new HoodSubsystem(hardwareMap).getServo();
-        robotSystem.getDrive().setDriver(driver);
         servo.setPosition(position);
         configBindings();
         schedule(this.printInfo());
     }
 
     private void configBindings() {
+        robotSystem.configDriverBindings();
+
         operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()-> {
             position += stepSizes[stepIndex];
             servo.setPosition(position);

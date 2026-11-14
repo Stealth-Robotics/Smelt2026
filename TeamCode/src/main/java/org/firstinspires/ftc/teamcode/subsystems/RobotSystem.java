@@ -10,6 +10,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
@@ -38,6 +39,9 @@ public class RobotSystem extends StealthSubsystem {
     /** Telemetry for robot status information */
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
+    private static final ElapsedTime poseTimer = new ElapsedTime();
+    private static final double POSE_TIMEOUT_MS = 5000;
+    private boolean updatePose = false;
     /**
      * Initializes the robot system with the provided hardware map and gamepads.
      *
@@ -54,7 +58,6 @@ public class RobotSystem extends StealthSubsystem {
         harvesterSubsystem = new HarvesterSubsystem(hardwareMap);
         this.driver = driver;
         this.operator = operator;
-
     }
 
 
@@ -62,9 +65,14 @@ public class RobotSystem extends StealthSubsystem {
      * Configures gamepad bindings for both the driver and the operator.
      */
     public void configureBindings() {
+        configDriverBindings();
+        configOperatorBindings();
+    }
+
+    public void configDriverBindings() {
         // --- Driver Controls ---
         drive.setDriver(driver);
-
+        setUpdatePose(true);
         // intake is analog left reverses and right intakes
         intakeSubsystem.setDefaultCommand(intakeSubsystem.runIntakeCommand(
                 () -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
@@ -79,9 +87,13 @@ public class RobotSystem extends StealthSubsystem {
         // Reset the position to the audience side corner wall
         driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(drive.resetPositionCmd(true) );
 
+//        driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+//                .whenPressed(shooter.shootSlow())
+//                .whenReleased(shooter.stopShootSlow());
+
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(shooter.shootSlow())
-                .whenReleased(shooter.stopShootSlow());
+                .whenPressed(drive.setSlowMoCmd(true))
+                .whenReleased(drive.setSlowMoCmd(false));
 
         driver.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(drive.setAutoAimCmd(true))
@@ -96,11 +108,13 @@ public class RobotSystem extends StealthSubsystem {
 
         driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(()->shooter.setUseCustomDistance(true));
 
+    }
+
+    public void configOperatorBindings() {
         // --- Operator Controls ---
 
-//        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-//                .whenPressed(shooter.startShootCmd())
-//                .whenReleased(shooter.stopShootCmd());
+        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenPressed(this::togglePositionUpdates);
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
                 ()-> shooter.adjustCustomDistance(0.5));
@@ -123,26 +137,33 @@ public class RobotSystem extends StealthSubsystem {
         operator.getGamepadButton(GamepadKeys.Button.Y)
                 .whenPressed(shooter::resetCustomDistance);
 
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()->shooter.setBoostRpm(100));
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->shooter.setBoostRpm(0));
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()->shooter.adjustBoostRpmCmd(50));
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->shooter.adjustBoostRpmCmd(-50));
 
     }
-
-
     @Override
     public void periodic(){
         updateCameraPipeline();
-
-//        telemetry.addData("Man Distance", manShootDist);
+        updateDrivePosition();
 
 //        telemetry.addData("Alliance: ", Alliance.get());
 //        telemetry.addData("Slow Motion", drive.isSlowMo());
 //        telemetry.addData("Robot Centric", drive.isRobotCentric());
-//        telemetry.addData("Hold Mode", drive.isHoldMode());
-        Pose pose = drive.getPose();
-        telemetry.addData("Current Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
+        telemetry.addData("Hold Mode", drive.isHoldMode());
+        telemetry.addData("Position Updates", updatePose);
+//        Pose pose = drive.getPose();
+//        telemetry.addData("Current Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
 
     }
+
+    public void setUpdatePose(boolean update) {
+        this.updatePose = update;
+    }
+
+    public void togglePositionUpdates() {
+        updatePose = !updatePose;
+    }
+
     public GateSubsystem getGateSubsystem(){
         return gateSubsystem;
     }
@@ -185,18 +206,28 @@ public class RobotSystem extends StealthSubsystem {
     }
 
     /**
+     * Reads the Limelight 3D position and updates the robot's field position.
+     */
+    public void updateDrivePosition() {
+        if (!updatePose) {
+            return;
+        }
+
+        LLResult result = camera.getLastResult();
+        if (result != null && result.isValid()){
+            if (camera.canUpdate(result) && poseTimer.milliseconds() > POSE_TIMEOUT_MS){
+                poseTimer.reset();
+                drive.updatePosition(CameraSubsystem.limelightToPedroPose(result.getBotpose_MT2()));
+            }
+        }
+    }
+
+    /**
      * Updates the camera pipeline based on the robot's current pose.
      * Assumes the drive subsystem's follower is initialized.
      */
     public void updateCameraPipeline() {
         Pose cuPose = drive.getFollower().pose();
-        LLResult result = camera.getLastResult();
-        if (result != null && result.isValid()){
-            if (camera.canUpdate(result, cuPose)){
-                drive.getFollower().setPose(camera.limelightToPedroPose(result.getBotpose_MT2()));
-            }
-        }
-
         camera.updateRobotOrientation(cuPose.heading());
 
         boolean isAudienceSide = cuPose.y() < FieldConstants.FIELD_Y_CENTER;

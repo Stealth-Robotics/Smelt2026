@@ -75,10 +75,13 @@ public class DriveSubsystem extends StealthSubsystem
             follower.setPose(Alliance.isBlue() ? BLUE_AUDIENCE_POSE : RED_AUDIENCE_POSE);
         }
 
-        //follower.localizer.reset();
         setTeleOp(false);
     }
 
+    /**
+     * Sets the gamepad inputs for the drive subsystem.
+     * @param driver The gamepad to use for input.
+     */
     public void setDriver(GamepadEx driver) {
         forward = driver::getLeftY;
         strafe =  () -> -driver.getLeftX();
@@ -109,18 +112,22 @@ public class DriveSubsystem extends StealthSubsystem
         double strafePow = strafe.getAsDouble() * currentPower * invert;
         double rotatePow = rotate.getAsDouble() * currentPower;
 
-        lastTxDelta = Targets.getAngleErrorToTarget( getPose());
+        double targetAngle = Targets.getAngleErrorToTarget(getPose());
 
         LLResult result = camera.getLastResult();
-        // TODO:create algorithm to override camera distance to bot pose distance
         if (result != null && result.isValid()) {
-            lastTxDelta = camera.getAdjustedTx(result);
+            // Only use camera Tx if the distance is in range
+            if (camera.getValidCamDistance(result) > 0
+                    || !AutoToTeleOpStorage.isPoseValid()) {
+                lastTxDelta = camera.getAdjustedTx(result);
+            }
+        } else {
+            lastTxDelta = targetAngle;
         }
 
         if (autoAim) {
             rotatePow = getScaledTxOutput(lastTxDelta, AUTO_AIM_TOLERANCE);
         }
-
 
         return robotCentric ?
                 new DrivePowers(forwardPow, strafePow, rotatePow) :
@@ -134,7 +141,7 @@ public class DriveSubsystem extends StealthSubsystem
     private void drive(DrivePowers powers) {
 
         if (hold) {
-            ManualDrive.driveOrHold(follower, powers, 0.05, 0.1);
+            ManualDrive.driveOrHold(follower, powers);
         } else {
             follower.manual(powers);
         }
@@ -268,12 +275,33 @@ public class DriveSubsystem extends StealthSubsystem
         return runOnce(this::toggleHoldMode);
     }
 
-    public void Drive(double forward, double strafe, double rotate){
+    public void drive(double forward, double strafe, double rotate){
         follower.manual(new com.pedropathing.drivetrain.DrivePowers(forward, strafe, rotate));
     }
 
     public Follower getFollower(){
         return follower;
+    }
+
+    public void updatePosition(Pose pose) {
+        boolean oldHold = isHoldMode();
+        setHoldMode(false);
+        follower.update();
+
+        follower.setPose(pose);
+        drive(0, 0, 0);
+        follower.update();
+        AutoToTeleOpStorage.setPose(pose);
+        setHoldMode(oldHold);
+    }
+
+    public Command updatePositionCmd(Pose pose) {
+        boolean oldHold = isHoldMode();
+        return runOnce(() -> setHoldMode(false))
+                .andThen(runOnce(follower::update))
+                .andThen(runOnce(() -> follower.setPose(pose)))
+                .andThen(runOnce(follower::update))
+                .andThen(runOnce(() -> setHoldMode(oldHold)));
     }
 
     /**
@@ -286,7 +314,8 @@ public class DriveSubsystem extends StealthSubsystem
                 .andThen(runOnce(follower::update))
                 .andThen(runOnce(this::resetHeading))
                 .andThen(runOnce(follower::update))
-                .andThen(runOnce(() -> setHoldMode(oldHold)));
+                .andThen(runOnce(() -> setHoldMode(oldHold)))
+                .andThen(runOnce(()-> AutoToTeleOpStorage.setPose(getPose())));
     }
 
     /**

@@ -14,8 +14,10 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.tools.AutoToTeleOpStorage;
 import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.firstinspires.ftc.teamcode.tools.Trajectories;
+import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -69,7 +71,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;
 
-    private static final double FLOAT_DEFAULT_POWER = 0.67;
+    private static final double FLOAT_DEFAULT_POWER = 0.6;
     /** Minimum distance for lookup tables. */
     public static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
@@ -83,10 +85,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** Nominal voltage for feedforward calculation (12V baseline). */
     private final double NOMINAL_VOLTAGE = 13.1;
 
-    private double baseKp = 2.0; // 1.0; // 1.0 for white transfer 2.0 for black
-    private double baseKi = 0.2;
+    private double baseKp = 1.0; // 1.0; // 1.0 for white transfer 2.0 for black
+    private double baseKi = 0.13;
     private double baseKd = 0.0;
-    private double baseKf = 12.78; // 12.19; for white 12.35 for black
+    private double baseKf = 13.0; // 12.19; for white 12.35 for black
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
     private double kfScaler = .95;
 
@@ -186,18 +188,20 @@ public class DmShooterSubsystem extends StealthSubsystem {
      * Updates the distance to the goal based on the camera's results, the robot's pose, or a custom distance.
      */
     private void updateDistance() {
-        CameraSubsystem camera = robot.getCamera();
 
-        LLResult result = camera.getLastResult();
-        double lastCameraDistance = 0.0;
+
         double lastBotPoseDistance = Targets.getDistanceToTarget(robot.getDrive().getPose());
+        CameraSubsystem camera = robot.getCamera();
+        LLResult result = camera.getLastResult();
 
-        if (result != null && result.isValid()) {
-            // we have a valid limelight result
-            lastCameraDistance = camera.calcGoalDistanceByTa(result);
+        double lastCameraDistance = camera.getValidCamDistance(result);
+        // Only use camera distance if it is good
+        if (lastCameraDistance > 0) {
             lastDistance = lastCameraDistance;
-        } else {
+            telemetry.addData("Using Camera Distance", lastCameraDistance);
+        } else if (AutoToTeleOpStorage.isPoseValid()) {
             lastDistance = lastBotPoseDistance;
+            telemetry.addData("Using Bot Pose Distance", lastBotPoseDistance);
         }
 
         if (customDistance != 0 && useCustomDistance) {
@@ -205,14 +209,15 @@ public class DmShooterSubsystem extends StealthSubsystem {
             telemetry.addData("Using Custom Distance", "%.2f", lastDistance);
         }else if (lastDistance == 0) {
             lastDistance = DEFAULT_SHOOT_DISTANCE;
+            telemetry.addData("Using default distance", DEFAULT_SHOOT_DISTANCE);
         }
 
         if (boostRpm != 0) {
             telemetry.addData("Boost RPM", "%.2f", boostRpm);
         }
 
-        telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
-        telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
+//        telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
+//        telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
 //        telemetry.addData("Using Distance", "%.2f", lastDistance);
 //        telemetry.addData("Target RPM", "%.2f", getRpmFromRange(lastDistance));
     }

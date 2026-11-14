@@ -11,15 +11,16 @@ public class HoodSubsystem extends StealthSubsystem {
     private final Servo hoodServo;
 
     // TODO:determine 0 position
-    public static final double MIN_POSITION = 0.058;
-    //noted numbers
-    // 0.1 - 2.2
-    // 0.2 - 8.0
-    // 0.3 - 13.4
-    // 0.4 - 18.4
-    // 0.5 - 24.4
-    // 0.542 - 28.8
-    public static final double MAX_POSITION = 0.542; // 28.8
+    public static final double MIN_POSITION = 0;
+    //Pos    Deg
+    // 0.05 - 0
+    // 0.10 - 2.8
+    // 0.20 - 8.0
+    // 0.30 - 13.5
+    // 0.40 - 18.8
+    // 0.50 - 24.0
+    // 0.60 - 28.8
+    public static final double MAX_POSITION = .60; // 28.8
 
     private InterpLUT rangeToHoodAngle;
     public static final double MIN_DISTANCE = 30;
@@ -39,7 +40,7 @@ public class HoodSubsystem extends StealthSubsystem {
      */
     public double getAngle (){
         double x = hoodServo.getPosition();
-        return -1.743168 + 14.06975 * x + 341.4512 * Math.pow(x, 2) - 1031.662 * Math.pow(x, 3) + 1005.784 * Math.pow(x, 4);
+        return -2.52577 + 51.02454 * x + 13.54213 * Math.pow(x, 2) - 19.22261 * Math.pow(x, 3);
     }
 
     /**
@@ -47,10 +48,14 @@ public class HoodSubsystem extends StealthSubsystem {
      * @param x The angle of the hood in degrees.
      * @return The position of the hood as a servo position.
      */
-    public double degreesToPosition (double x){
-        return 0.05841016 + 0.01935597 * x - 0.0004159367 * Math.pow(x, 2) + 0.00003531975 * Math.pow(x, 3) - 8.326964e-7 * Math.pow(x, 4);
+    public double degreesToPosition (double x) {
+        return 0.04889851 + 0.01919993 * x - 0.00007917742 * Math.pow(x, 2) + 0.000002657166 * Math.pow(x, 3);
     }
 
+    /**
+     * Sets the position of the hood servo.
+     * @param pos The position of the hood as a servo position.
+     */
     public void setPosition(double pos) {
         pos += angleOverride;
         pos = Math.clamp(pos, MIN_POSITION, MAX_POSITION);
@@ -59,7 +64,8 @@ public class HoodSubsystem extends StealthSubsystem {
 
     public void setHoodAngle(double distance) {
         double angle = getHoodAngleFromRange(distance);
-        setPosition(angle);
+
+        setPosition(degreesToPosition(angle));
     }
 
     // Gets the raw servo Caution should be used with this.

@@ -14,18 +14,17 @@ public class Trajectories {
     public static InterpLUT createHoodTable() {
         final double MIN_DISTANCE = HoodSubsystem.MIN_DISTANCE;
         final double MAX_DISTANCE = HoodSubsystem.MAX_DISTANCE;
-        final double MAX_POSITION = HoodSubsystem.MAX_POSITION;
 
         InterpLUT rangeToHoodAngle = new InterpLUT();
-        rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 0.23);
-        rangeToHoodAngle.add(40, 0.29);
-        rangeToHoodAngle.add(48, 0.37);
-        rangeToHoodAngle.add(50, 0.41);
-        rangeToHoodAngle.add(55, 0.42);
-        rangeToHoodAngle.add(57,0.46);
-        rangeToHoodAngle.add(60, 0.495);
-        rangeToHoodAngle.add(62, 0.500);
-        rangeToHoodAngle.add(MAX_DISTANCE + 0.1, MAX_POSITION);
+        rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 10.00);
+        rangeToHoodAngle.add(40, 13.006);
+        rangeToHoodAngle.add(48, 16.334);
+        rangeToHoodAngle.add(50, 18.239);
+        rangeToHoodAngle.add(55, 18.741);
+        rangeToHoodAngle.add(57, 20.965);
+        rangeToHoodAngle.add(60, 24.385);
+        rangeToHoodAngle.add(62, 24.142);
+        rangeToHoodAngle.add(MAX_DISTANCE + 0.1, 28.724);
         rangeToHoodAngle.createLUT();
         return rangeToHoodAngle;
     }
@@ -38,17 +37,16 @@ public class Trajectories {
         final double MIN_DISTANCE = DmShooterSubsystem.MIN_DISTANCE;
         final double MAX_DISTANCE = DmShooterSubsystem.MAX_DISTANCE;
         InterpLUT rangeToRpm = new InterpLUT();
-        rangeToRpm.add(MIN_DISTANCE - 0.1, 3100);
-        rangeToRpm.add(40.0, 3140);
-        rangeToRpm.add(45.0, 3160);
-        rangeToRpm.add(50.0, 3164);
-        rangeToRpm.add(55.0, 3180);
-        rangeToRpm.add(59.0, 3190);
-        rangeToRpm.add(60.0, 3200);
-        rangeToRpm.add(61.0, 3210);
-        rangeToRpm.add(62.0, 3240);
-        rangeToRpm.add(69.0, 3320);
-        rangeToRpm.add(MAX_DISTANCE + 0.1, 3420);
+        rangeToRpm.add(MIN_DISTANCE - 0.1, 3050);
+        rangeToRpm.add(40.0, 3190);
+        rangeToRpm.add(45.0, 3210);
+        rangeToRpm.add(50.0, 3214);
+        rangeToRpm.add(55.0, 3230);
+        rangeToRpm.add(60.0, 3290);
+        rangeToRpm.add(61.0, 3300);
+        rangeToRpm.add(62.0, 3290);
+        rangeToRpm.add(69.0, 3370);
+        rangeToRpm.add(MAX_DISTANCE + 0.1, 3440);
         rangeToRpm.createLUT();
         return rangeToRpm;
     }

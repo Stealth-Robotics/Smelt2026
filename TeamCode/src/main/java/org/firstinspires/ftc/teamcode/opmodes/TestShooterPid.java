@@ -16,16 +16,13 @@ public class TestShooterPid extends StealthOpMode {
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    private double kf = 12.35; //12.16  2.0
-    private double kp = 2.0; //0.7 5.8
+    private double kf = 13.0; //12.16  2.0
+    private double kp = 1.0; //0.7 5.8
 
-    private double ki = 0.2;
-
-    private  double rpm = 3400;
-
-    private static final double coast = 500;
+    private double ki = 0.07;
 
     private static final double[] stepSizes = {1.0, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001};
+
     private int stepIndex = 1;
 
     private boolean shootToggle = false;
@@ -39,13 +36,14 @@ public class TestShooterPid extends StealthOpMode {
             hardwareMap,
                  driver,
                  operator);
-        robotSystem.getDrive().setDriver(driver);
         configBindings();
         robotSystem.getShooter().setController(kp, ki,0, kf);
         schedule(this.printInfo());
     }
 
     private void configBindings() {
+
+        robotSystem.configDriverBindings();
 
         DmShooterSubsystem shooter = robotSystem.getShooter();
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()->{

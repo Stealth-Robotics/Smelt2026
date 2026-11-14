@@ -49,9 +49,6 @@ public class CameraSubsystem extends StealthSubsystem
      *  Positive value indicates the camera is mounted to the LEFT of the shooter. */
     public static final double LIMELIGHT_Y_OFFSET_INCHES = 0;
 
-    /** The last valid result received from the Limelight. */
-    private LLResult lastResult;
-
     private boolean areTagsVisible = false;
 
     /**
@@ -96,26 +93,9 @@ public class CameraSubsystem extends StealthSubsystem
     @Nullable
     public LLResult getLastResult() {
         // TODO: Do we want to add averaging and standard deviation?
-        LLResult result = limelight.getLatestResult();
-        if (result != null && result.isValid()) {
-            this.lastResult = result;
-        }
+        return limelight.getLatestResult();
+    }
 
-        return this.lastResult != null && lastResult.getStaleness() < 40 ? lastResult : null;
-    }
-    public boolean canUpdate (LLResult result, Pose pose) {
-        if (result != null && result.isValid()) {
-            if (result.getFiducialResults().size() > 3) {
-                Pose camPose = limelightToPedroPose(result.getBotpose());
-                double taDistance = getAverageTa(result);
-                double camDistance = Targets.getDistanceToTarget(camPose);
-                if (Math.abs(taDistance - camDistance) < 1 && taDistance < 62 && taDistance > 40) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
     @Override
     public void periodic(){
         LLResult result = getLastResult();
@@ -124,16 +104,46 @@ public class CameraSubsystem extends StealthSubsystem
             areTagsVisible = true;
 
             telemetry.addData("Tags:", getTagIds(result));
-            Pose pose = limelightToPedroPose(result.getBotpose());
-            telemetry.addData("Camera Pose: ",  "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
-            pose = limelightToPedroPose(result.getBotpose_MT2());
-            telemetry.addData("Camera MT2 Pose","X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
-            telemetry.addData("MT2 Distance to Target", "%.2f", Targets.getDistanceToTarget(pose));
+//            Pose pose = limelightToPedroPose(result.getBotpose());
+//            telemetry.addData("Camera Pose: ",  "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
+//            pose = limelightToPedroPose(result.getBotpose_MT2());
+//            telemetry.addData("Camera MT2 Pose","X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
+//            telemetry.addData("MT2 Distance to Target", "%.2f", Targets.getDistanceToTarget(pose));
 
         } else {
             areTagsVisible = false;
             telemetry.addData("Tags:", "None");
         }
+    }
+
+    public double getValidCamDistance(@Nullable LLResult result) {
+        if (result != null && result.isValid()) {
+            double distance = calcGoalDistanceByTa(result);
+            if (result.getFiducialResults().size() >= Targets.MIN_FIDUCIAL_COUNT
+                    && distance < Targets.MAX_CAM_DISTANCE) {
+                return distance;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Checks to see if the result is good enough to update the robot pose
+     * @param result The LLResult from Limelight
+     * @return true if the result is good enough to update the robot pose otherwise false
+     */
+    public boolean canUpdate (LLResult result) {
+        if (result != null && result.isValid()) {
+            if (result.getFiducialResults().size() > 3) {
+                Pose camPose = limelightToPedroPose(result.getBotpose_MT2());
+                double taDistance = calcGoalDistanceByTa(result);
+                double camDistance = Targets.getDistanceToTarget(camPose);
+                return Math.abs(taDistance - camDistance) < 2 && taDistance < 55 && taDistance > 40;
+            }
+        }
+
+        return false;
     }
 
     public Limelight3A getLimelight() {
@@ -178,7 +188,6 @@ public class CameraSubsystem extends StealthSubsystem
         }
 
         limelight.pipelineSwitch(pipeline.id);
-        this.lastResult = null;
     }
 
     /**

@@ -6,6 +6,9 @@ import org.stealthrobotics.library.Alliance;
 
 public class Targets {
 
+    public static final double MAX_CAM_DISTANCE = 62;
+    public static final double MIN_FIDUCIAL_COUNT = 2;
+
     // Hive cell target poses (in inches) center of the April tags to align with vision data
     // X from red alliance to blue alliance 0 - 141.5
     // Y is from audience to scoring side 0 - 141.5

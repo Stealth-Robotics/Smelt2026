@@ -137,8 +137,8 @@ public class RobotSystem extends StealthSubsystem {
         operator.getGamepadButton(GamepadKeys.Button.Y)
                 .whenPressed(shooter::resetCustomDistance);
 
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()->shooter.adjustBoostRpmCmd(50));
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->shooter.adjustBoostRpmCmd(-50));
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()->shooter.adjustBoostRpmCmd(25));
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->shooter.adjustBoostRpmCmd(-25));
 
     }
     @Override

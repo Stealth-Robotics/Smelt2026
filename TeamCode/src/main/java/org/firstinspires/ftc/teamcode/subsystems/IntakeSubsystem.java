@@ -102,6 +102,7 @@ public class IntakeSubsystem extends StealthSubsystem {
             intake.setPower(0);
         }
     }
+
     public Command setAutoOuttakeCommand(boolean run) {
         return runOnce(() -> setAutoOuttake(run));
     }

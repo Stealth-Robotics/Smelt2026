@@ -222,10 +222,10 @@ public class RobotSystem extends StealthSubsystem {
         Velocity velocity = drive.getFollower().velocity();
         double linearSpeed = Math.hypot(velocity.vx, velocity.vy); // inches per second
         double angularSpeed = Math.abs(velocity.omega);            // radians per second
-
+        telemetry.addData("Velocity", "Linear: %.2f, Angular: %.2f", linearSpeed, angularSpeed);
         // TODO: determine thresholds for when the robot is considered "slow enough"
-        final double maxLinearSpeed = 2.0;   // 2 inches/sec
-        final double maxAngularSpeed = 0.15; // ~8.5 degrees/sec
+        final double maxLinearSpeed = 2.0;
+        final double maxAngularSpeed = Math.toRadians(8);
 
         if (linearSpeed > maxLinearSpeed || angularSpeed > maxAngularSpeed) {
             return;

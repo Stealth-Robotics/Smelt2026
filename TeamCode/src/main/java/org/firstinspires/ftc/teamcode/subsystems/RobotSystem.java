@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.math.Pose;
+import com.pedropathing.math.Velocity;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -139,8 +140,8 @@ public class RobotSystem extends StealthSubsystem {
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()->shooter.adjustBoostRpmCmd(25));
         operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->shooter.adjustBoostRpmCmd(-25));
-
     }
+
     @Override
     public void periodic(){
         updateCameraPipeline();
@@ -149,8 +150,11 @@ public class RobotSystem extends StealthSubsystem {
 //        telemetry.addData("Alliance: ", Alliance.get());
 //        telemetry.addData("Slow Motion", drive.isSlowMo());
 //        telemetry.addData("Robot Centric", drive.isRobotCentric());
-        telemetry.addData("Hold Mode", drive.isHoldMode());
+//        telemetry.addData("Hold Mode", drive.isHoldMode());
         telemetry.addData("Position Updates", updatePose);
+        if (updatePose) {
+            telemetry.addData("Last Pose update", poseTimer.seconds());
+        }
 //        Pose pose = drive.getPose();
 //        telemetry.addData("Current Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
 
@@ -209,16 +213,31 @@ public class RobotSystem extends StealthSubsystem {
      * Reads the Limelight 3D position and updates the robot's field position.
      */
     public void updateDrivePosition() {
-        if (!updatePose) {
+        // First check if we should update
+        if (!updatePose || poseTimer.milliseconds() < POSE_TIMEOUT_MS) {
             return;
         }
 
+        // Check if the robot is moving too much
+        Velocity velocity = drive.getFollower().velocity();
+        double linearSpeed = Math.hypot(velocity.vx, velocity.vy); // inches per second
+        double angularSpeed = Math.abs(velocity.omega);            // radians per second
+
+        // TODO: determine thresholds for when the robot is considered "slow enough"
+        final double maxLinearSpeed = 2.0;   // 2 inches/sec
+        final double maxAngularSpeed = 0.15; // ~8.5 degrees/sec
+
+        if (linearSpeed > maxLinearSpeed || angularSpeed > maxAngularSpeed) {
+            return;
+        }
+
+        // finally check if we have a good enough vision measurement to update with
         LLResult result = camera.getLastResult();
-        if (result != null && result.isValid()){
-            if (camera.canUpdate(result) && poseTimer.milliseconds() > POSE_TIMEOUT_MS){
-                poseTimer.reset();
-                drive.updatePosition(CameraSubsystem.limelightToPedroPose(result.getBotpose_MT2()));
-            }
+        if (camera.isCamPoseValid(result)){
+            assert result != null;
+            // TODO: decide to use MT2 or MT1 to update position
+            drive.updatePosition(CameraSubsystem.toPedroPose(result.getBotpose_MT2()));
+            poseTimer.reset();
         }
     }
 

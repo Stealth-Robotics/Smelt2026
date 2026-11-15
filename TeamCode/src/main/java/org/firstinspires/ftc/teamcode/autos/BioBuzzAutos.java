@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.HarvesterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
-import org.firstinspires.ftc.teamcode.tools.AutoToTeleOpStorage;
+import org.firstinspires.ftc.teamcode.tools.PoseTracker;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
@@ -47,7 +47,7 @@ public class BioBuzzAutos extends StealthOpMode {
         camera = robot.getCamera();
         harvester = robot.getHarvesterSubsystem();
 
-        AutoToTeleOpStorage.reset();
+        PoseTracker.reset();
     }
 
     @Override
@@ -64,12 +64,12 @@ public class BioBuzzAutos extends StealthOpMode {
 
     @Override
     public void opModeEnded() {
-        AutoToTeleOpStorage.setPose(follower.pose());
+        PoseTracker.setPose(follower.pose());
     }
 
     @Override
     public void updateStorage() {
-        AutoToTeleOpStorage.setPose(follower.pose());
+        PoseTracker.setPose(follower.pose());
     }
 
     public Command shootSequenceCmd(){

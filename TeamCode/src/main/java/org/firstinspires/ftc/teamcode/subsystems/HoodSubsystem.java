@@ -24,7 +24,7 @@ public class HoodSubsystem extends StealthSubsystem {
 
     private InterpLUT rangeToHoodAngle;
     public static final double MIN_DISTANCE = 30;
-    public static final double MAX_DISTANCE = 70;
+    public static final double MAX_DISTANCE = 75;
     public double angleOverride = 0;
     private static final double DEFAULT_POSITION = 0.5;
 

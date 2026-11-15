@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.tools.AutoToTeleOpStorage;
+import org.firstinspires.ftc.teamcode.tools.PoseTracker;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.stealthrobotics.library.Alliance;
@@ -69,8 +69,8 @@ public class DriveSubsystem extends StealthSubsystem
         this.follower = Constants.create(map);
         this.camera = robot.getCamera();
 
-        if (AutoToTeleOpStorage.isPoseValid()) {
-            follower.setPose(AutoToTeleOpStorage.getPose());
+        if (PoseTracker.isPoseValid()) {
+            follower.setPose(PoseTracker.getPose());
         }else {
             follower.setPose(Alliance.isBlue() ? BLUE_AUDIENCE_POSE : RED_AUDIENCE_POSE);
         }
@@ -112,20 +112,17 @@ public class DriveSubsystem extends StealthSubsystem
         double strafePow = strafe.getAsDouble() * currentPower * invert;
         double rotatePow = rotate.getAsDouble() * currentPower;
 
-        double targetAngle = Targets.getAngleErrorToTarget(getPose());
-
-        LLResult result = camera.getLastResult();
-        if (result != null && result.isValid()) {
-            // Only use camera Tx if the distance is in range
-            if (camera.getValidCamDistance(result) > 0
-                    || !AutoToTeleOpStorage.isPoseValid()) {
-                lastTxDelta = camera.getAdjustedTx(result);
-            }
-        } else {
-            lastTxDelta = targetAngle;
-        }
-
         if (autoAim) {
+            double targetAngle = Targets.getAngleErrorToTarget(getPose());
+            LLResult result = camera.getLastResult();
+
+            // Only use camera if we have a good distance
+            if (camera.getValidCamDistance(result) > 0) {
+                lastTxDelta = camera.getAdjustedTx(result);
+            } else {
+                lastTxDelta = targetAngle;
+            }
+
             rotatePow = getScaledTxOutput(lastTxDelta, AUTO_AIM_TOLERANCE);
         }
 
@@ -283,15 +280,21 @@ public class DriveSubsystem extends StealthSubsystem
         return follower;
     }
 
+    /**
+     * Updates the robot's position based on the provided pose.
+     * prevents the robot from moving due to hold mode
+     * @param pose the new pose to update to
+     */
     public void updatePosition(Pose pose) {
         boolean oldHold = isHoldMode();
         setHoldMode(false);
         follower.update();
 
         follower.setPose(pose);
+        // This keeps the robot from moving during the update
         drive(0, 0, 0);
         follower.update();
-        AutoToTeleOpStorage.setPose(pose);
+        PoseTracker.setPose(pose);
         setHoldMode(oldHold);
     }
 
@@ -315,7 +318,7 @@ public class DriveSubsystem extends StealthSubsystem
                 .andThen(runOnce(this::resetHeading))
                 .andThen(runOnce(follower::update))
                 .andThen(runOnce(() -> setHoldMode(oldHold)))
-                .andThen(runOnce(()-> AutoToTeleOpStorage.setPose(getPose())));
+                .andThen(runOnce(()-> PoseTracker.setPose(getPose())));
     }
 
     /**

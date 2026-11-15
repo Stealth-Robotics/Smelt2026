@@ -14,10 +14,9 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.tools.AutoToTeleOpStorage;
+import org.firstinspires.ftc.teamcode.tools.PoseTracker;
 import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.firstinspires.ftc.teamcode.tools.Trajectories;
-import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -189,7 +188,6 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
     private void updateDistance() {
 
-
         double lastBotPoseDistance = Targets.getDistanceToTarget(robot.getDrive().getPose());
         CameraSubsystem camera = robot.getCamera();
         LLResult result = camera.getLastResult();
@@ -199,7 +197,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         if (lastCameraDistance > 0) {
             lastDistance = lastCameraDistance;
             telemetry.addData("Using Camera Distance", lastCameraDistance);
-        } else if (AutoToTeleOpStorage.isPoseValid()) {
+        } else if (PoseTracker.isPoseValid()) {
             lastDistance = lastBotPoseDistance;
             telemetry.addData("Using Bot Pose Distance", lastBotPoseDistance);
         }

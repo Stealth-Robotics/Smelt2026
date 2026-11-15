@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.tools;
 
 import com.pedropathing.math.Pose;
 
-public class AutoToTeleOpStorage {
+public class PoseTracker {
 
     private static boolean poseValid = false;
     private static Pose lastAutoPose = null;

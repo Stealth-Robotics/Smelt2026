@@ -6,9 +6,8 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DmShooterSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
@@ -80,7 +79,7 @@ public class TestShooterRange extends StealthOpMode {
 
     public Command printInfo() {
         return new RunCommand(() -> {
-            telemetry.addData("Camera Distance", robot.getCamera().calcGoalDistanceByTa(robot.getCamera().getLastResult()));
+            telemetry.addData("Camera Distance", CameraSubsystem.calcGoalDistanceByTa(robot.getCamera().getLastResult()));
             telemetry.addData("Pose Distance", Targets.getDistanceToTarget(robot.getDrive().getPose()));
             telemetry.addData("Shooter Target RPM", shooter.getTargetRpm());
             telemetry.addData("Shooter RPM", shooter.getCurrentRpm());

@@ -5,7 +5,7 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
-import org.firstinspires.ftc.teamcode.tools.AutoToTeleOpStorage;
+import org.firstinspires.ftc.teamcode.tools.PoseTracker;
 import org.stealthrobotics.library.Alliance;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -36,7 +36,7 @@ public class StealthOp extends StealthOpMode {
 
         telemetry.addData("Alliance", Alliance.get());
         telemetry.addData("Camera Pipeline", robot.getCamera().getCurrentPipeline());
-        telemetry.addData("Stored Pose Valid", AutoToTeleOpStorage.isPoseValid());
+        telemetry.addData("Stored Pose Valid", PoseTracker.isPoseValid());
         telemetry.addData("Current Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
     }
 

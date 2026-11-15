@@ -14,10 +14,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.tools.PoseTracker;
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.firstinspires.ftc.teamcode.tools.Pipeline;
 import org.firstinspires.ftc.teamcode.tools.Targets;
-import org.firstinspires.ftc.teamcode.tools.Trajectories;
 import org.stealthrobotics.library.StealthSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -26,7 +26,6 @@ import java.util.List;
 
 public class CameraSubsystem extends StealthSubsystem
 {
-
     private final Telemetry telemetry = StealthOpMode.telemetry;
     public static final String NAME = "limelight";
     private  final Limelight3A limelight;
@@ -116,11 +115,17 @@ public class CameraSubsystem extends StealthSubsystem
         }
     }
 
+    /**
+     * Determines if the result is good enough to be used for distance calculation
+     * @param result The LLResult from Limelight
+     * @return distance in inches or 0 if not good enough
+     */
     public double getValidCamDistance(@Nullable LLResult result) {
         if (result != null && result.isValid()) {
             double distance = calcGoalDistanceByTa(result);
-            if (result.getFiducialResults().size() >= Targets.MIN_FIDUCIAL_COUNT
-                    && distance < Targets.MAX_CAM_DISTANCE) {
+            if ((result.getFiducialResults().size() >= Targets.MIN_FIDUCIAL_COUNT
+                    && distance < Targets.MAX_CAM_DISTANCE)
+                    || !PoseTracker.isPoseValid()) {
                 return distance;
             }
         }
@@ -133,21 +138,17 @@ public class CameraSubsystem extends StealthSubsystem
      * @param result The LLResult from Limelight
      * @return true if the result is good enough to update the robot pose otherwise false
      */
-    public boolean canUpdate (LLResult result) {
+    public boolean isCamPoseValid(@Nullable LLResult result) {
         if (result != null && result.isValid()) {
-            if (result.getFiducialResults().size() > 3) {
-                Pose camPose = limelightToPedroPose(result.getBotpose_MT2());
+            if (result.getFiducialResults().size() >= 4) {
+                Pose camPose = toPedroPose(result.getBotpose_MT2());
                 double taDistance = calcGoalDistanceByTa(result);
                 double camDistance = Targets.getDistanceToTarget(camPose);
-                return Math.abs(taDistance - camDistance) < 2 && taDistance < 55 && taDistance > 40;
+                return Math.abs(taDistance - camDistance) < 1.5 && taDistance < 58 && taDistance > 35;
             }
         }
 
         return false;
-    }
-
-    public Limelight3A getLimelight() {
-        return limelight;
     }
 
     /**
@@ -195,7 +196,7 @@ public class CameraSubsystem extends StealthSubsystem
      * @param result The LLResult from Limelight
      * @return distance in inches
      */
-    public double calcGoalDistanceByTa(LLResult result) {
+    public static double calcGoalDistanceByTa(LLResult result) {
         double ta = getAverageTa(result);
 
         double distance = 112.8561 - 29484.76 * ta + 5687858.0 * Math.pow(ta, 2) - 582954800.0 * Math.pow(ta, 3) + 24568860000.0 * Math.pow(ta, 4);
@@ -230,7 +231,7 @@ public class CameraSubsystem extends StealthSubsystem
      * @return The pose of the bot in the Pedro coordinate system.
      */
     @NonNull
-    public static Pose limelightToPedroPose(@NonNull Pose3D botPose) {
+    public static Pose toPedroPose(@NonNull Pose3D botPose) {
 
         Position p = botPose.getPosition().toUnit(DistanceUnit.INCH);
         double llYawRad = botPose.getOrientation().getYaw(AngleUnit.RADIANS);
@@ -270,7 +271,7 @@ public class CameraSubsystem extends StealthSubsystem
      * @param result The LLResult
      * @return The average Ta value
      */
-    private double getAverageTa(@Nullable LLResult result) {
+    private static double getAverageTa(@Nullable LLResult result) {
         if (result == null || !result.isValid()) {
             return 0.0;
         }

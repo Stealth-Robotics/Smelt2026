@@ -16,9 +16,14 @@ public class Targets {
     private static final Pose BLUE_AUDIENCE_TAGS = new Pose(83.5, 57.87);
     private static final Pose RED_AUDIENCE_TAGS = new Pose(58,57.87);
     private static final Pose RED_SCORE_TAGS = new Pose(58, 83.63);
-
     // Height from camera to April tag center (in inches)
     private static final double HEIGHT = 38;
+
+    private static final Pose BLUE_SCORE_CELL = new Pose(89.5, 89.63);
+    private static final Pose BLUE_AUDIENCE_CELL = new Pose(89.63, 50.87);
+    private static final Pose RED_AUDIENCE_CELL = new Pose(51,50.87);
+    private static final Pose RED_SCORE_CELL = new Pose(51, 89.63);
+    // Height from camera to about 7 inches taller than the April tag center (in inches)
 
     /**
      * Gets the distance to the target in inches. Calculates for height of target
@@ -38,7 +43,7 @@ public class Targets {
      * @return The angle error to the target in degrees.
      */
     public static double getAngleErrorToTarget(Pose drivePosition) {
-        Pose targetPosition = getTarget(drivePosition);
+        Pose targetPosition = getCellTarget(drivePosition);
 
         // Get target angle in RADIANS
         double targetAngleRad = Math.atan2(targetPosition.y() - drivePosition.y(), targetPosition.x() - drivePosition.x());
@@ -66,5 +71,11 @@ public class Targets {
         return Alliance.isRed() ?
                 (robotPose.y() > FieldConstants.FIELD_Y_CENTER ? RED_SCORE_TAGS : RED_AUDIENCE_TAGS) :
                 (robotPose.y() < FieldConstants.FIELD_Y_CENTER ? BLUE_AUDIENCE_TAGS : BLUE_SCORE_TAGS);
+    }
+
+    public static Pose getCellTarget(Pose robotPose) {
+        return Alliance.isRed() ?
+                (robotPose.y() > FieldConstants.FIELD_Y_CENTER ? RED_SCORE_CELL : RED_AUDIENCE_CELL) :
+                (robotPose.y() < FieldConstants.FIELD_Y_CENTER ? BLUE_AUDIENCE_CELL : BLUE_SCORE_CELL);
     }
 }

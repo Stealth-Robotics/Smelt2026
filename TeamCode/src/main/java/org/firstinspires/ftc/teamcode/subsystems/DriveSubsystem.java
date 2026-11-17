@@ -51,15 +51,14 @@ public class DriveSubsystem extends StealthSubsystem
             0.0
     );
 
-    private double kiNear = 0.12;
+    private double kiNear = 0.11;
     private double kiFar = 0.0001;
     private boolean kiSet = false;
 
     /** The maximum rotational power applied during auto-aim. */
     public static final double MAX_ROTATION_POWER = 0.98;
-    public static double AUTO_AIM_TOLERANCE = 2.0;
+    public static double AUTO_AIM_TOLERANCE = 1.0;
     public static double AUTO_AIM_CLOSE_TOLERANCE = 4.0;
-    public static double AUTO_AIM_BACKUP_TOLERANCE = 5.0; // in degrees
 
     private double lastTxDelta = 100;
 

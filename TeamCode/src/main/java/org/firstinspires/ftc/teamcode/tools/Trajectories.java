@@ -16,16 +16,16 @@ public class Trajectories {
         final double MAX_DISTANCE = HoodSubsystem.MAX_DISTANCE;
 
         InterpLUT rangeToHoodAngle = new InterpLUT();
-        rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 6.00);
-        rangeToHoodAngle.add(40, 10.006);
-        rangeToHoodAngle.add(45, 12.37);
-        rangeToHoodAngle.add(50, 15.93);
-        rangeToHoodAngle.add(55, 20.500);
-        rangeToHoodAngle.add(60, 24.385);
-        rangeToHoodAngle.add(65, 24.460);
-        rangeToHoodAngle.add(70, 27.926);
+        rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 4.928);
+        rangeToHoodAngle.add(40, 8.920);
+        rangeToHoodAngle.add(45, 11.281);
+        rangeToHoodAngle.add(50, 14.849);
+        rangeToHoodAngle.add(55, 19.457);
+        rangeToHoodAngle.add(60, 23.392);
+        rangeToHoodAngle.add(65, 23.468);
+        rangeToHoodAngle.add(70, 26.977);
 
-        rangeToHoodAngle.add(MAX_DISTANCE + 0.1, 28.724);
+        rangeToHoodAngle.add(MAX_DISTANCE + 0.1, 27.781);
         rangeToHoodAngle.createLUT();
         return rangeToHoodAngle;
     }
@@ -38,15 +38,15 @@ public class Trajectories {
         final double MIN_DISTANCE = DmShooterSubsystem.MIN_DISTANCE;
         final double MAX_DISTANCE = DmShooterSubsystem.MAX_DISTANCE;
         InterpLUT rangeToRpm = new InterpLUT();
-        rangeToRpm.add(MIN_DISTANCE - 0.1, 3150);
-        rangeToRpm.add(40.0, 3190);
-        rangeToRpm.add(45.0, 3225);
-        rangeToRpm.add(50.0, 3359);
-        rangeToRpm.add(55.0, 3330);
-        rangeToRpm.add(60.0, 3320);
-        rangeToRpm.add(65.0, 3353);
-        rangeToRpm.add(70.0, 3412);
-        rangeToRpm.add(MAX_DISTANCE + 0.1, 3440);
+        rangeToRpm.add(MIN_DISTANCE - 0.1, 3100);
+        rangeToRpm.add(40.0, 3140);
+        rangeToRpm.add(45.0, 3175);
+        rangeToRpm.add(50.0, 3309);
+        rangeToRpm.add(55.0, 3280);
+        rangeToRpm.add(60.0, 3270);
+        rangeToRpm.add(65.0, 3303);
+        rangeToRpm.add(70.0, 3362);
+        rangeToRpm.add(MAX_DISTANCE + 0.1, 3390);
         rangeToRpm.createLUT();
         return rangeToRpm;
     }

@@ -84,6 +84,8 @@ public class TestServo extends StealthOpMode {
             telemetry.addData("Step Index", stepIndex);
             telemetry.addData("Step Value", "%.3f", stepSizes[stepIndex]);
             telemetry.addData("Position", position);
+            telemetry.addData( "Angle", robotSystem.getShooter().getHood().getAngle());
+            telemetry.addData("Hood Pose", robotSystem.getShooter().getHood().getPosition());
         });
     }
 }

@@ -29,8 +29,6 @@ public class CameraSubsystem extends StealthSubsystem
     private final Telemetry telemetry = StealthOpMode.telemetry;
     public static final String NAME = "limelight";
     private  final Limelight3A limelight;
-    /** The length of time to keep LLResults in the queue before removing them, in milliseconds. */
-    private static final long QUEUE_DEFAULT_TIMEOUT_MS = 500;
 
     /** Rotational difference in degrees between the Limelight's yaw and Pedro's IMU yaw. */
     private static final double LL_ANGLE_DELTA = 90;
@@ -105,7 +103,7 @@ public class CameraSubsystem extends StealthSubsystem
             telemetry.addData("Tags:", getTagIds(result));
 //            Pose pose = limelightToPedroPose(result.getBotpose());
 //            telemetry.addData("Camera Pose: ",  "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
-//            pose = limelightToPedroPose(result.getBotpose_MT2());
+//            pose = toPedroPose(result.getBotpose_MT2());
 //            telemetry.addData("Camera MT2 Pose","X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
 //            telemetry.addData("MT2 Distance to Target", "%.2f", Targets.getDistanceToTarget(pose));
 

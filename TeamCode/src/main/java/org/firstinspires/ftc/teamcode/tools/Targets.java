@@ -6,7 +6,7 @@ import org.stealthrobotics.library.Alliance;
 
 public class Targets {
 
-    public static final double MAX_CAM_DISTANCE = 62;
+    public static final double MAX_CAM_DISTANCE = 55;
     public static final double MIN_FIDUCIAL_COUNT = 2;
 
     // Hive cell target poses (in inches) center of the April tags to align with vision data
@@ -19,10 +19,10 @@ public class Targets {
     // Height from camera to April tag center (in inches)
     private static final double HEIGHT = 38;
 
-    private static final Pose BLUE_SCORE_CELL = new Pose(89.5, 89.63);
-    private static final Pose BLUE_AUDIENCE_CELL = new Pose(89.63, 50.87);
-    private static final Pose RED_AUDIENCE_CELL = new Pose(51,50.87);
-    private static final Pose RED_SCORE_CELL = new Pose(51, 89.63);
+    private static final Pose BLUE_SCORE_CELL = new Pose(83.5, 87.63);
+    private static final Pose BLUE_AUDIENCE_CELL = new Pose(83.5, 52.87);
+    private static final Pose RED_AUDIENCE_CELL = new Pose(58,52.87);
+    private static final Pose RED_SCORE_CELL = new Pose(58, 87.63);
     // Height from camera to about 7 inches taller than the April tag center (in inches)
 
     /**

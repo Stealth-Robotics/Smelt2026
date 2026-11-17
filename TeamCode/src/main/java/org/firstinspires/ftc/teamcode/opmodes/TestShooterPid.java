@@ -16,10 +16,10 @@ public class TestShooterPid extends StealthOpMode {
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    private double kf = 13.0; //12.16  2.0
+    private double kf = 13.1; //12.16  2.0
     private double kp = 1.0; //0.7 5.8
 
-    private double ki = 0.07;
+    private double ki = 0.13;
 
     private static final double[] stepSizes = {1.0, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001};
 

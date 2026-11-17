@@ -30,9 +30,10 @@ import org.stealthrobotics.library.opmodes.StealthOpMode;
  */
 public class DmShooterSubsystem extends StealthSubsystem {
 
-    /** The motor that drives the shooter. */
+    /** Motor 1 is right side on control hub. */
     private final DcMotorEx shooterMotor1;
 
+    /** Motor 2 is left side on expansion hub. */
     private final DcMotorEx shooterMotor2;
 
     /** Ticks per revolution for the motor. */
@@ -58,7 +59,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** Minimum time the shooter must run before it's considered ready. */
     private static final double MIN_SHOOT_TIME_MS = 500;
     /** Maximum time the shooter can run before it's considered timed out. */
-    private static final double MAX_SHOOT_TIME_MS = 2000;
+    private static final double MAX_SHOOT_TIME_MS = 3000;
     /** The current target RPM. */
     private double targetRpm = 0;
     /** Last known distance, used to resume shooting if no distance is provided. */
@@ -70,7 +71,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;
 
-    private static final double FLOAT_DEFAULT_POWER = 0.6;
+    private static final double FLOAT_DEFAULT_POWER = 0.5;
     /** Minimum distance for lookup tables. */
     public static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
@@ -87,7 +88,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double baseKp = 1.0; // 1.0; // 1.0 for white transfer 2.0 for black
     private double baseKi = 0.13;
     private double baseKd = 0.0;
-    private double baseKf = 13.0; // 12.19; for white 12.35 for black
+    private double baseKf = 13.1; // 12.19; for white 12.35 for black
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
     private double kfScaler = .95;
 
@@ -127,7 +128,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         hood = new HoodSubsystem(map);
         shooterMotor1 = map.get(DcMotorEx.class, "shooterMotor1");
         shooterMotor2 = map.get(DcMotorEx.class, "shooterMotor2");
-        shooterMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooterMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, baseKf);
         shooterMotor1.setPositionPIDFCoefficients(5.0);
@@ -214,8 +215,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
             telemetry.addData("Boost RPM", "%.2f", boostRpm);
         }
 
-//        telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
-//        telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
+        telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
+        telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
 //        telemetry.addData("Using Distance", "%.2f", lastDistance);
 //        telemetry.addData("Target RPM", "%.2f", getRpmFromRange(lastDistance));
     }
@@ -278,17 +279,12 @@ public class DmShooterSubsystem extends StealthSubsystem {
             return false;
         }
 
-//        double curMs = shootTimer.milliseconds();
-//
-//        // Prevent immediate "ready" status by requiring a minimum runtime
-//        if (curMs < MIN_SHOOT_TIME_MS) {
-//            return false;
-//        }
+        double curMs = shootTimer.milliseconds();
 
         // Ready if RPM is within tolerance
         double currentRpm = getCurrentRpm();
         return (currentRpm - targetRpm >= VELOCITY_TOLERANCE_LOW) && (currentRpm - targetRpm <= VELOCITY_TOLERANCE_HIGH)
-                ;//|| (curMs > MAX_SHOOT_TIME_MS);
+                || (curMs > MAX_SHOOT_TIME_MS);
     }
 
     /**
@@ -448,6 +444,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private void setVelocity(double velocity) {
         shooterMotor1.setVelocity(velocity);
         shooterMotor2.setVelocity(velocity);
+
     }
 
     /**
@@ -456,7 +453,6 @@ public class DmShooterSubsystem extends StealthSubsystem {
      * @return The motor velocity.
      */
     private double getVelocity() {
-
         return (shooterMotor1.getVelocity() + shooterMotor2.getVelocity()) / 2;
     }
 

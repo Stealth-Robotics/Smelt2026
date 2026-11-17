@@ -70,6 +70,9 @@ public class RobotSystem extends StealthSubsystem {
         configOperatorBindings();
     }
 
+    /**
+     * Driver bindings
+     */
     public void configDriverBindings() {
         // --- Driver Controls ---
         drive.setDriver(driver);
@@ -87,10 +90,6 @@ public class RobotSystem extends StealthSubsystem {
         driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(drive.resetPositionCmd(false));
         // Reset the position to the audience side corner wall
         driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(drive.resetPositionCmd(true) );
-
-//        driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-//                .whenPressed(shooter.shootSlow())
-//                .whenReleased(shooter.stopShootSlow());
 
         driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(drive.setSlowMoCmd(true))
@@ -111,6 +110,9 @@ public class RobotSystem extends StealthSubsystem {
 
     }
 
+    /**
+     * Operator bindings
+     */
     public void configOperatorBindings() {
         // --- Operator Controls ---
 
@@ -138,8 +140,8 @@ public class RobotSystem extends StealthSubsystem {
         operator.getGamepadButton(GamepadKeys.Button.Y)
                 .whenPressed(shooter::resetCustomDistance);
 
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(()->shooter.adjustBoostRpmCmd(25));
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(()->shooter.adjustBoostRpmCmd(-25));
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(shooter.adjustBoostRpmCmd(25));
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(shooter.adjustBoostRpmCmd(-25));
     }
 
     @Override
@@ -151,15 +153,35 @@ public class RobotSystem extends StealthSubsystem {
 //        telemetry.addData("Slow Motion", drive.isSlowMo());
 //        telemetry.addData("Robot Centric", drive.isRobotCentric());
 //        telemetry.addData("Hold Mode", drive.isHoldMode());
+
+
         telemetry.addData("Position Updates", updatePose);
+
+        // TODO: remove for COMP
         if (updatePose) {
             telemetry.addData("Last Pose update", poseTimer.seconds());
         }
-//        Pose pose = drive.getPose();
-//        telemetry.addData("Current Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
 
+        Pose pose = drive.getPose();
+        telemetry.addData("Drive Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
+        Velocity velocity = drive.getFollower().velocity();
+        double linearSpeed = Math.hypot(velocity.vx, velocity.vy); // inches per second
+        double angularSpeed = Math.abs(velocity.omega);            // radians per second
+        telemetry.addData("Velocity", "Linear: %.2f, Angular: %.2f", linearSpeed, Math.toDegrees(angularSpeed));
+
+        LLResult result = camera.getLastResult();
+        if (result != null && result.isValid()){
+            pose = CameraSubsystem.toPedroPose(result.getBotpose());
+            telemetry.addData("Camera Pose: ", "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
+            pose = CameraSubsystem.toPedroPose(result.getBotpose_MT2());
+            telemetry.addData("Mega Tag 2", "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
+        }
     }
 
+    /**
+     * Enables or disables updating robot pose from AprilTags
+     * @param update true for use tags otherwise false
+     */
     public void setUpdatePose(boolean update) {
         this.updatePose = update;
     }
@@ -168,9 +190,18 @@ public class RobotSystem extends StealthSubsystem {
         updatePose = !updatePose;
     }
 
+    /**
+     * Allows direct access to the gate servo
+     * @return GateSubsystem
+     */
     public GateSubsystem getGateSubsystem(){
         return gateSubsystem;
     }
+
+    /**
+     * Allows direct access to the HarvesterSubsystem
+     * @return HarvesterSubsystem
+     */
     public HarvesterSubsystem getHarvesterSubsystem(){
         return harvesterSubsystem;
     }
@@ -222,10 +253,9 @@ public class RobotSystem extends StealthSubsystem {
         Velocity velocity = drive.getFollower().velocity();
         double linearSpeed = Math.hypot(velocity.vx, velocity.vy); // inches per second
         double angularSpeed = Math.abs(velocity.omega);            // radians per second
-        telemetry.addData("Velocity", "Linear: %.2f, Angular: %.2f", linearSpeed, angularSpeed);
         // TODO: determine thresholds for when the robot is considered "slow enough"
-        final double maxLinearSpeed = 2.0;
-        final double maxAngularSpeed = Math.toRadians(8);
+        final double maxLinearSpeed = 4.0;
+        final double maxAngularSpeed = Math.toRadians(10);
 
         if (linearSpeed > maxLinearSpeed || angularSpeed > maxAngularSpeed) {
             return;

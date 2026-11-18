@@ -25,7 +25,7 @@ public class CheckerNearRedAuto extends BioBuzzAutos
     private final Pose goShootToo = poseFactory.of(53.31, 10.3272, -46.0846);
     private final Pose checkTagAim = poseFactory.of(53.31, 15.0612, -90);
     private final Pose aimOtherSideStart = poseFactory.of(53.31, 15.0612, 90);
-    private final Pose aimOtherSide = poseFactory.of(40.3475, 126.177, 120);
+    private final Pose aimOtherSide = poseFactory.of(40.3475, 122.177, 120);
     private final Pose aimOtherSideControl1 = poseFactory.of(75.9662, 90.7934, 0);
     private final Pose parkIt = poseFactory.of(11.8202, 119.4826, -166.7936);
 
@@ -71,7 +71,7 @@ public class CheckerNearRedAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequenceCmd(58),
+                shootSequenceCmd(61),
                 drive.followPathCmd(moveUp()),
                 drive.followPathCmd(alignFlower()),
                 startHarvestingCmd(),

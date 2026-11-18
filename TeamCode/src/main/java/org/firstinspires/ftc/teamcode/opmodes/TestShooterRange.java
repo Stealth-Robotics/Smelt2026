@@ -23,6 +23,8 @@ public class TestShooterRange extends StealthOpMode {
     private static final double[] rpmSteps = {100, 50, 25};
     private int stepIndex = 1;
 
+    private double manDistance = 55;
+
     DmShooterSubsystem shooter;
 
     @Override
@@ -44,7 +46,11 @@ public class TestShooterRange extends StealthOpMode {
 
         robot.configDriverBindings();
 
-        operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> shooter.setDistance(55));
+        operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(()-> manDistance -= 1);
+        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()-> manDistance += 1);
+
+        operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+                ()-> shooter.setDistance(manDistance));
 
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(shooter.startShootCmd())
@@ -81,6 +87,7 @@ public class TestShooterRange extends StealthOpMode {
 
     public Command printInfo() {
         return new RunCommand(() -> {
+            telemetry.addData("Manual Distance", manDistance);
             telemetry.addData("Camera Distance", CameraSubsystem.calcGoalDistanceByTa(robot.getCamera().getLastResult()));
             telemetry.addData("Pose Distance", Targets.getDistanceToTarget(robot.getDrive().getPose()));
             telemetry.addData("Shooter Target RPM", shooter.getTargetRpm());
@@ -92,6 +99,7 @@ public class TestShooterRange extends StealthOpMode {
             telemetry.addData("Hood Position", shooter.getHood().getPosition());
             telemetry.addData("Step Value", "%.5f", hoodSteps[stepIndex]);
             telemetry.addData("Hood Angle Override ", hoodAngleAdd);
+
         });
     }
 

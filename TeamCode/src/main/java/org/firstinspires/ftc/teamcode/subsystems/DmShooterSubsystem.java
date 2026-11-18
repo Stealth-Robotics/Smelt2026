@@ -90,7 +90,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double baseKd = 0.0;
     private double baseKf = 13.5; // 12.19; for white 12.35 for black
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
-    private double kfScaler = 0.81;
+    private double kfScaler = 0.88;
 
     private final InterpLUT rangeToRpm;
 
@@ -215,8 +215,13 @@ public class DmShooterSubsystem extends StealthSubsystem {
             telemetry.addData("Boost RPM", "%.2f", boostRpm);
         }
 
-        telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
-        telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
+        // TODO: remove most of these for competition
+        if (lastCameraDistance > 0)
+            telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
+        if (lastBotPoseDistance > 0)
+            telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
+        if (lastBotPoseDistance > 0 && lastCameraDistance > 0)
+            telemetry.addData("Delta Distance", "%.2f", lastBotPoseDistance - lastCameraDistance);
         telemetry.addData("Using Distance", "%.2f", lastDistance);
 //        telemetry.addData("Target RPM", "%.2f", getRpmFromRange(lastDistance));
     }
@@ -258,7 +263,6 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
     private void setFeeding(boolean feed) {
         intake.setAutoIntake(feed);
-        // TODO: add the stopper servo
     }
 
     public void adjustCustomDistance(double increment) {

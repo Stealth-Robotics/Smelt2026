@@ -97,7 +97,8 @@ public class BioBuzzAutos extends StealthOpMode {
     }
 
     public Command startHarvestingCmd(){
-        return new SequentialCommandGroup(harvester.harvDownCmd(),
+        return new SequentialCommandGroup(
+                harvester.harvDownCmd(),
                 intake.startAutoIntakeCommand());
     }
 

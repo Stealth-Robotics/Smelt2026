@@ -11,7 +11,7 @@ public class GateSubsystem extends StealthSubsystem {
     public static final double GATE_CLOSED = 0.21;
     public static final double GATE_OPEN = 0.07;
     private final ElapsedTime transitionTime = new ElapsedTime();
-    private static  final double GATE_TRANSITION_TIME = 400;
+    private static  final double GATE_TRANSITION_TIME = 300;
 
     private enum GateState {
         CLOSED,

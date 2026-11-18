@@ -46,10 +46,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private final ElapsedTime shootTimer = new ElapsedTime();
 
     /** RPM tolerance for considering the target reached. */
-    private static final double VELOCITY_TOLERANCE_HIGH = 75;
+    private static final double VELOCITY_TOLERANCE_HIGH = 50;
 
     /** RPM tolerance for considering the target reached. */
-    private static final double VELOCITY_TOLERANCE_LOW = -25;
+    private static final double VELOCITY_TOLERANCE_LOW = -10;
 
     /** Maximum allowable RPM. */
     public static final double MAX_RPM = 5400;
@@ -71,7 +71,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** The "float" power applied when not actively shooting. */
     private double floatPower = 0;
 
-    private static final double FLOAT_DEFAULT_POWER = 0.5;
+    private static final double FLOAT_DEFAULT_POWER = 0.55;
     /** Minimum distance for lookup tables. */
     public static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
@@ -85,12 +85,12 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** Nominal voltage for feedforward calculation (12V baseline). */
     private final double NOMINAL_VOLTAGE = 13.1;
 
-    private double baseKp = 1.0; // 1.0; // 1.0 for white transfer 2.0 for black
+    private double baseKp = 10.0; // 1.0; // 1.0 for white transfer 2.0 for black
     private double baseKi = 0.13;
     private double baseKd = 0.0;
-    private double baseKf = 13.1; // 12.19; for white 12.35 for black
+    private double baseKf = 13.5; // 12.19; for white 12.35 for black
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
-    private double kfScaler = .95;
+    private double kfScaler = 0.81;
 
     private final InterpLUT rangeToRpm;
 
@@ -217,7 +217,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
         telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
         telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
-//        telemetry.addData("Using Distance", "%.2f", lastDistance);
+        telemetry.addData("Using Distance", "%.2f", lastDistance);
 //        telemetry.addData("Target RPM", "%.2f", getRpmFromRange(lastDistance));
     }
 

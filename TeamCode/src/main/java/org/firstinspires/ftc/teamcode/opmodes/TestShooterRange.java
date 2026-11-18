@@ -44,6 +44,8 @@ public class TestShooterRange extends StealthOpMode {
 
         robot.configDriverBindings();
 
+        operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(() -> shooter.setDistance(55));
+
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
                 .whenPressed(shooter.startShootCmd())
                 .whenReleased(shooter.stopShootCmd());

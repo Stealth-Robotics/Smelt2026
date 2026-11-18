@@ -16,8 +16,8 @@ public class TestShooterPid extends StealthOpMode {
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    private double kf = 13.1; //12.16  2.0
-    private double kp = 1.0; //0.7 5.8
+    private double kf = 13.5; //12.16  2.0
+    private double kp = 10.0; //0.7 5.8
 
     private double ki = 0.13;
 
@@ -57,11 +57,11 @@ public class TestShooterPid extends StealthOpMode {
 
         operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(()->{
             // Runs a fixed distance for testing
-            shooter.setDistance(40);
-            shootToggle = true;
-        }).whenReleased(()-> {
-            shooter.stop();
-            shootToggle = false;
+            shooter.setDistance(55);
+//            shootToggle = true;
+//        }).whenReleased(()-> {
+//            shooter.stop();
+//            shootToggle = false;
         });
 
         operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(() -> {

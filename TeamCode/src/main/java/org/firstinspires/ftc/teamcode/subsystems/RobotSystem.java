@@ -162,20 +162,20 @@ public class RobotSystem extends StealthSubsystem {
             telemetry.addData("Last Pose update", poseTimer.seconds());
         }
 
-        Pose pose = drive.getPose();
-        telemetry.addData("Drive Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
-        Velocity velocity = drive.getFollower().velocity();
-        double linearSpeed = Math.hypot(velocity.vx, velocity.vy); // inches per second
-        double angularSpeed = Math.abs(velocity.omega);            // radians per second
-        telemetry.addData("Velocity", "Linear: %.2f, Angular: %.2f", linearSpeed, Math.toDegrees(angularSpeed));
-
-        LLResult result = camera.getLastResult();
-        if (result != null && result.isValid()){
-            pose = CameraSubsystem.toPedroPose(result.getBotpose());
-            telemetry.addData("Camera Pose: ", "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
-            pose = CameraSubsystem.toPedroPose(result.getBotpose_MT2());
-            telemetry.addData("Mega Tag 2", "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
-        }
+//        Pose pose = drive.getPose();
+//        telemetry.addData("Drive Pose", "Tx: %.2f, Ty: %.2f, Z: %.2f", pose.x(), pose.y(),  Math.toDegrees(pose.heading()));
+//        Velocity velocity = drive.getFollower().velocity();
+//        double linearSpeed = Math.hypot(velocity.vx, velocity.vy); // inches per second
+//        double angularSpeed = Math.abs(velocity.omega);            // radians per second
+//        telemetry.addData("Velocity", "Linear: %.2f, Angular: %.2f", linearSpeed, Math.toDegrees(angularSpeed));
+//
+//        LLResult result = camera.getLastResult();
+//        if (result != null && result.isValid()){
+//            pose = CameraSubsystem.toPedroPose(result.getBotpose());
+//            telemetry.addData("Camera Pose: ", "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
+//            pose = CameraSubsystem.toPedroPose(result.getBotpose_MT2());
+//            telemetry.addData("Mega Tag 2", "X: %.2f, Y:%.2f, Z:%.2f", pose.x(),pose.y(), Math.toDegrees(pose.heading()));
+//        }
     }
 
     /**

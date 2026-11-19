@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.arcrobotics.ftclib.command.Command;
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -26,6 +27,7 @@ import java.util.List;
 
 public class CameraSubsystem extends StealthSubsystem
 {
+    private boolean cameraToggle = false;
     private final Telemetry telemetry = StealthOpMode.telemetry;
     public static final String NAME = "limelight";
     private  final Limelight3A limelight;
@@ -97,6 +99,7 @@ public class CameraSubsystem extends StealthSubsystem
     public void periodic(){
         LLResult result = getLastResult();
         telemetry.addData("Pipeline:", getCurrentPipeline());
+        telemetry.addData("Aiming Primary Camera:", cameraToggle);
         if (result != null && result.isValid()) {
             areTagsVisible = true;
 
@@ -118,7 +121,9 @@ public class CameraSubsystem extends StealthSubsystem
      * @param result The LLResult from Limelight
      * @return distance in inches or 0 if not good enough
      */
+
     public double getValidCamDistance(@Nullable LLResult result) {
+        if (!cameraToggle) return 0;
         if (result != null && result.isValid()) {
             double distance = calcGoalDistanceByTa(result);
             if ((result.getFiducialResults().size() >= Targets.MIN_FIDUCIAL_COUNT
@@ -129,6 +134,16 @@ public class CameraSubsystem extends StealthSubsystem
         }
 
         return 0;
+    }
+
+    public void setCameraToggle(boolean toggle) {
+        cameraToggle = toggle;
+    }
+
+    public Command toggleCamera() {
+        return runOnce(()-> {
+          cameraToggle = !cameraToggle;
+        });
     }
 
     /**

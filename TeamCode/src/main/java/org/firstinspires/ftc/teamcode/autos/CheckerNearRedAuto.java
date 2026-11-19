@@ -71,7 +71,7 @@ public class CheckerNearRedAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequenceCmd(61),
+                shootSequenceCmd(62),
                 drive.followPathCmd(moveUp()),
                 drive.followPathCmd(alignFlower()),
                 startHarvestingCmd(),

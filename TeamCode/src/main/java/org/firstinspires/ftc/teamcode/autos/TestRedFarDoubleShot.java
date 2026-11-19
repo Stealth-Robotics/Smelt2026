@@ -28,7 +28,6 @@ public class TestRedFarDoubleShot extends BioBuzzAutos{
     private final Pose parkIt = poseFactory.of(13.75, 120, 180);
 
 
-
     public Path readyShoot() {
         return Paths.curve(start, readyShootControl1, readyShoot)
                 .heading(Interpolator.piecewise()

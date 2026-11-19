@@ -75,7 +75,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
     /** Minimum distance for lookup tables. */
     public static final double MIN_DISTANCE = 35;
     /** Maximum distance for lookup tables. */
-    public static final double MAX_DISTANCE = 75;
+    public static final double MAX_DISTANCE = 100;
 
     /** Additional RPM added to the target during shooting. */
     private double boostRpm = 0;
@@ -422,11 +422,20 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
     public void setFloatPower(double power) {
         floatPower = power;
+        if (isActiveShot()) {
+            return;
+        }
+
         setFloat();
     }
 
     public void toggleFloatPower(){
+
         floatPower = floatPower > 0 ? 0 : FLOAT_DEFAULT_POWER;
+        if (isActiveShot()){
+            return;
+        }
+
         setFloat();
     }
 

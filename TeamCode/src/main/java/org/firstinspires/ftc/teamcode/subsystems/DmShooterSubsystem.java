@@ -189,26 +189,31 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
     private void updateDistance() {
 
-        double lastBotPoseDistance = Targets.getDistanceToTarget(robot.getDrive().getPose());
         CameraSubsystem camera = robot.getCamera();
-        LLResult result = camera.getLastResult();
+        LLResult result = robot.getCamera().getLastResult();
 
+        double lastBotPoseDistance = Targets.getDistanceToTarget(robot.getDrive().getPose());
         double lastCameraDistance = camera.getValidCamDistance(result);
-        // Only use camera distance if it is good
-        if (lastCameraDistance > 0) {
-            lastDistance = lastCameraDistance;
-            telemetry.addData("Using Camera Distance", lastCameraDistance);
-        } else if (PoseTracker.isPoseValid()) {
-            lastDistance = lastBotPoseDistance;
-            telemetry.addData("Using Bot Pose Distance", lastBotPoseDistance);
-        }
-
+        String keyName;
+        // Check if we are using custom distance
         if (customDistance != 0 && useCustomDistance) {
             lastDistance = customDistance;
-            telemetry.addData("Using Custom Distance", "%.2f", lastDistance);
-        }else if (lastDistance == 0) {
+            keyName = "Custom Distance";
+        } else if (lastCameraDistance > 0) {
+            // Only use camera distance if it is good
+            lastDistance = lastCameraDistance;
+            keyName = "Camera Distance";
+        } else if (PoseTracker.isPoseValid()) {
+            // Use robot pose when not getting good camera data
+            lastDistance = lastBotPoseDistance;
+            keyName = "Bot Pose Distance";
+        } else if (result != null && result.isValid()){
+            // Last ditch effort to get a valid angle on target by using any camera result
+            lastDistance = CameraSubsystem.calcGoalDistanceByTa(result);
+            keyName = "Weak Camera Distance";
+        }else {
             lastDistance = DEFAULT_SHOOT_DISTANCE;
-            telemetry.addData("Using default distance", DEFAULT_SHOOT_DISTANCE);
+            keyName = "Default Distance";
         }
 
         if (boostRpm != 0) {
@@ -216,13 +221,14 @@ public class DmShooterSubsystem extends StealthSubsystem {
         }
 
         // TODO: remove most of these for competition
+        telemetry.addData(keyName, "%.2f", lastDistance);
         if (lastCameraDistance > 0)
             telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
         if (lastBotPoseDistance > 0)
             telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
         if (lastBotPoseDistance > 0 && lastCameraDistance > 0)
             telemetry.addData("Delta Distance", "%.2f", lastBotPoseDistance - lastCameraDistance);
-        telemetry.addData("Using Distance", "%.2f", lastDistance);
+
 //        telemetry.addData("Target RPM", "%.2f", getRpmFromRange(lastDistance));
     }
 

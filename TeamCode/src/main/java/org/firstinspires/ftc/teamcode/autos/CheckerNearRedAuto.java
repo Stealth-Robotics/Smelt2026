@@ -6,9 +6,11 @@ import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
+import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.stealthrobotics.library.commands.IfCommand;
 
 @Autonomous(name = "Checker Near Red Auto", group = "RED")
@@ -54,7 +56,11 @@ public class CheckerNearRedAuto extends BioBuzzAutos
     }
 
     public Path aimOtherSide() {
-        return Paths.curve(aimOtherSideStart, aimOtherSideControl1, aimOtherSide).linear(aimOtherSideStart, aimOtherSide);
+        return Paths.curve(aimOtherSideStart, aimOtherSideControl1, aimOtherSide)
+                .heading(Interpolator.piecewise()
+                .until(0.7, Interpolator.tangent)
+                .until(1, Interpolator.facingPoint(Targets.getCellTarget(aimOtherSideControl1)).reverse()));
+
     }
 
     public Path parkIt() {

@@ -33,7 +33,7 @@ public class TestRedFarDoubleShot extends BioBuzzAutos{
         return Paths.curve(start, readyShootControl1, readyShoot)
                 .heading(Interpolator.piecewise()
                         .until(0.3, Interpolator.constant(readyShoot))
-                        .until(1, Interpolator.facingPoint(Targets.getTarget(readyShoot)).reverse()));
+                        .until(1, Interpolator.facingPoint(Targets.getCellTarget(readyShoot)).reverse()));
 
     }
 

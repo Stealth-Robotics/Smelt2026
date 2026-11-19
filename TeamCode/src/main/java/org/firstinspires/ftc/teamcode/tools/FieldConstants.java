@@ -18,9 +18,8 @@ public class FieldConstants {
 
     // Rests to the Scoring table side Blue wall intake facing away from driver
     public static final Pose BLUE_SCORE_POSE = new Pose(
-            FieldConstants.FIELD_X_MAX - FieldConstants.ROBOT_CENTER_X,
-            FieldConstants.FIELD_Y_MAX -
-                    FieldConstants.ROBOT_CENTER_Y,
+            FieldConstants.FIELD_X_CENTER + 35,
+            FieldConstants.FIELD_Y_MAX,
             FieldConstants.ROBOT_BLUE_HEADING);
 
     // Rests to the Audience side Blue wall intake facing away from driver
@@ -37,9 +36,8 @@ public class FieldConstants {
 
     // Resets to the scoring table side red wall
     public static final Pose RED_SCORE_POSE = new Pose(
-            FieldConstants.ROBOT_CENTER_X,
-            FieldConstants.FIELD_Y_MAX -
-                    FieldConstants.ROBOT_CENTER_Y,
+            FieldConstants.FIELD_X_CENTER - 35,
+                    FieldConstants.FIELD_Y_CENTER,
             FieldConstants.ROBOT_RED_HEADING);
 
 }

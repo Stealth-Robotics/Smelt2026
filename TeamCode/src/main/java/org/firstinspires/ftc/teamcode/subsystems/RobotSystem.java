@@ -116,8 +116,8 @@ public class RobotSystem extends StealthSubsystem {
     public void configOperatorBindings() {
         // --- Operator Controls ---
 
-        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(this::togglePositionUpdates);
+//        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+//                .whenPressed(this::togglePositionUpdates);
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
                 ()-> shooter.adjustCustomDistance(0.5));

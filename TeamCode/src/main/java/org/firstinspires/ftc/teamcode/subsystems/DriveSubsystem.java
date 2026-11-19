@@ -180,6 +180,14 @@ public class DriveSubsystem extends StealthSubsystem
         return Math.clamp(pidOutput, -MAX_ROTATION_POWER, MAX_ROTATION_POWER);
     }
 
+    /**
+     * Mainly for testing purposes allows updating the aim PIDF
+     * @param kp Proportional gain
+     * @param kiFar Integral gain for error large
+     * @param kiNear Integral gain for error small
+     * @param kd Derivative gain
+     * @param kf Feedforward gain
+     */
     public void setAimController(double kp, double kiFar, double kiNear, double kd, double kf) {
         this.kiNear = kiNear;
         this.kiSet = false;
@@ -187,18 +195,34 @@ public class DriveSubsystem extends StealthSubsystem
         headingController.reset();
     }
 
+    /**
+     * Configures robot for being driven by controller
+     * @param teleOp true for teleop otherwise false
+     */
     public void setTeleOp(boolean teleOp) {
         isTeleOp = teleOp;
     }
 
+    /**
+     * Gets the aim controller (for testing)
+     * @return The aim controller
+     */
     public PIDFController getAimController() {
         return headingController;
     }
 
+    /**
+     * Gets the current pose of the robot
+     * @return The current pose of the robot
+     */
     public Pose getPose() {
         return follower.pose();
     }
 
+    /**
+     * Sets the robot to auto aim
+     * @param autoAim true for auto aim otherwise false
+     */
     public void setAutoAim(boolean autoAim) {
         this.autoAim = autoAim;
         this.kiSet = false;
@@ -209,72 +233,144 @@ public class DriveSubsystem extends StealthSubsystem
         }
     }
 
+    /**
+     * Gets if the robot is in auto aim mode
+     * @return true if auto aim otherwise false
+     */
+    public boolean isAutoAim() {
+        return autoAim;
+    }
+
+    /**
+     * Toggles the robot's centric mode (Robot centric drive like RC car)
+     */
     public void toggleRobotCentric(){
         robotCentric = !robotCentric;
     }
 
+    /**
+     * Gets if the robot is in centric mode
+     * @return true if centric otherwise false
+     */
     public boolean isRobotCentric() {
         return robotCentric;
     }
 
+    /**
+     * Gets if the robot is in slow motion mode
+     * @return true if slow motion otherwise false
+     */
     public boolean isSlowMo() {
         return slowMo;
     }
-    
+
+    /**
+     * Toggles the robot's slow motion mode
+     */
     public void toggleSlowMo() {
         slowMo = ! slowMo;
     }
 
+    /**
+     * Toggles Pedro position hold mode
+     */
     public void toggleHoldMode() {
         hold = ! hold;
     }
 
+    /**
+     * Gets if the robot is in hold mode
+     * @return true if hold otherwise false
+     */
     public boolean isHoldMode() {
         return hold;
     }
 
+    /**
+     * Sets the robot to hold mode
+     * @param hold true for hold otherwise false
+     */
     public void setHoldMode(boolean hold) {
         this.hold = hold;
     }
 
+    /**
+     * Sets the robot to slow motion mode
+     * @param pressed true for slow motion otherwise false
+     */
     public void setSlowMo(boolean pressed) {
         slowMo = pressed;
     }
 
+    /**
+     * Checks if the robot is aimed
+     * @return true if aimed otherwise false
+     */
     public boolean isAimed(){
         return (Math.abs(lastTxDelta) < AUTO_AIM_TOLERANCE);
     }
 
+    /**
+     * Sets the robot to auto aim mode
+     * @param autoAim true for auto aim otherwise false
+     */
     public Command setAutoAimCmd(boolean autoAim) {
         return runOnce(() -> setAutoAim(autoAim));
     }
 
+    /**
+     * Sets the robot to auto aim mode with timeout
+     * @param timeoutMs timeout in milliseconds
+     */
     public Command aimAtTargetCmd(long timeoutMs) {
         return setAutoAimCmd(true)
                 .andThen(new WaitUntilCommand(this::isAimed).withTimeout(timeoutMs))
                 .andThen(setAutoAimCmd(false));
     }
 
+    /**
+     * Toggles slow motion mode
+     */
     public Command toggleSlowMoCmd() {
         return runOnce(this::toggleSlowMo);
     }
 
+    /**
+     * Sets the robot to slow motion mode
+     * @param slowMo true for slow motion otherwise false
+     */
     public Command setSlowMoCmd(boolean slowMo) {
         return runOnce(() -> setSlowMo(slowMo));
     }
 
+    /**
+     * Toggles centric mode
+     */
     public Command toggleRobotCentricCommand() {
         return runOnce(this::toggleRobotCentric);
     }
 
+    /**
+     * Sets the robot to centric mode
+     */
     public Command toggleHoldModeCmd() {
         return runOnce(this::toggleHoldMode);
     }
 
+    /**
+     * Applies drive powers to the robot based on the provided values
+     * @param forward forward direction power
+     * @param strafe strafe direction power
+     * @param rotate rotation power
+     */
     public void drive(double forward, double strafe, double rotate){
         follower.manual(new com.pedropathing.drivetrain.DrivePowers(forward, strafe, rotate));
     }
 
+    /**
+     * Allows for direct access to the follower object
+     * @return Pedro follower
+     */
     public Follower getFollower(){
         return follower;
     }
@@ -297,18 +393,8 @@ public class DriveSubsystem extends StealthSubsystem
         setHoldMode(oldHold);
     }
 
-    public Command updatePositionCmd(Pose pose) {
-        boolean oldHold = isHoldMode();
-        return runOnce(() -> setHoldMode(false))
-                .andThen(runOnce(follower::update))
-                .andThen(runOnce(() -> follower.setPose(pose)))
-                .andThen(runOnce(follower::update))
-                .andThen(runOnce(() -> setHoldMode(oldHold)));
-    }
-
     /**
      * Resets the robots heading only and prevents movement of robot when hold is active
-     * @return Command to reset heading
      */
     public Command resetHeadingCmd() {
         boolean oldHold = isHoldMode();
@@ -316,15 +402,13 @@ public class DriveSubsystem extends StealthSubsystem
                 .andThen(runOnce(follower::update))
                 .andThen(runOnce(this::resetHeading))
                 .andThen(runOnce(follower::update))
-                .andThen(runOnce(() -> setHoldMode(oldHold)))
-                .andThen(runOnce(()-> PoseTracker.setPose(getPose())));
+                .andThen(runOnce(() -> setHoldMode(oldHold)));
     }
 
     /**
-     * Resets robot position to scoring side corner wall or audience side corner wall
+     * Resets robot position to audience corner or hive center of the legs
      * turns off hold mode to prevent robot movement during reset
      * @param audience true for audience otherwise false
-     * @return Command to reset position
      */
     public Command resetPositionCmd(boolean audience) {
         boolean oldHold = isHoldMode();
@@ -332,21 +416,17 @@ public class DriveSubsystem extends StealthSubsystem
                 .andThen(runOnce(follower::update))
                 .andThen(runOnce(() -> resetPosition(audience))
                 .andThen(runOnce(follower::update))
-                .andThen(runOnce(() -> setHoldMode(oldHold))));
+                .andThen(runOnce(() -> setHoldMode(oldHold))))
+                .andThen(runOnce(()-> PoseTracker.setPose(getPose())));
     }
 
 
     /**
      * Follows a path with no timeout and no hold
      * @param path Pedro path to follow
-     * @return Command to follow path
      */
     public Command followPathCmd(Path path){
         return followPathCmd(path, true);
-    }
-
-    public Command setStartPoseCmd(Pose pose){
-        return runOnce(() -> follower.setPose(pose));
     }
 
     /**

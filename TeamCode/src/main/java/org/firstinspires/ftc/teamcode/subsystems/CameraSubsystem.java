@@ -142,7 +142,7 @@ public class CameraSubsystem extends StealthSubsystem
                 Pose camPose = toPedroPose(result.getBotpose_MT2());
                 double taDistance = calcGoalDistanceByTa(result);
                 double camDistance = Targets.getDistanceToTarget(camPose);
-                return Math.abs(taDistance - camDistance) < 1.5 && taDistance < 58 && taDistance > 35;
+                return Math.abs(taDistance - camDistance) < 1.5 && taDistance < 60 && taDistance > 35;
             }
         }
 

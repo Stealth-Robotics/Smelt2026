@@ -103,6 +103,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
     private final GateSubsystem gate;
 
+    private final DriveSubsystem drive;
+
     public enum ShootState {
         NOT_SHOOTING,
         WAITING_TO_SHOOT,
@@ -141,6 +143,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
         intake = robot.getIntake();
         gate = robot.getGateSubsystem();
+        drive = robot.getDrive();
         rangeToRpm = Trajectories.createShooterTable();
     }
 
@@ -165,6 +168,11 @@ public class DmShooterSubsystem extends StealthSubsystem {
             // We've hit target RPM, let them fly
             if (isShootReady() || shootState == ShootState.SHOOTING) {
                 shootState = ShootState.SHOOTING;
+
+                if (drive.isAutoAim()) {
+                    drive.setAutoAim(false);
+                }
+
                 gate.open();
                 // wait for the gate to open before feeding
                 if (gate.isOpen()) {
@@ -172,6 +180,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
                 }
             } else {
                 shootState = ShootState.WAITING_TO_SHOOT;
+
+                if (!drive.isAutoAim()) {
+                    drive.setAutoAim(true);
+                }
 
                 // only update the hood and RPM while we are waiting to shoot
                 // this keeps jitter from happening when we are shooting
@@ -191,6 +203,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
         CameraSubsystem camera = robot.getCamera();
         LLResult result = robot.getCamera().getLastResult();
+
+        if (boostRpm != 0) {
+            telemetry.addData("Boost RPM", "%.2f", boostRpm);
+        }
 
         double lastBotPoseDistance = Targets.getDistanceToTarget(robot.getDrive().getPose());
         double lastCameraDistance = camera.getValidCamDistance(result);
@@ -216,20 +232,12 @@ public class DmShooterSubsystem extends StealthSubsystem {
             keyName = "Default Distance";
         }
 
-        if (boostRpm != 0) {
-            telemetry.addData("Boost RPM", "%.2f", boostRpm);
-        }
-
         // TODO: remove most of these for competition
         telemetry.addData(keyName, "%.2f", lastDistance);
-        if (lastCameraDistance > 0)
-            telemetry.addData("Camera Distance", "%.2f", lastCameraDistance);
-        if (lastBotPoseDistance > 0)
-            telemetry.addData("Position Distance", "%.2f", lastBotPoseDistance);
-        if (lastBotPoseDistance > 0 && lastCameraDistance > 0)
-            telemetry.addData("Delta Distance", "%.2f", lastBotPoseDistance - lastCameraDistance);
 
-//        telemetry.addData("Target RPM", "%.2f", getRpmFromRange(lastDistance));
+        if (lastBotPoseDistance > 0 && lastCameraDistance > 0)
+            telemetry.addData("Delta Distance", "Bot %.2f -  Cam %.2f = %.2f",
+                    lastBotPoseDistance, lastCameraDistance, lastBotPoseDistance - lastCameraDistance);
     }
 
     /**
@@ -369,6 +377,10 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
     public void stop() {
         shootState = ShootState.NOT_SHOOTING;
+        if (drive.isAutoAim()) {
+            drive.setAutoAim(false);
+        }
+
         useCustomDistance = false;
         setFloat();
         gate.close();

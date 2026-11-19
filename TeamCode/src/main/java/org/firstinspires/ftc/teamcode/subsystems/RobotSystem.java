@@ -54,8 +54,8 @@ public class RobotSystem extends StealthSubsystem {
         camera = new CameraSubsystem(hardwareMap);
         intakeSubsystem = new IntakeSubsystem(hardwareMap);
         gateSubsystem = new GateSubsystem(hardwareMap);
-        shooter = new DmShooterSubsystem(hardwareMap, this);
         drive = new DriveSubsystem(hardwareMap, this);
+        shooter = new DmShooterSubsystem(hardwareMap, this);
         harvesterSubsystem = new HarvesterSubsystem(hardwareMap);
         this.driver = driver;
         this.operator = operator;

@@ -88,9 +88,9 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double baseKp = 10.0; // 1.0; // 1.0 for white transfer 2.0 for black
     private double baseKi = 0.13;
     private double baseKd = 0.0;
-    private double baseKf = 13.5; // 12.19; for white 12.35 for black
+    private double baseKf = 13.0; // 12.19; for white 12.35 for black
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
-    private double kfScaler = 0.88;
+    private double kfScaler = 0.89;
 
     private final InterpLUT rangeToRpm;
 
@@ -135,7 +135,7 @@ public class DmShooterSubsystem extends StealthSubsystem {
         shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, baseKf);
         shooterMotor1.setPositionPIDFCoefficients(5.0);
         shooterMotor1.setTargetPositionTolerance(20);
-        shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterMotor2.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, baseKf);
         shooterMotor2.setPositionPIDFCoefficients(5.0);
@@ -302,7 +302,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
         // Ready if RPM is within tolerance
         double currentRpm = getCurrentRpm();
         return (currentRpm - targetRpm >= VELOCITY_TOLERANCE_LOW) && (currentRpm - targetRpm <= VELOCITY_TOLERANCE_HIGH)
-                || (curMs > MAX_SHOOT_TIME_MS);
+                //|| (curMs > MAX_SHOOT_TIME_MS)
+                ;
     }
 
     /**

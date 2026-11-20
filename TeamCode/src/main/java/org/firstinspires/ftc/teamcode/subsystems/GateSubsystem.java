@@ -8,7 +8,7 @@ import org.stealthrobotics.library.StealthSubsystem;
 
 public class GateSubsystem extends StealthSubsystem {
     public final Servo servo;
-    public static final double GATE_CLOSED = 0.21;
+    public static final double GATE_CLOSED = 0.20;
     public static final double GATE_OPEN = 0.07;
     private final ElapsedTime transitionTime = new ElapsedTime();
     private static  final double GATE_TRANSITION_TIME = 300;

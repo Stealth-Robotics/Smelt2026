@@ -9,7 +9,7 @@ import org.stealthrobotics.library.StealthSubsystem;
 public class HarvesterSubsystem extends StealthSubsystem {
     public final Servo servo;
     public static final double HARVESTER_UP = 0.08;
-    public static final double HARVESTER_DOWN = 0.71;
+    public static final double HARVESTER_DOWN = 0.70;
 
     private double lastPosition = HARVESTER_UP;
     public HarvesterSubsystem(HardwareMap map){

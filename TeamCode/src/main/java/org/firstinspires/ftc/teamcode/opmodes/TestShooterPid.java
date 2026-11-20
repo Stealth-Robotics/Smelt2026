@@ -107,6 +107,8 @@ public class TestShooterPid extends StealthOpMode {
 
     public Command printInfo() {
         return new RunCommand(() ->{
+            telemetry.addData("Motor1 Ticks", robotSystem.getShooter().getShooterMotor1().getVelocity());
+            telemetry.addData("Motor2 Ticks", robotSystem.getShooter().getShooterMotor2().getVelocity());
            telemetry.addData("Step Index", stepIndex);
            telemetry.addData("Step Value", "%.6f", stepSizes[stepIndex]);
            telemetry.addData("KP","%.6f", kp);

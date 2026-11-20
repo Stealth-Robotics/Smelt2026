@@ -533,6 +533,14 @@ public class DmShooterSubsystem extends StealthSubsystem {
         this.boostRpm = 0;
     }
 
+    public DcMotorEx getShooterMotor1() {
+        return shooterMotor1;
+    }
+
+    public DcMotorEx getShooterMotor2() {
+        return shooterMotor2;
+    }
+
     /**
      * Adjusts the boost RPM by a specified amount.
      *

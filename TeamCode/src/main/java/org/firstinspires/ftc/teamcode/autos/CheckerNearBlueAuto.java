@@ -17,10 +17,10 @@ public class CheckerNearBlueAuto extends BioBuzzAutos
     private final PoseFactory poseFactory = PoseFactory.degrees()
             .rotateAround(FIELD_CENTER,180);
     private final Pose start = poseFactory.of(61.2425, 133.2425, 90);
-    private final Pose goShoot = poseFactory.of(46.8609, 120.5233, 110);
+    private final Pose goShoot = poseFactory.of(46.75, 119, 110);
     private final Pose goShootControl1 = poseFactory.of(62.406, 123.6543, 0);
-    private final Pose harvest = poseFactory.of(46.8796, 129.8951, 89.8855);
-    private final Pose checkStart = poseFactory.of(46.8796, 129.8951, 90);
+    private final Pose harvest = poseFactory.of(46.8796, 129.5, 90);
+    private final Pose checkStart = poseFactory.of(46.8796, 129.5, 90);
     private final Pose check = poseFactory.of(46.86, 120.52, 110);
     private final Pose goParkForTrue = poseFactory.of(10.3175, 120.6879, -0.2633);
     private final Pose irrelevantPath = poseFactory.of(46.86, 120.52, 179.7367);
@@ -69,7 +69,7 @@ public class CheckerNearBlueAuto extends BioBuzzAutos
         follower.setPose(start);
     }
 
-    public double defaultDistance = 51;
+    public double defaultDistance = 0;
 
     @Override
     public Command getAutoCommand() {
@@ -82,7 +82,9 @@ public class CheckerNearBlueAuto extends BioBuzzAutos
                                 (
                                         shootSequenceCmd(defaultDistance),
                                         startHarvestingCmd(),
+                                        waitCmd(200),
                                         drive.followPathCmd(harvest(),3000),
+                                        waitCmd(2000),
                                         drive.followPathCmd(check()),
                                         shootSequenceCmd(defaultDistance),
                                         stopHarvestingCmd(),

@@ -409,7 +409,8 @@ public class DmShooterSubsystem extends StealthSubsystem {
 
     public void setDistance(double distance) {
         customDistance = distance;
-        useCustomDistance = true;
+
+        useCustomDistance = distance > 0;
     }
 
     /**

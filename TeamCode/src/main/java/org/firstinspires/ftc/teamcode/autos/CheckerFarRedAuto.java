@@ -13,8 +13,7 @@ import org.stealthrobotics.library.commands.IfCommand;
 @Autonomous(name = "Checker Far Red Auto", group = "RED")
 public class CheckerFarRedAuto extends BioBuzzAutos
 {
-    private final PoseFactory poseFactory = PoseFactory.degrees()
-            .rotateAround(FIELD_CENTER,180);
+    private final PoseFactory poseFactory = PoseFactory.degrees();
 
     private final Pose start = poseFactory.of(61.2425, 133.2425, 90);
     private final Pose goShoot = poseFactory.of(46.75, 119, 110);

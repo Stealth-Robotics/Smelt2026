@@ -13,8 +13,9 @@ import org.stealthrobotics.library.commands.IfCommand;
 @Autonomous(name = "Checker Near Blue Auto", group = "BLUE")
 public class CheckerNearBlueAuto extends BioBuzzAutos
 {
-    private final PoseFactory poseFactory = PoseFactory.degrees();
 
+    private final PoseFactory poseFactory = PoseFactory.degrees()
+            .rotateAround(FIELD_CENTER,180);
     private final Pose start = poseFactory.of(61.2425, 133.2425, 90);
     private final Pose goShoot = poseFactory.of(46.8609, 120.5233, 110);
     private final Pose goShootControl1 = poseFactory.of(62.406, 123.6543, 0);
@@ -68,30 +69,32 @@ public class CheckerNearBlueAuto extends BioBuzzAutos
         follower.setPose(start);
     }
 
+    public double defaultDistance = 51;
+
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
                 drive.followPathCmd(goShoot()), //Path goShoot
-                waitCmd(10000),             //Wait 10 seconds
+                waitForTagsCmd(10000),             //Wait 10 seconds
                 new IfCommand(this::getTagSeen,
-                                                // Tags Seen == TRUE
+                        // Tags Seen == TRUE
                         new SequentialCommandGroup
                                 (
-                                shootSequenceCmd(51),
-                                startHarvestingCmd(),
-                                drive.followPathCmd(harvest(),3000),
-                                drive.followPathCmd(check()),
-                                shootSequenceCmd(51),
-                                stopHarvestingCmd(),
-                                drive.followPathCmd(goParkForTrue())
+                                        shootSequenceCmd(defaultDistance),
+                                        startHarvestingCmd(),
+                                        drive.followPathCmd(harvest(),3000),
+                                        drive.followPathCmd(check()),
+                                        shootSequenceCmd(defaultDistance),
+                                        stopHarvestingCmd(),
+                                        drive.followPathCmd(goParkForTrue())
                                 ),
-                                                // Tags Seen == FALSE
+                        // Tags Seen == FALSE
                         new SequentialCommandGroup
                                 (
-                                drive.followPathCmd(goShootOtherSide()),
-                                drive.followPathCmd(shootOtherSide()),
-                                shootSequenceCmd(51),
-                                drive.followPathCmd(goParkForFalse())
+                                        drive.followPathCmd(goShootOtherSide()),
+                                        drive.followPathCmd(shootOtherSide()),
+                                        shootSequenceCmd(defaultDistance),
+                                        drive.followPathCmd(goParkForFalse())
                                 )
                 )
 

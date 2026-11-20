@@ -6,6 +6,7 @@ import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.tools.FieldConstants;
@@ -26,7 +27,7 @@ public class CheckerFarBlueAuto extends BioBuzzAutos
     private final Pose goShootToo = poseFactory.of(53.31, 10.3272, -46.0846);
     private final Pose checkTagAim = poseFactory.of(53.31, 15.0612, -90);
     private final Pose aimOtherSideStart = poseFactory.of(53.31, 15.0612, 90);
-    private final Pose aimOtherSide = poseFactory.of(40.3475, 122.177, 120);
+    private final Pose aimOtherSide = poseFactory.of(40.3475, 122.177, 115);
     private final Pose aimOtherSideControl1 = poseFactory.of(75.9662, 90.7934, 0);
     private final Pose parkIt = poseFactory.of(11.8202, 119.4826, -166.7936);
 
@@ -55,7 +56,11 @@ public class CheckerFarBlueAuto extends BioBuzzAutos
     }
 
     public Path aimOtherSide() {
-        return Paths.curve(aimOtherSideStart, aimOtherSideControl1, aimOtherSide).linear(aimOtherSideStart, aimOtherSide);
+        return Paths.curve(aimOtherSideStart, aimOtherSideControl1, aimOtherSide)
+                .heading(Interpolator.piecewise()
+                        .until(0.7, Interpolator.tangent)
+                        .until(1, Interpolator.constant(aimOtherSide)));
+
     }
 
     public Path parkIt() {
@@ -72,7 +77,7 @@ public class CheckerFarBlueAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequenceCmd(61),
+                shootSequenceCmd(62),
                 drive.followPathCmd(moveUp()),
                 drive.followPathCmd(alignFlower()),
                 startHarvestingCmd(),

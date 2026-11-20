@@ -27,7 +27,7 @@ public class CheckerNearRedAuto extends BioBuzzAutos
     private final Pose goShootToo = poseFactory.of(53.31, 10.3272, -46.0846);
     private final Pose checkTagAim = poseFactory.of(53.31, 15.0612, -90);
     private final Pose aimOtherSideStart = poseFactory.of(53.31, 15.0612, 90);
-    private final Pose aimOtherSide = poseFactory.of(40.3475, 122.177, 115);
+    private final Pose aimOtherSide = poseFactory.of(40.3475, 122.177, 100);
     private final Pose aimOtherSideControl1 = poseFactory.of(75.9662, 90.7934, 0);
     private final Pose parkIt = poseFactory.of(11.8202, 119.4826, -166.7936);
 
@@ -77,7 +77,7 @@ public class CheckerNearRedAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequenceCmd(62),
+                shootSequenceCmd(), // 62
                 drive.followPathCmd(moveUp()),
                 drive.followPathCmd(alignFlower()),
                 startHarvestingCmd(),
@@ -88,19 +88,19 @@ public class CheckerNearRedAuto extends BioBuzzAutos
                 intake.stopAutoIntakeCommand(),
                 drive.followPathCmd(goShootToo()),
                 drive.followPathCmd(checkTagAim()),
-                waitForTagsCmd(1000),
+                waitForTagsCmd(500),
 
                 new IfCommand(this::getTagSeen,
                         // Tags Seen == TRUE
                         new SequentialCommandGroup(
-                                shootSequenceCmd(57),
+                                shootSequenceCmd(), //57
                                 drive.followPathCmd(aimOtherSide())
 
                                 ),
                         // FALSE NO TAGS SEEN GO AND SHOOT OTHER SIDE
                         new SequentialCommandGroup(
                             drive.followPathCmd(aimOtherSide()),
-                            shootSequenceCmd(57)
+                            shootSequenceCmd() //57
                         )
                         ),
 

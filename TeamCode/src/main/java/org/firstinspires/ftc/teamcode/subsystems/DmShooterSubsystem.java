@@ -169,9 +169,9 @@ public class DmShooterSubsystem extends StealthSubsystem {
             if (isShootReady() || shootState == ShootState.SHOOTING) {
                 shootState = ShootState.SHOOTING;
 
-                if (drive.isAutoAim()) {
-                    drive.setAutoAim(false);
-                }
+//                if (drive.isAutoAim()) {
+//                    drive.setAutoAim(false);
+//                }
 
                 gate.open();
                 // wait for the gate to open before feeding
@@ -181,9 +181,9 @@ public class DmShooterSubsystem extends StealthSubsystem {
             } else {
                 shootState = ShootState.WAITING_TO_SHOOT;
 
-                if (!drive.isAutoAim()) {
-                    drive.setAutoAim(true);
-                }
+//                if (!drive.isAutoAim()) {
+//                    drive.setAutoAim(true);
+//                }
 
                 // only update the hood and RPM while we are waiting to shoot
                 // this keeps jitter from happening when we are shooting
@@ -377,9 +377,9 @@ public class DmShooterSubsystem extends StealthSubsystem {
      */
     public void stop() {
         shootState = ShootState.NOT_SHOOTING;
-        if (drive.isAutoAim()) {
-            drive.setAutoAim(false);
-        }
+//        if (drive.isAutoAim()) {
+//            drive.setAutoAim(false);
+//        }
 
         useCustomDistance = false;
         setFloat();

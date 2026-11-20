@@ -27,7 +27,7 @@ import java.util.List;
 
 public class CameraSubsystem extends StealthSubsystem
 {
-    private boolean cameraToggle = false;
+    private boolean cameraToggle = true;
     private final Telemetry telemetry = StealthOpMode.telemetry;
     public static final String NAME = "limelight";
     private  final Limelight3A limelight;

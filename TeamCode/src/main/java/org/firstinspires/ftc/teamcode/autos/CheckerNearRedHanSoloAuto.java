@@ -20,7 +20,7 @@ public class CheckerNearRedHanSoloAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(56.9, 8.2, 270);
+    private final Pose start = poseFactory.of(56.9, FieldConstants.ROBOT_CENTER_Y, 270);
     private final Pose moveUp = poseFactory.of(56.31, 12.06, 270);
     private final Pose alignFlower = poseFactory.of(29.6241, 47, 155.9755);
     private final Pose alignFlowerControl1 = poseFactory.of(42.2343, 41.3791, 0);

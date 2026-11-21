@@ -109,7 +109,7 @@ public class CheckerFarBlueHanSoloAuto extends BioBuzzAutos
                                 (
                                         shootSequenceCmd(), //57
                                         drive.followPathCmd(aimOtherSide()),
-                                        waitCmd(500),
+                                        waitCmd(500),           //half a second
                                         harvester.harvDownCmd(),
                                         drive.followPathCmd(preHarvestToo()),
                                         intake.startAutoIntakeCommand(),

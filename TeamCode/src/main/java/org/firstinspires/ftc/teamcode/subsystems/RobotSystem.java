@@ -138,7 +138,7 @@ public class RobotSystem extends StealthSubsystem {
         operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(shooter::toggleFloatPower);
 
         operator.getGamepadButton(GamepadKeys.Button.B)
-                .whenPressed(slabby.toggleCmd());
+                .whenPressed(slabby::toggle);
 
         operator.getGamepadButton(GamepadKeys.Button.Y)
                 .whenPressed(shooter::resetCustomDistance);

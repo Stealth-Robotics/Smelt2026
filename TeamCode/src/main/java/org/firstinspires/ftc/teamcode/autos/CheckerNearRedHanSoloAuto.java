@@ -31,11 +31,13 @@ public class CheckerNearRedHanSoloAuto extends BioBuzzAutos
     private final Pose aimOtherSideStart = poseFactory.of(53.31, 15.0612, 90);
     private final Pose aimOtherSide = poseFactory.of(40.3475, 122.18, 125);
     private final Pose aimOtherSideControl1 = poseFactory.of(75.9662, 90.7934, 0);
-    private final Pose harvestTooStart = poseFactory.of(40.3475, 122.18, 125);
-    private final Pose harvestToo = poseFactory.of(46.7504, 127.5, 90);
+    private final Pose preHarvestTooStart = poseFactory.of(40.3475, 122.18, 125);
+    private final Pose preHarvestToo = poseFactory.of(46.6295, 122.0892, 90);
+    private final Pose harvestTooStart = poseFactory.of(46.6295, 122.0892, 90);
+    private final Pose harvestToo = poseFactory.of(46.7504, 130.1992, 90);
     private final Pose postHarvestTooStart = poseFactory.of(46.7504, 130.1992, 90);
-    private final Pose postHarvestToo = poseFactory.of(40.8922, 122.18, 125);
-    private final Pose parkIt = poseFactory.of(11.6124, 121.9751, -179.5991);
+    private final Pose postHarvestToo = poseFactory.of(40.38, 122.18, 125);
+    private final Pose parkIt = poseFactory.of(11.6124, 121.9751, -179.592);
 
     public Path moveUp() {
         return Paths.line(start, moveUp).linear(start, moveUp);
@@ -63,6 +65,10 @@ public class CheckerNearRedHanSoloAuto extends BioBuzzAutos
 
     public Path aimOtherSide() {
         return Paths.curve(aimOtherSideStart, aimOtherSideControl1, aimOtherSide).linear(aimOtherSideStart, aimOtherSide);
+    }
+
+    public Path preHarvestToo() {
+        return Paths.line(preHarvestTooStart, preHarvestToo).linear(preHarvestTooStart, preHarvestToo);
     }
 
     public Path harvestToo() {
@@ -106,19 +112,29 @@ public class CheckerNearRedHanSoloAuto extends BioBuzzAutos
                                 (
                                         shootSequenceCmd(), //57
                                         drive.followPathCmd(aimOtherSide()),
-                                        drive.followPathCmd(harvestToo()),
+                                        waitCmd(500),
+                                        harvester.harvDownCmd(),
+                                        drive.followPathCmd(preHarvestToo()),
+                                        intake.startAutoIntakeCommand(),
+                                        drive.followPathCmd(harvestToo(), 3000),
                                         drive.followPathCmd(postHarvestToo()),
-                                        shootSequenceCmd()
+                                        harvester.harvUpCmd(),
+                                        shootSequenceCmd(),
+                                        drive.followPathCmd(parkIt())
                                 ),
                         // FALSE NO TAGS SEEN GO AND SHOOT OTHER SIDE
                         new SequentialCommandGroup
                                 (
                                         drive.followPathCmd(aimOtherSide()),
+                                        harvester.harvDownCmd(),
                                         shootSequenceCmd(),
-                                        drive.followPathCmd(harvestToo()),
+                                        drive.followPathCmd(preHarvestToo()),
                                         intake.startAutoIntakeCommand(),
+                                        drive.followPathCmd(harvestToo(), 3000),
                                         drive.followPathCmd(postHarvestToo()),
-                                        shootSequenceCmd() //57
+                                        harvester.harvUpCmd(),
+                                        shootSequenceCmd(),
+                                        drive.followPathCmd(parkIt())
                                 )
                 ),
 

@@ -24,7 +24,8 @@ public class ParkOnlyNearBlue extends BioBuzzAutos
     }
 
     @Override
-    public void initialize(){
+    public void initialize()
+    {
         super.initialize();
         follower.setPose(start);
     }

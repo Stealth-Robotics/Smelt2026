@@ -84,7 +84,7 @@ public class CheckerNearRedAuto extends BioBuzzAutos
                 drive.followPathCmd(alignFlower()),
                 startHarvestingCmd(),
                 drive.followPathCmd(harvest(),3000),
-                waitCmd(2000),
+                waitCmd(1500), //2000
                 drive.followPathCmd(postHarvest()),
                 stopHarvestingCmd(),
                 intake.stopAutoIntakeCommand(),

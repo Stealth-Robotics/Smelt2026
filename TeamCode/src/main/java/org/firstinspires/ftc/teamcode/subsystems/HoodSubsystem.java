@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.util.InterpLUT;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -91,8 +92,9 @@ public class HoodSubsystem extends StealthSubsystem {
         angleOverride = angle;
     }
 
-    public void incrementAngleOverride(double amount) {
-        angleOverride += amount;
+    public Command adjustAngleOverride(double amount) {
+
+        return runOnce(() -> angleOverride += amount);
     }
 
     public double getAngleOverride() {

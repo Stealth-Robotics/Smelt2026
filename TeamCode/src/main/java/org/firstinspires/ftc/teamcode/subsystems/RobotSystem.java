@@ -33,7 +33,7 @@ public class RobotSystem extends StealthSubsystem {
     private final IntakeSubsystem intakeSubsystem;
     private final DmShooterSubsystem shooter;
     private final GateSubsystem gateSubsystem;
-    private final HarvesterSubsystem harvesterSubsystem;
+    private final HarvesterSubsystem harv;
     private final DriveSubsystem drive;
     private final CameraSubsystem camera;
 
@@ -56,7 +56,7 @@ public class RobotSystem extends StealthSubsystem {
         gateSubsystem = new GateSubsystem(hardwareMap);
         drive = new DriveSubsystem(hardwareMap, this);
         shooter = new DmShooterSubsystem(hardwareMap, this);
-        harvesterSubsystem = new HarvesterSubsystem(hardwareMap);
+        harv = new HarvesterSubsystem(hardwareMap);
         this.driver = driver;
         this.operator = operator;
     }
@@ -106,7 +106,7 @@ public class RobotSystem extends StealthSubsystem {
         driver.getGamepadButton(GamepadKeys.Button.X)
                 .whenPressed(shooter::toggleFloatPower);
 
-        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(()->shooter.setUseCustomDistance(true));
+        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(harv.harvToggleCmd());
 
     }
 
@@ -120,10 +120,10 @@ public class RobotSystem extends StealthSubsystem {
 //                .whenPressed(this::togglePositionUpdates);
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
-                ()-> shooter.adjustCustomDistance(0.5));
+                shooter.getHood().adjustAngleOverride(.01));
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
-                ()-> shooter.adjustCustomDistance(-0.5));
+                shooter.getHood().adjustAngleOverride(-.01));
 
         operator.getGamepadButton(GamepadKeys.Button.A)
                 .whenPressed(()->drive.setAutoAim(true)).whenReleased(() -> drive.setAutoAim(false));
@@ -135,7 +135,7 @@ public class RobotSystem extends StealthSubsystem {
         operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(shooter::toggleFloatPower);
 
         operator.getGamepadButton(GamepadKeys.Button.B)
-                .whenPressed(harvesterSubsystem.harvToggleCmd());
+                .whenPressed(harv.harvToggleCmd());
 
         operator.getGamepadButton(GamepadKeys.Button.Y)
                 .whenPressed(shooter::resetCustomDistance);
@@ -203,7 +203,7 @@ public class RobotSystem extends StealthSubsystem {
      * @return HarvesterSubsystem
      */
     public HarvesterSubsystem getHarvesterSubsystem(){
-        return harvesterSubsystem;
+        return harv;
     }
 
     /** @return The drive subsystem */

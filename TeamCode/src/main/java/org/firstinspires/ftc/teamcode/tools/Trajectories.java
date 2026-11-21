@@ -19,9 +19,9 @@ public class Trajectories {
         rangeToHoodAngle.add(MIN_DISTANCE - 0.1, 4.928);
         rangeToHoodAngle.add(40, 8.920);
         rangeToHoodAngle.add(45, 11.281);
-        rangeToHoodAngle.add(50, 14.849);
-        rangeToHoodAngle.add(55, 19.458);
-        rangeToHoodAngle.add(56.60, 19.96);
+        rangeToHoodAngle.add(50, 14.949);
+        rangeToHoodAngle.add(55, 19.558);
+        rangeToHoodAngle.add(56.60, 19.99);
         rangeToHoodAngle.add(60, 23.392);
         rangeToHoodAngle.add(65, 23.468);
         rangeToHoodAngle.add(70, 26.977);
@@ -51,11 +51,11 @@ public class Trajectories {
         rangeToRpm.add(60.0, 3195);
         rangeToRpm.add(65.0, 3228);
         rangeToRpm.add(70.0, 3287);
-        rangeToRpm.add(75.0, 3315);
-        rangeToRpm.add(80.73, 3411);
-        rangeToRpm.add(85.72, 3539);
-        rangeToRpm.add(92.0, 3615);
-        rangeToRpm.add(MAX_DISTANCE + 0.1, 3675);
+        rangeToRpm.add(75.0, 3390);
+        rangeToRpm.add(80.73, 3486);
+        rangeToRpm.add(85.72, 3614);
+        rangeToRpm.add(92.0, 3690);
+        rangeToRpm.add(MAX_DISTANCE + 0.1, 3750);
         rangeToRpm.createLUT();
         return rangeToRpm;
     }

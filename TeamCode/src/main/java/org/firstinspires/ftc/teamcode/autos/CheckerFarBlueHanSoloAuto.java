@@ -31,8 +31,8 @@ public class CheckerFarBlueHanSoloAuto extends BioBuzzAutos
     private final Pose preHarvestTooStart = poseFactory.of(40.3475, 122.18, 125);
     private final Pose preHarvestToo = poseFactory.of(46.6295, 122.0892, 90);
     private final Pose harvestTooStart = poseFactory.of(46.6295, 122.0892, 90);
-    private final Pose harvestToo = poseFactory.of(46.7504, 130.1992, 90);
-    private final Pose postHarvestTooStart = poseFactory.of(46.7504, 130.1992, 90);
+    private final Pose harvestToo = poseFactory.of(46.7504, 125.2921, 90);
+    private final Pose postHarvestTooStart = poseFactory.of(46.7504, 125.2921, 90);
     private final Pose postHarvestToo = poseFactory.of(40.38, 122.18, 125);
     private final Pose parkIt = poseFactory.of(11.6124, 121.9751, -179.592);
 

@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.tools.FieldConstants;
 import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.stealthrobotics.library.commands.IfCommand;
 
-@Autonomous(name ="Test Far RED", group = "Test")
+//@Autonomous(name ="Test Far RED", group = "Test")
 public class TestRedFarDoubleShot extends BioBuzzAutos{
 
     private final PoseFactory poseFactory = PoseFactory.degrees();

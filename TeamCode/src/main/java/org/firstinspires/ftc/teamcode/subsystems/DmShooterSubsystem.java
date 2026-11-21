@@ -88,9 +88,9 @@ public class DmShooterSubsystem extends StealthSubsystem {
     private double baseKp = 10.0; // 1.0; // 1.0 for white transfer 2.0 for black
     private double baseKi = 0.13;
     private double baseKd = 0.0;
-    private double baseKf = 13.0; // 12.19; for white 12.35 for black
+    private double baseKf = 12.76; // 12.19; for white 12.35 for black
     /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
-    private double kfScaler = 0.89;
+    private double kfScaler = 0.85;
 
     private final InterpLUT rangeToRpm;
 

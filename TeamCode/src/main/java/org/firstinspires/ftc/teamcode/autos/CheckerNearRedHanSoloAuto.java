@@ -114,6 +114,8 @@ public class CheckerNearRedHanSoloAuto extends BioBuzzAutos
                         new SequentialCommandGroup
                                 (
                                         drive.followPathCmd(aimOtherSide()),
+                                        drive.followPathCmd(harvestToo()),
+                                        drive.followPathCmd(postHarvestToo()),
                                         shootSequenceCmd() //57
                                 )
                 ),

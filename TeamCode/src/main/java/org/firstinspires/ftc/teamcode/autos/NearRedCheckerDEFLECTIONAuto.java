@@ -20,7 +20,7 @@ public class NearRedCheckerDEFLECTIONAuto extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(56.8844, FieldConstants.ROBOT_CENTER_Y, 270);
+    private final Pose start = poseFactory.of(56.8844, 8.2077, 270);
     private final Pose moveUp = poseFactory.of(56.31, 12.06, 270);
     private final Pose alignFlower = poseFactory.of(29.6241, 47, 155.9755);
     private final Pose alignFlowerControl1 = poseFactory.of(42.2343, 41.3791, 0);
@@ -29,8 +29,8 @@ public class NearRedCheckerDEFLECTIONAuto extends BioBuzzAutos
     private final Pose goShootToo = poseFactory.of(53.31, 10.3272, 133.9154);
     private final Pose checkTagAim = poseFactory.of(53.31, 15.0612, -90);
     private final Pose aimOtherSideStart = poseFactory.of(53.31, 15.0612, 90);
-    private final Pose aimOtherSide = poseFactory.of(40.3475, 122.18, 125);
-    private final Pose aimOtherSideControl1 = poseFactory.of(14.2774, 55.8987, 0);
+    private final Pose aimOtherSide = poseFactory.of(40.3475, 122.18, 122.5);
+    private final Pose aimOtherSideControl1 = poseFactory.of(14.0697, 46.7597, 0);
     private final Pose parkIt = poseFactory.of(11.8202, 119.4826, -174.5985);
 
     public Path moveUp() {
@@ -75,7 +75,7 @@ public class NearRedCheckerDEFLECTIONAuto extends BioBuzzAutos
     @Override
     public Command getAutoCommand() {
         return new SequentialCommandGroup(
-                shootSequenceCmd(62), // 62
+                shootSequenceCmd(62.5), // 62
                 drive.followPathCmd(moveUp()),
                 drive.followPathCmd(alignFlower()),
                 startHarvestingCmd(),

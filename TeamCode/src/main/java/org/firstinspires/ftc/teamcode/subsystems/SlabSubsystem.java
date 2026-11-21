@@ -9,7 +9,7 @@ import org.stealthrobotics.library.StealthSubsystem;
 public class SlabSubsystem extends StealthSubsystem {
     private final Servo slabServo;
     private static final double SLAB_UP = 0.34;
-    private static final double SLAB_BLOCK = 0.07;
+    private static final double SLAB_BLOCK = 0.03;
 
 
     public SlabSubsystem(HardwareMap map) {

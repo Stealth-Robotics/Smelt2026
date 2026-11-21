@@ -12,9 +12,10 @@ import org.firstinspires.ftc.teamcode.subsystems.GateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.HarvesterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.HoodSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
+import org.firstinspires.ftc.teamcode.subsystems.SlabSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
-@TeleOp(name = "TestServo Hood", group = "Tests")
+@TeleOp(name = "TestServo Slab", group = "Tests")
 public class TestServo extends StealthOpMode {
     private GamepadEx driver;
     private GamepadEx operator;
@@ -38,7 +39,8 @@ public class TestServo extends StealthOpMode {
                 operator);
         // Change Servo here to test different servos
         //servo = new HarvesterSubsystem(hardwareMap).getServo();
-        servo = new HoodSubsystem(hardwareMap).getServo();
+        //servo = new HoodSubsystem(hardwareMap).getServo();
+        servo = new SlabSubsystem(hardwareMap).getServo();
         servo.setPosition(position);
         configBindings();
         schedule(this.printInfo());
@@ -84,8 +86,9 @@ public class TestServo extends StealthOpMode {
             telemetry.addData("Step Index", stepIndex);
             telemetry.addData("Step Value", "%.3f", stepSizes[stepIndex]);
             telemetry.addData("Position", position);
-            telemetry.addData( "Angle", robotSystem.getShooter().getHood().getAngle());
-            telemetry.addData("Hood Pose", robotSystem.getShooter().getHood().getPosition());
+//            telemetry.addData( "Angle", robotSystem.getShooter().getHood().getAngle());
+//            telemetry.addData("Hood Pose", robotSystem.getShooter().getHood().getPosition());
+            telemetry.addData("Servo Position", servo.getPosition());
         });
     }
 }

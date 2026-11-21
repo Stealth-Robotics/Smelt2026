@@ -37,6 +37,8 @@ public class RobotSystem extends StealthSubsystem {
     private final DriveSubsystem drive;
     private final CameraSubsystem camera;
 
+    private final SlabSubsystem slabby;
+
     /** Telemetry for robot status information */
     private final Telemetry telemetry = StealthOpMode.telemetry;
 
@@ -57,6 +59,7 @@ public class RobotSystem extends StealthSubsystem {
         drive = new DriveSubsystem(hardwareMap, this);
         shooter = new DmShooterSubsystem(hardwareMap, this);
         harv = new HarvesterSubsystem(hardwareMap);
+        slabby = new SlabSubsystem(hardwareMap);
         this.driver = driver;
         this.operator = operator;
     }
@@ -135,7 +138,7 @@ public class RobotSystem extends StealthSubsystem {
         operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(shooter::toggleFloatPower);
 
         operator.getGamepadButton(GamepadKeys.Button.B)
-                .whenPressed(harv.harvToggleCmd());
+                .whenPressed(slabby.toggleCmd());
 
         operator.getGamepadButton(GamepadKeys.Button.Y)
                 .whenPressed(shooter::resetCustomDistance);

@@ -8,17 +8,17 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "Park Only Near Blue Near Side")
-public class ParkOnlyNearBlueNearSide extends BioBuzzAutos
+@Autonomous(name = "Park Only Near Red Oppo Corner Side")
+public class ParkOnlyNearRedOppoCornerSide extends BioBuzzAutos
 {
-    private final PoseFactory poseFactory = PoseFactory.degrees()
-            .rotateAround(FIELD_CENTER, 180)
-            ;
-    private final Pose start = poseFactory.of(11.7585, 133.247, 90);
-    private final Pose justParkBro = poseFactory.of(11.8, 120, 90.1794);
+    private final PoseFactory poseFactory = PoseFactory.degrees().mirrorX(70.75);
 
-    public Path justParkBro() {
-        return Paths.line(start, justParkBro).reverseTangent();
+    private final Pose start = poseFactory.of(9.266, 73.8429, 90);
+    private final Pose curvedPark = poseFactory.of(15.2895, 93.1193, 180);
+    private final Pose curvedParkControl1 = poseFactory.of(32.991, 97.8455, 0);
+
+    public Path curvedPark() {
+        return Paths.curve(start, curvedParkControl1, curvedPark).linear(start, curvedPark);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ParkOnlyNearBlueNearSide extends BioBuzzAutos
     public Command getAutoCommand()
     {
         return new SequentialCommandGroup(
-                drive.followPathCmd(justParkBro())
+                drive.followPathCmd(curvedPark())
         );
     }
 }

@@ -8,10 +8,8 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.tools.FieldConstants;
-
-@Autonomous(name = "Park Only Near Blue")
-public class ParkOnlyNearBlue extends BioBuzzAutos
+@Autonomous(name = "Park Only Near Blue Near Side")
+public class ParkOnlyNearBlueNearSide extends BioBuzzAutos
 {
     private final PoseFactory poseFactory = PoseFactory.degrees()
             .rotateAround(FIELD_CENTER, 180)

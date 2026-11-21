@@ -32,7 +32,7 @@ public class CheckerNearRedHanSoloAuto extends BioBuzzAutos
     private final Pose aimOtherSide = poseFactory.of(40.3475, 122.18, 125);
     private final Pose aimOtherSideControl1 = poseFactory.of(75.9662, 90.7934, 0);
     private final Pose harvestTooStart = poseFactory.of(40.3475, 122.18, 125);
-    private final Pose harvestToo = poseFactory.of(46.7504, 129.5, 90);
+    private final Pose harvestToo = poseFactory.of(46.7504, 127.5, 90);
     private final Pose postHarvestTooStart = poseFactory.of(46.7504, 130.1992, 90);
     private final Pose postHarvestToo = poseFactory.of(40.8922, 122.18, 125);
     private final Pose parkIt = poseFactory.of(11.6124, 121.9751, -179.5991);

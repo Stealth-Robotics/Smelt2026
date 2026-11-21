@@ -23,7 +23,7 @@ public class CheckerFarRedAuto extends BioBuzzAutos
     private final Pose harvest = poseFactory.of(46.8796, 129.5, 90);
     private final Pose checkStart = poseFactory.of(46.8796, 129.5, 90);
     private final Pose check = poseFactory.of(46.86, 120.52, 110);
-    private final Pose goParkForTrue = poseFactory.of(10.3175, 120.6879, -0.2633);
+    private final Pose goParkForTrue = poseFactory.of(14.3175, 120.6879, -0.2633);
     private final Pose irrelevantPath = poseFactory.of(46.86, 120.52, 179.7367);
     private final Pose goShootOtherSide = poseFactory.of(46.7685, 15.7031, 62.07);
     private final Pose goShootOtherSideControl1 = poseFactory.of(79.6566, 77.7392, 0);

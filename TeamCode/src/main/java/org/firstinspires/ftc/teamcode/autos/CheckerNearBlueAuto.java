@@ -13,7 +13,6 @@ import org.stealthrobotics.library.commands.IfCommand;
 @Autonomous(name = "Checker Near Blue Auto", group = "BLUE")
 public class CheckerNearBlueAuto extends BioBuzzAutos
 {
-
     private final PoseFactory poseFactory = PoseFactory.degrees()
             .rotateAround(FIELD_CENTER,180);
     private final Pose start = poseFactory.of(61.2425, 133.2425, 90);

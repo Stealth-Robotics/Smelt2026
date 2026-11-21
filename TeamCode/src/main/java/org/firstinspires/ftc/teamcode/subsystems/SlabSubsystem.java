@@ -10,13 +10,11 @@ public class SlabSubsystem extends StealthSubsystem {
     private final Servo slabServo;
     private static final double SLAB_UP = 0.35;
     private static final double SLAB_BLOCK = 0.03;
-    private double curPos;
-
+    private double lastPosition = SLAB_UP;
 
     public SlabSubsystem(HardwareMap map) {
         slabServo = map.get(Servo.class, "SlabServo");
         slabServo.setPosition(SLAB_UP);
-        curPos = SLAB_UP;
     }
 
     public Servo getServo() {
@@ -29,25 +27,27 @@ public class SlabSubsystem extends StealthSubsystem {
     }
 
     public double getPosition() {
-        return curPos;
+        return lastPosition;
     }
 
     public void setBlock(){
-        curPos = SLAB_BLOCK;
-        setPosition(SLAB_BLOCK);
+        lastPosition = SLAB_BLOCK;
+        this.slabServo.setPosition(SLAB_BLOCK);
     }
 
     public void setUp(){
-        curPos = SLAB_UP;
-        setPosition(SLAB_UP);
+        lastPosition = SLAB_UP;
+        this.slabServo.setPosition(SLAB_UP);
     }
 
     public void toggle(){
-        if (getPosition() == SLAB_BLOCK){
-            setUp();
+        if (lastPosition == SLAB_UP){
+            slabServo.setPosition(SLAB_BLOCK);
+            lastPosition = SLAB_BLOCK;
         }
         else{
-            setBlock();
+            slabServo.setPosition(SLAB_UP);
+            lastPosition = SLAB_UP;
         }
     }
 

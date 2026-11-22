@@ -8,7 +8,7 @@ import org.stealthrobotics.library.StealthSubsystem;
 
 public class SlabSubsystem extends StealthSubsystem {
     private final Servo slabServo;
-    private static final double SLAB_UP = 0.35;
+    private static final double SLAB_UP = .3678;
     private static final double SLAB_BLOCK = 0.03;
     private double lastPosition = SLAB_UP;
 

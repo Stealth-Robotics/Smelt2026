@@ -130,7 +130,7 @@ public class CheckerNearRedHanSoloAuto extends BioBuzzAutos
                                         shootSequenceCmd(),
                                         drive.followPathCmd(preHarvestToo()),
                                         intake.startAutoIntakeCommand(),
-                                        drive.followPathCmd(harvestToo(), 3000),
+                                        drive.followPathCmd(harvestToo(), 2000),
                                         waitCmd(1500),
                                         drive.followPathCmd(postHarvestToo()),
                                         harvester.harvUpCmd(),

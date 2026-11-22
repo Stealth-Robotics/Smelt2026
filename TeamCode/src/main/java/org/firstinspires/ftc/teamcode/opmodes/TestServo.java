@@ -21,7 +21,7 @@ public class TestServo extends StealthOpMode {
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    double position = .35;
+    double position = .3678;
 
     private Servo servo;
 

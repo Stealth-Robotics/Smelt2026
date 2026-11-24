@@ -266,8 +266,7 @@ public class ShooterSubsystem extends StealthSubsystem {
         if (currentVoltage > 8.0 && currentVoltage < NOMINAL_VOLTAGE) {
             double voltageDelta = (NOMINAL_VOLTAGE / currentVoltage) - 1.0;
             double compensatedKf = baseKf * (1.0 + (voltageDelta * kfScaler));
-            shooterMotor1.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
-            shooterMotor2.setVelocityPIDFCoefficients(baseKp, baseKi, baseKd, compensatedKf);
+            shooterPid.setPIDF(baseKp, baseKi, baseKd, compensatedKf);
         }
     }
 
@@ -436,6 +435,7 @@ public class ShooterSubsystem extends StealthSubsystem {
         rpm = Math.clamp(rpm, MIN_RPM, MAX_RPM);
 
         targetRpm = rpm;
+
         setVelocity(rpmToTps(targetRpm));
     }
 

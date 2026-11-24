@@ -6,7 +6,6 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.DmShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
@@ -17,10 +16,10 @@ public class TestShooterPid extends StealthOpMode {
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    private double kf = 0.0002; //12.16  2.0
-    private double kp = 0; //0.7 5.8
+    private double kf = 0.000202; //12.16  2.0
+    private double kp = 0.002; //0.7 5.8
 
-    private double ki = 0;
+    private double ki = 0.0001;
 
     private static final double[] stepSizes = {1.0, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001};
 

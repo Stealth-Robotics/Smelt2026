@@ -32,10 +32,10 @@ import org.stealthrobotics.library.opmodes.StealthOpMode;
 public class ShooterSubsystem extends StealthSubsystem {
 
     private final PIDFController shooterPid = new PIDFController(
-          0.0,
-          0.0,
-          0.0,
-          0.0
+            0.002,
+            0.0001,
+            0.0,
+            0.000202
     );
 
     /** Motor 1 is right side on control hub. */
@@ -93,12 +93,8 @@ public class ShooterSubsystem extends StealthSubsystem {
     /** Nominal voltage for feedforward calculation (12V baseline). */
     private final double NOMINAL_VOLTAGE = 13.1;
 
-    private double baseKp = 0.0; //all 0.0
-    private double baseKi = 0.0;
-    private double baseKd = 0.0;
-    private double baseKf = 0.0; //because they're being passed in ^.^
-    /** Scaler for voltage compensation effect on kF (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
-    private double kfScaler = 0.85;
+    /** Scaler for voltage compensation effect (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
+    private double voltageScaler = 0.85;
 
     private final InterpLUT rangeToRpm;
 
@@ -156,8 +152,7 @@ public class ShooterSubsystem extends StealthSubsystem {
      */
     @Override
     public void periodic() {
-        // Apply battery voltage compensation to feedforward (kF)
-        updateVoltageCompensation();
+
         // Update the distance
         updateDistance();
 
@@ -195,6 +190,10 @@ public class ShooterSubsystem extends StealthSubsystem {
                 setRpmFromRange(lastDistance);
                 setFeeding(false);
             }
+
+            // Apply the power to the motors based on PIDF and battery voltage
+            setNormalizedPower();
+
         } else {
             setFloatPower(floatPower);
         }
@@ -258,17 +257,20 @@ public class ShooterSubsystem extends StealthSubsystem {
     }
 
     /**
-     * Updates the motor PIDF coefficients with voltage-compensated feedforward (kF).
-     *
+     * Updates the motor power based on the current battery voltage.
      */
-    private void updateVoltageCompensation() {
+    private void setNormalizedPower() {
+
         double currentVoltage = getBatteryVoltage();
+        double voltageScale = 1.0;
+
         if (currentVoltage > 8.0 && currentVoltage < NOMINAL_VOLTAGE) {
-            double voltageDelta = (NOMINAL_VOLTAGE / currentVoltage) - 1.0;
-            double compensatedKf = baseKf * (1.0 + (voltageDelta * kfScaler));
-            telemetry.addData("Compensated KF", compensatedKf);
-            shooterPid.setPIDF(baseKp, baseKi, baseKd, baseKf); // compensatedKf);
+            double ratio = (NOMINAL_VOLTAGE / currentVoltage);
+            // kfScaler allows us to tune how aggressively we compensate
+            voltageScale = 1.0 + ((ratio - 1.0) * voltageScaler);
         }
+
+       setPower(shooterPid.calculate(getCurrentRpm()) * voltageScale);
     }
 
     public void setUseCustomDistance(boolean useIt) {
@@ -337,11 +339,7 @@ public class ShooterSubsystem extends StealthSubsystem {
      * @param kf Feedforward gain
      */
     public void setController(double kp, double ki, double kd, double kf) {
-        baseKp = kp;
-        baseKi = ki;
-        baseKd = kd;
-        baseKf = kf;
-        updateVoltageCompensation();
+       shooterPid.setPIDF(kp, ki, kd, kf);
     }
 
     /**
@@ -349,18 +347,17 @@ public class ShooterSubsystem extends StealthSubsystem {
      *
      * @return The kF voltage compensation scaler.
      */
-    public double getKfScaler() {
-        return kfScaler;
+    public double getVoltageScaler() {
+        return voltageScaler;
     }
 
     /**
      * Sets the voltage compensation kF scaler.
      *
-     * @param kfScaler Scaler factor for voltage compensation (1.0 = full compensation, 0.5 = half, 0.0 = none).
+     * @param voltageScaler Scaler factor for voltage compensation (1.0 = full compensation, 0.5 = half, 0.0 = none).
      */
-    public void setKfScaler(double kfScaler) {
-        this.kfScaler = kfScaler;
-        updateVoltageCompensation();
+    public void setVoltageScaler(double voltageScaler) {
+        this.voltageScaler = voltageScaler;
     }
 
     /**
@@ -438,6 +435,7 @@ public class ShooterSubsystem extends StealthSubsystem {
         rpm = Math.clamp(rpm, MIN_RPM, MAX_RPM);
 
         targetRpm = rpm;
+        shooterPid.setSetPoint(rpm);
     }
 
     public void setPower (double power) {
@@ -479,25 +477,19 @@ public class ShooterSubsystem extends StealthSubsystem {
     }
 
     /**
-     * Sets the motor power directly.
-     *
-     * @param velocity The power level.
-     */
-
-    private void setVelocity(double velocity) {
-        shooterMotor1.setVelocity(velocity);
-        shooterMotor2.setVelocity(velocity);
-
-    }
-
-
-    /**
      * Gets the motor velocity in ticks per second.
+     * uses redundancy in case an encoder wire fails.
      *
      * @return The motor velocity.
      */
     private double getVelocity() {
-        return Math.max(shooterMotor1.getVelocity(), shooterMotor2.getVelocity());
+        double v1 = shooterMotor1.getVelocity();
+        double v2 = shooterMotor2.getVelocity();
+        if (v1 > 0 && v2 > 0) {
+            return (v1 + v2) / 2;
+        }
+
+        return Math.max(v1, v2);
     }
 
     /**

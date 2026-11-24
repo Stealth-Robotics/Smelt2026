@@ -478,6 +478,29 @@ public class DriveSubsystem extends StealthSubsystem
     }
 
     /**
+     * Fallows a path and adds a parallel command to be called after a % of the path has completed
+     * @param path to follow path
+     * @param timeout number of milliseconds to wait for path to finish
+     * @param holdPoint true for hold at the end otherwise false
+     * @param complete % of path to complete before callback
+     * @param onCompleteCmd callback command
+     * @return Command to follow path
+     */
+    public Command followPathCmd(Path path, long timeout, boolean holdPoint, double complete, Command onCompleteCmd){
+        return runOnce(() -> follower.follow(path))
+                .alongWith(new WaitUntilCommand(()-> follower.completion() > complete).andThen(onCompleteCmd))
+                .andThen(new WaitUntilCommand(() -> !follower.following()).withTimeout(timeout))
+                .whenFinished(() -> {
+                    setHoldMode(holdPoint);
+                    if (holdPoint) {
+                        follower.hold(path.endPose());
+                    }
+
+                    setAutoAim(false);
+                    follower.update();
+                });
+    }
+    /**
      * Resets the robot to the scoring side corner wall or audience side corner wall
      * @param audience true for audience otherwise false
      */

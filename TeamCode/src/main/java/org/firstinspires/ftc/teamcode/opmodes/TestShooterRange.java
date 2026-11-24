@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DmShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
+import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.tools.Targets;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
@@ -25,7 +26,7 @@ public class TestShooterRange extends StealthOpMode {
 
     private double manDistance = 55;
 
-    DmShooterSubsystem shooter;
+    private ShooterSubsystem shooter;
 
     @Override
     public void initialize() {

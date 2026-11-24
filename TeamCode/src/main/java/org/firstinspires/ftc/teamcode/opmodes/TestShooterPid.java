@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.DmShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
+import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 import org.stealthrobotics.library.opmodes.StealthOpMode;
 
 @TeleOp(name = "Test Shooter PID", group = "Tests")
@@ -16,10 +17,10 @@ public class TestShooterPid extends StealthOpMode {
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    private double kf = 12.76; //12.16  2.0
-    private double kp = 10.0; //0.7 5.8
+    private double kf = 0; //12.16  2.0
+    private double kp = 0; //0.7 5.8
 
-    private double ki = 0.13;
+    private double ki = 0;
 
     private static final double[] stepSizes = {1.0, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001};
 
@@ -45,7 +46,7 @@ public class TestShooterPid extends StealthOpMode {
 
         robotSystem.configDriverBindings();
 
-        DmShooterSubsystem shooter = robotSystem.getShooter();
+        ShooterSubsystem shooter = robotSystem.getShooter();
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(()->{
             shootToggle = !shootToggle;
             if (shootToggle) {

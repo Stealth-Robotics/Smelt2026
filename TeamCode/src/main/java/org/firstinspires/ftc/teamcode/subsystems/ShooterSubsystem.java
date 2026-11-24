@@ -386,6 +386,7 @@ public class ShooterSubsystem extends StealthSubsystem {
 //        }
 
         useCustomDistance = false;
+        shooterPid.reset();
         setFloat();
         gate.close();
         setFeeding(false);
@@ -436,7 +437,14 @@ public class ShooterSubsystem extends StealthSubsystem {
 
         targetRpm = rpm;
 
-        setVelocity(rpmToTps(targetRpm));
+        double curRpm = getCurrentRpm();
+        double power = shooterPid.calculate(curRpm, targetRpm);
+        setPower(power);
+    }
+
+    public void setPower (double power) {
+        shooterMotor1.setPower(power);
+        shooterMotor2.setPower(power);
     }
 
     /**
@@ -483,6 +491,7 @@ public class ShooterSubsystem extends StealthSubsystem {
         shooterMotor2.setVelocity(velocity);
 
     }
+
 
     /**
      * Gets the motor velocity in ticks per second.
@@ -563,6 +572,7 @@ public class ShooterSubsystem extends StealthSubsystem {
     public void setStartShoot(boolean shoot) {
         if (shoot && shootState == ShootState.NOT_SHOOTING) {
             shootTimer.reset();
+            shooterPid.reset();
             shootState = ShootState.WAITING_TO_SHOOT;
         } else if (shootState != ShootState.NOT_SHOOTING){
             stop();
@@ -588,6 +598,7 @@ public class ShooterSubsystem extends StealthSubsystem {
         return runOnce(() -> {
             this.setDistance(overrideDistance);
             setStartShoot(true);
+
         });
     }
 

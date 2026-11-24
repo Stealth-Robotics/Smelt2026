@@ -7,7 +7,6 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.CameraSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.DmShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotSystem;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.tools.Targets;
@@ -24,9 +23,7 @@ public class TestShooterRange extends StealthOpMode {
     private static final double[] rpmSteps = {100, 50, 25};
     private int stepIndex = 1;
 
-    private double manDistance = 55;
-
-    private ShooterSubsystem shooter;
+       private ShooterSubsystem shooter;
 
     @Override
     public void initialize() {
@@ -47,14 +44,22 @@ public class TestShooterRange extends StealthOpMode {
 
         robot.configDriverBindings();
 
-        operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(()-> manDistance -= 1);
-        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()-> manDistance += 1);
+        operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(()-> {
+            shooter.adjustCustomDistance(-1);
+        });
+        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(()-> {
+            shooter.adjustCustomDistance(1);
+        });
 
-        operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
-                ()-> shooter.setDistance(manDistance));
+        operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenPressed(() -> {
+                    shooter.setUseCustomDistance(true);
+                    shooter.setStartShoot(true);
+                })
+                .whenReleased(shooter.stopShootCmd());
 
         operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(shooter.startShootCmd())
+                .whenPressed(shooter.stopShootCmd())
                 .whenReleased(shooter.stopShootCmd());
 
         operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(() -> {
@@ -88,7 +93,7 @@ public class TestShooterRange extends StealthOpMode {
 
     public Command printInfo() {
         return new RunCommand(() -> {
-            telemetry.addData("Manual Distance", manDistance);
+            telemetry.addData("Set Distance", shooter.getCustomDistance());
             telemetry.addData("Camera Distance", CameraSubsystem.calcGoalDistanceByTa(robot.getCamera().getLastResult()));
             telemetry.addData("Pose Distance", Targets.getDistanceToTarget(robot.getDrive().getPose()));
             telemetry.addData("Shooter Target RPM", shooter.getTargetRpm());

@@ -38,6 +38,11 @@ public class ShooterSubsystem extends StealthSubsystem {
             0.000202
     );
 
+    private final double baseKf = shooterPid.getF();
+
+    /** Adjust for lower voltage compensation boost */
+    private static final double KF_SCALER = 1.0;
+
     /** Motor 1 is right side on control hub. */
     private final DcMotorEx shooterMotor1;
 
@@ -90,11 +95,9 @@ public class ShooterSubsystem extends StealthSubsystem {
 
     /** Voltage sensor to monitor battery level and compensate PIDF. */
     private final VoltageSensor voltageSensor;
-    /** Nominal voltage for feedforward calculation (12V baseline). */
-    private final double NOMINAL_VOLTAGE = 13.1;
 
-    /** Scaler for voltage compensation effect (1.0 = 100% compensation, 0.5 = 50%, 0.0 = disabled). */
-    private double voltageScaler = 0.85;
+    /** Nominal voltage for feedforward calculation (12.5V baseline). */
+    private final double NOMINAL_VOLTAGE = 12.5;
 
     private final InterpLUT rangeToRpm;
 
@@ -232,7 +235,7 @@ public class ShooterSubsystem extends StealthSubsystem {
             keyName = "Weak Camera Distance";
         }else {
             lastDistance = DEFAULT_SHOOT_DISTANCE;
-            keyName = "Default Distance";
+            keyName = "Default Distance!";
         }
 
         // TODO: remove most of these for competition
@@ -257,21 +260,27 @@ public class ShooterSubsystem extends StealthSubsystem {
     }
 
     /**
-     * Updates the motor power based on the current battery voltage.
+     * Applies the normalized power to the shooter motors.
      */
     private void setNormalizedPower() {
-
-        double currentVoltage = getBatteryVoltage();
-        double voltageScale = 1.0;
-
-        if (currentVoltage > 8.0 && currentVoltage < NOMINAL_VOLTAGE) {
-            double ratio = (NOMINAL_VOLTAGE / currentVoltage);
-            // kfScaler allows us to tune how aggressively we compensate
-            voltageScale = 1.0 + ((ratio - 1.0) * voltageScaler);
-        }
-
-       setPower(shooterPid.calculate(getCurrentRpm()) * voltageScale);
+        updateVoltageCompensation();
+        setPower(shooterPid.calculate(getCurrentRpm()));
     }
+
+    /**
+     * Updates the voltage compensation kF based on the current battery voltage.
+     */
+    private void updateVoltageCompensation() {
+        double currentVoltage = getBatteryVoltage();
+        if (currentVoltage > 8.0 && currentVoltage < NOMINAL_VOLTAGE) {
+            double voltageDelta = (NOMINAL_VOLTAGE / currentVoltage) - 1.0;
+            double compensatedKf = baseKf * (1.0 + (voltageDelta * KF_SCALER));
+            shooterPid.setF(compensatedKf);
+        } else {
+            shooterPid.setF(baseKf);
+        }
+    }
+
 
     public void setUseCustomDistance(boolean useIt) {
         this.useCustomDistance = useIt;
@@ -343,24 +352,6 @@ public class ShooterSubsystem extends StealthSubsystem {
     }
 
     /**
-     * Gets the voltage compensation kF scaler.
-     *
-     * @return The kF voltage compensation scaler.
-     */
-    public double getVoltageScaler() {
-        return voltageScaler;
-    }
-
-    /**
-     * Sets the voltage compensation kF scaler.
-     *
-     * @param voltageScaler Scaler factor for voltage compensation (1.0 = full compensation, 0.5 = half, 0.0 = none).
-     */
-    public void setVoltageScaler(double voltageScaler) {
-        this.voltageScaler = voltageScaler;
-    }
-
-    /**
      * Sets the target RPM based on a provided distance.
      *
      * @param distance The distance to the target.
@@ -413,8 +404,15 @@ public class ShooterSubsystem extends StealthSubsystem {
 
     public void setDistance(double distance) {
         customDistance = distance;
-
         useCustomDistance = distance > 0;
+    }
+
+    /**
+     * Gets the set custom distance value that would be applied when enabled
+     * @return the distance in inches
+     */
+    public double getCustomDistance() {
+        return customDistance;
     }
 
     /**
@@ -570,9 +568,7 @@ public class ShooterSubsystem extends StealthSubsystem {
 
 
     /**
-     * Returns a command that resets the boost RPM.
-     *
-     * @return A command that resets the boost RPM.
+     * Command to resets the boost RPM.
      */
     public Command resetBoostRpmCommand() {
         return runOnce(this::resetBoostRpm);
@@ -581,11 +577,14 @@ public class ShooterSubsystem extends StealthSubsystem {
     /**
      * Returns a command that starts the shooting sequence.
      * with override distance
-     * @return A command that sets the start shoot flag to true.
      */
     public Command startShootCmd(double overrideDistance) {
         return runOnce(() -> {
-            this.setDistance(overrideDistance);
+            if (overrideDistance != 0) {
+                this.setDistance(overrideDistance);
+            } else {
+                useCustomDistance = false;
+            }
             setStartShoot(true);
 
         });
@@ -593,50 +592,32 @@ public class ShooterSubsystem extends StealthSubsystem {
 
     /**
      * Returns a command that starts the shooting sequence.
-     *
-     * @return A command that sets the start shoot flag to true.
      */
     public Command startShootCmd() {
-        return startShootCmd(0);
+        return runOnce(() -> setStartShoot(true));
     }
 
 
     /**
      * Returns a command that stops the shooting sequence.
-     *
-     * @return A command that sets the start shoot flag to false.
      */
     public Command stopShootCmd() {
         return runOnce(() -> setStartShoot(false));
     }
 
     /**
-     * Returns acommand that adjusts the boost RPM.
+     * Returns a command that adjusts the boost RPM.
      *
      * @param amount The amount to adjust.
-     * @return A command that adjusts the boost RPM.
      */
     public Command adjustBoostRpmCmd(double amount) {
         return runOnce(() -> adjustBoostRpm(amount));
     }
 
     /**
-     * Returns a command that shoots for a specific duration.
-     *
-     * @param durationMs The duration in milliseconds.
-     * @return A command that shoots for the specified duration.
-     */
-    public Command shootForTimeCmd(long durationMs) {
-        return startShootCmd(0)
-                .andThen(new WaitCommand(durationMs))
-                .andThen(stopShootCmd());
-    }
-
-    /**
      * Returns a command that waits for shooter spinup and then shoots for given duration.
      *
      * @param durationMs The duration in milliseconds to wait after becoming ready.
-     * @return A command that shoots until ready and then waits.
      */
     public Command shootWhenReadyCmd(long durationMs) {
         return shootWhenReadyCmd(durationMs, 0);
@@ -646,7 +627,6 @@ public class ShooterSubsystem extends StealthSubsystem {
      * Returns a command that waits for shooter spinup and then shoots for given duration and distance
      * @param durationMs The duration in milliseconds to wait after becoming ready.
      * @param distanceOverride Override the distance to shoot to the goal good for not needing to calc distance
-     * @return A command that shoots until ready and then waits.
      */
     public Command shootWhenReadyCmd(long durationMs, double distanceOverride) {
         return startShootCmd(distanceOverride)
@@ -655,20 +635,16 @@ public class ShooterSubsystem extends StealthSubsystem {
                 .andThen(stopShootCmd());
     }
 
-    public Command shootSlow() {
-        return runOnce(()-> setBoostRpm(-100))
-                .andThen(runOnce(()->setStartShoot(true)));
-    }
-    //makes us shoot more precise. meant for when we have a few balls, 1 or 2
-    public Command stopShootSlow() {
-        return runOnce(()-> setBoostRpm(0))
-                .andThen(runOnce(()->setStartShoot(false)));
-    }
-    //STOPS the shoot more precise/shootSlow command.
+    /**
+     * Puts the shooter motors in to float (AKA pre-spin)
+     */
     public Command startFloatCmd() {
         return runOnce(()-> setFloatPower(FLOAT_DEFAULT_POWER));
     }
 
+    /**
+     * Turns off float mode
+     */
     public Command stopFloatCmd() {
         return runOnce(()-> setFloatPower(0));
     }

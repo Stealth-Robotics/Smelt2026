@@ -17,7 +17,7 @@ public class TestShooterPid extends StealthOpMode {
     private GamepadEx operator;
     private RobotSystem robotSystem;
 
-    private double kf = 0; //12.16  2.0
+    private double kf = 0.0002; //12.16  2.0
     private double kp = 0; //0.7 5.8
 
     private double ki = 0;

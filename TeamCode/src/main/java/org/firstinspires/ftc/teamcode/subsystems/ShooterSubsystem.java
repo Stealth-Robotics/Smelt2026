@@ -266,7 +266,8 @@ public class ShooterSubsystem extends StealthSubsystem {
         if (currentVoltage > 8.0 && currentVoltage < NOMINAL_VOLTAGE) {
             double voltageDelta = (NOMINAL_VOLTAGE / currentVoltage) - 1.0;
             double compensatedKf = baseKf * (1.0 + (voltageDelta * kfScaler));
-            shooterPid.setPIDF(baseKp, baseKi, baseKd, compensatedKf);
+            telemetry.addData("Compensated KF", compensatedKf);
+            shooterPid.setPIDF(baseKp, baseKi, baseKd, baseKf); // compensatedKf);
         }
     }
 
@@ -381,6 +382,7 @@ public class ShooterSubsystem extends StealthSubsystem {
      */
     public void stop() {
         shootState = ShootState.NOT_SHOOTING;
+        targetRpm = 0;
 //        if (drive.isAutoAim()) {
 //            drive.setAutoAim(false);
 //        }
@@ -436,10 +438,6 @@ public class ShooterSubsystem extends StealthSubsystem {
         rpm = Math.clamp(rpm, MIN_RPM, MAX_RPM);
 
         targetRpm = rpm;
-
-        double curRpm = getCurrentRpm();
-        double power = shooterPid.calculate(curRpm, targetRpm);
-        setPower(power);
     }
 
     public void setPower (double power) {
@@ -499,7 +497,7 @@ public class ShooterSubsystem extends StealthSubsystem {
      * @return The motor velocity.
      */
     private double getVelocity() {
-        return (shooterMotor1.getVelocity() + shooterMotor2.getVelocity()) / 2;
+        return Math.max(shooterMotor1.getVelocity(), shooterMotor2.getVelocity());
     }
 
     /**
@@ -572,7 +570,6 @@ public class ShooterSubsystem extends StealthSubsystem {
     public void setStartShoot(boolean shoot) {
         if (shoot && shootState == ShootState.NOT_SHOOTING) {
             shootTimer.reset();
-            shooterPid.reset();
             shootState = ShootState.WAITING_TO_SHOOT;
         } else if (shootState != ShootState.NOT_SHOOTING){
             stop();
